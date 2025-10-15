@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fl_chart/fl_chart.dart'; // for pie chart
+import 'package:jawara/pages/kependudukan_page.dart';
 
 class HomePage extends StatefulWidget {
   final String email;
@@ -27,12 +28,10 @@ class _HomePageState extends State<HomePage> {
       ),
       drawer: Drawer(
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            topRight: Radius.circular(20),
-            bottomRight: Radius.circular(20),
-          ),
+          
         ),
-        child: Column(
+        child: ListView(
+          padding: EdgeInsets.zero,
           children: [
             UserAccountsDrawerHeader(
               decoration: const BoxDecoration(color: Colors.blueAccent),
@@ -43,52 +42,46 @@ class _HomePageState extends State<HomePage> {
                 child: Icon(Icons.person, size: 40, color: Colors.blueAccent),
               ),
             ),
-            Expanded(
-              child: ListView(
-                children: [
-                  // Build menu items dynamically
-                  for (int index = 0; index < _menuTitles.length; index++)
-                    ListTile(
-                      leading: Icon(
-                        _menuIcons[index],
-                        color: _selectedIndex == index
-                            ? Colors.blueAccent
-                            : Colors.grey[700],
-                      ),
-                      title: Text(
-                        _menuTitles[index],
-                        style: TextStyle(
-                          color: _selectedIndex == index
-                              ? Colors.blueAccent
-                              : Colors.black87,
-                          fontWeight: _selectedIndex == index
-                              ? FontWeight.bold
-                              : FontWeight.normal,
-                        ),
-                      ),
-                      selected: _selectedIndex == index,
-                      onTap: () {
-                        setState(() => _selectedIndex = index);
-                        Navigator.pop(context); // close drawer
-                      },
-                    ),
 
-                  const Divider(),
-
-                  // 🆕 Tambah Kegiatan menu item
-                  _buildSidebarItem(
-                    icon: Icons.add_circle_outline,
-                    title: "Tambah Kegiatan",
-                    onTap: () {
-                      Navigator.pop(context); // close drawer
-                      _showAddKegiatanDialog(context);
-                    },
-                  ),
-                  const Divider(),
-                ],
+            // --- Menu Dashboard (parent)
+            ExpansionTile(
+              leading: const Icon(Icons.dashboard, color: Colors.blueAccent),
+              title: const Text(
+                "Dashboard",
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
+              tilePadding: const EdgeInsets.symmetric(horizontal: 16), 
+              childrenPadding: const EdgeInsets.only(left: 48), 
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.people, color: Colors.blueAccent),
+                  title: const Text("Kependudukan"),
+                  onTap: () {
+                    Navigator.pop(context); // tutup drawer
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const KependudukanPage(),
+                      ),
+                    );
+                  },
+                ),
+              ],
             ),
+
+            // --- Menu Tambah Kegiatan
+            ListTile(
+              leading: const Icon(Icons.add_circle_outline, color: Colors.blueAccent),
+              title: const Text("Tambah Kegiatan"),
+              onTap: () {
+                Navigator.pop(context);
+                _showAddKegiatanDialog(context);
+              },
+            ),
+
             const Divider(),
+
+            // --- Logout
             ListTile(
               leading: const Icon(Icons.logout, color: Colors.red),
               title: const Text("Logout"),
