@@ -22,6 +22,11 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: Colors.white,
       appBar: AppBar(backgroundColor: Colors.white, elevation: 0),
       drawer: Drawer(
+        shape: const RoundedRectangleBorder(
+          
+        ),
+        child: ListView(
+          padding: EdgeInsets.zero,
         backgroundColor: Colors.white,
         child: Column(
           children: [
@@ -65,6 +70,13 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ),
+
+            // --- Menu Dashboard (parent)
+            ExpansionTile(
+              leading: const Icon(Icons.dashboard, color: Colors.blueAccent),
+              title: const Text(
+                "Dashboard",
+                style: TextStyle(fontWeight: FontWeight.bold),
             Expanded(
               child: ListView.builder(
                 itemCount: _menuTitles.length,
@@ -95,8 +107,38 @@ class _HomePageState extends State<HomePage> {
                   );
                 },
               ),
+              tilePadding: const EdgeInsets.symmetric(horizontal: 16), 
+              childrenPadding: const EdgeInsets.only(left: 48), 
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.people, color: Colors.blueAccent),
+                  title: const Text("Kependudukan"),
+                  onTap: () {
+                    Navigator.pop(context); // tutup drawer
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const KependudukanPage(),
+                      ),
+                    );
+                  },
+                ),
+              ],
             ),
+
+            // --- Menu Tambah Kegiatan
+            ListTile(
+              leading: const Icon(Icons.add_circle_outline, color: Colors.blueAccent),
+              title: const Text("Tambah Kegiatan"),
+              onTap: () {
+                Navigator.pop(context);
+                _showAddKegiatanDialog(context);
+              },
+            ),
+
             const Divider(),
+
+            // --- Logout
             Padding(
               padding: const EdgeInsets.all(16),
               child: InkWell(
@@ -625,5 +667,57 @@ Widget _legend(String label, Color color) {
       const SizedBox(width: 4),
       Text(label, style: const TextStyle(fontSize: 12)),
     ],
+  );
+}
+
+Widget _buildSidebarItem({
+  required IconData icon,
+  required String title,
+  required VoidCallback onTap,
+}) {
+  return ListTile(
+    leading: Icon(icon, color: Colors.grey[800]),
+    title: Text(title),
+    onTap: onTap,
+  );
+}
+
+void _showAddKegiatanDialog(BuildContext context) {
+  final TextEditingController kegiatanController = TextEditingController();
+
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: const Text("Tambah Kegiatan"),
+        content: TextField(
+          controller: kegiatanController,
+          decoration: const InputDecoration(
+            labelText: "Nama Kegiatan",
+            border: OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Batal"),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    "Kegiatan '${kegiatanController.text}' berhasil ditambahkan!",
+                  ),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            },
+            child: const Text("Simpan"),
+          ),
+        ],
+      );
+    },
   );
 }
