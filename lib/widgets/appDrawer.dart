@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 class AppDrawer extends StatelessWidget {
   final String email;
+
   const AppDrawer({super.key, required this.email});
 
   @override
@@ -12,6 +13,7 @@ class AppDrawer extends StatelessWidget {
         padding: EdgeInsets.zero,
         children: [
           const SizedBox(height: 40),
+
           // --- Header ---
           Container(
             height: 60,
@@ -37,6 +39,7 @@ class AppDrawer extends StatelessWidget {
               ],
             ),
           ),
+
           const Padding(
             padding: EdgeInsets.only(left: 16, top: 8, bottom: 8),
             child: Text(
@@ -59,21 +62,15 @@ class AppDrawer extends StatelessWidget {
             childrenPadding: const EdgeInsets.only(left: 32),
             children: [
               ListTile(
-                leading: const Icon(
-                  Icons.directions_walk,
-                  color: Color.fromARGB(255, 0, 0, 0),
-                ),
+                leading: const Icon(Icons.directions_walk, color: Colors.black),
                 title: const Text("Kegiatan"),
                 onTap: () {
-                  context.pop(); // close the drawer
+                  context.pop(); // close drawer
                   context.go('/home');
                 },
               ),
               ListTile(
-                leading: const Icon(
-                  Icons.people,
-                  color: Color.fromARGB(255, 0, 0, 0),
-                ),
+                leading: const Icon(Icons.people, color: Colors.black),
                 title: const Text("Kependudukan"),
                 onTap: () {
                   context.go('/kependudukan');
@@ -100,7 +97,77 @@ class AppDrawer extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(16),
             child: InkWell(
-              onTap: () => _showProfileDialog(context),
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    backgroundColor: Colors.white,
+                    content: Row(
+                      children: [
+                        const CircleAvatar(
+                          backgroundColor: Colors.white,
+                          child: Icon(
+                            Icons.person,
+                            size: 40,
+                            color: Colors.blueAccent,
+                          ),
+                        ),
+                        const SizedBox(width: 20),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Text(
+                                "Admin User",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              Text(
+                                'admin1@mail.com',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Divider(),
+                      ],
+                    ),
+                    actions: [
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                        ),
+                        onPressed: () {
+                          Navigator.pop(context);
+                          context.go('/');
+                        },
+                        child: Row(
+                          children: [
+                            const Icon(Icons.logout, color: Colors.black),
+                            const SizedBox(width: 20),
+                            const Text(
+                              "Log out",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+
               child: Row(
                 children: [
                   const CircleAvatar(
@@ -124,7 +191,7 @@ class AppDrawer extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        email,
+                        'admin1@mail.com',
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
@@ -137,6 +204,7 @@ class AppDrawer extends StatelessWidget {
               ),
             ),
           ),
+          ListTile(),
         ],
       ),
     );
@@ -146,12 +214,12 @@ class AppDrawer extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Profil Admin"),
+        title: const Text("Profile"),
         content: Text("Email: $email"),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Tutup"),
+            child: const Text("Close"),
           ),
         ],
       ),
