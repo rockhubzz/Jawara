@@ -13,9 +13,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ✅ Make sure /home route is declared here
     final GoRouter router = GoRouter(
       routes: [
+        // debug mode
+        // GoRoute(
+        //   path: '/',
+        //   builder: (context, state) => const HomePage(email: 'raki@mail.com'),
+        // ),
+
+        //present
         GoRoute(path: '/', builder: (context, state) => const LoginPage()),
         GoRoute(
           path: '/home',
@@ -24,13 +30,13 @@ class MyApp extends StatelessWidget {
             return HomePage(email: loggedInUserEmail ?? 'Unknown User');
           },
         ),
+        //end route
       ],
     );
 
-    // ✅ Use MaterialApp.router instead of MaterialApp
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      routerConfig: router, // <- This must be passed
+      routerConfig: router,
       title: 'Jawara App',
       theme: ThemeData(primarySwatch: Colors.blue),
     );
