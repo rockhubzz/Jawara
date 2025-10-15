@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:go_router/go_router.dart';
 
 class KependudukanPage extends StatelessWidget {
   const KependudukanPage({super.key});
@@ -10,11 +11,11 @@ class KependudukanPage extends StatelessWidget {
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
         title: const Text("Data Kependudukan"),
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
         elevation: 2,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => context.go('/home'),
         ),
       ),
       body: SingleChildScrollView(
@@ -55,8 +56,8 @@ class KependudukanPage extends StatelessWidget {
               crossAxisCount: MediaQuery.of(context).size.width > 1000
                   ? 3
                   : MediaQuery.of(context).size.width > 700
-                      ? 2
-                      : 1,
+                  ? 2
+                  : 1,
               crossAxisSpacing: 16,
               mainAxisSpacing: 16,
               childAspectRatio: 1.4,
@@ -132,9 +133,24 @@ class KependudukanPage extends StatelessWidget {
                   icon: Icons.family_restroom_rounded,
                   color: const Color(0xFFD9F1FF),
                   sections: [
-                    PieChartSectionData(value: 50, color: Colors.blue, title: "KK", titleStyle: const TextStyle(color: Colors.white)),
-                    PieChartSectionData(value: 30, color: Colors.redAccent, title: "Istri", titleStyle: const TextStyle(color: Colors.white)),
-                    PieChartSectionData(value: 20, color: Colors.green, title: "Anak", titleStyle: const TextStyle(color: Colors.white)),
+                    PieChartSectionData(
+                      value: 50,
+                      color: Colors.blue,
+                      title: "KK",
+                      titleStyle: const TextStyle(color: Colors.white),
+                    ),
+                    PieChartSectionData(
+                      value: 30,
+                      color: Colors.redAccent,
+                      title: "Istri",
+                      titleStyle: const TextStyle(color: Colors.white),
+                    ),
+                    PieChartSectionData(
+                      value: 20,
+                      color: Colors.green,
+                      title: "Anak",
+                      titleStyle: const TextStyle(color: Colors.white),
+                    ),
                   ],
                 ),
                 _chartCard(
@@ -142,8 +158,18 @@ class KependudukanPage extends StatelessWidget {
                   icon: Icons.church_rounded,
                   color: const Color(0xFFFFE7E7),
                   sections: [
-                    PieChartSectionData(value: 60, color: Colors.orange, title: "Islam", titleStyle: const TextStyle(color: Colors.white)),
-                    PieChartSectionData(value: 40, color: Colors.blue, title: "Lainnya", titleStyle: const TextStyle(color: Colors.white)),
+                    PieChartSectionData(
+                      value: 60,
+                      color: Colors.orange,
+                      title: "Islam",
+                      titleStyle: const TextStyle(color: Colors.white),
+                    ),
+                    PieChartSectionData(
+                      value: 40,
+                      color: Colors.blue,
+                      title: "Lainnya",
+                      titleStyle: const TextStyle(color: Colors.white),
+                    ),
                   ],
                 ),
                 _chartCard(
@@ -151,9 +177,24 @@ class KependudukanPage extends StatelessWidget {
                   icon: Icons.school_rounded,
                   color: const Color(0xFFE0F7F3),
                   sections: [
-                    PieChartSectionData(value: 40, color: Colors.grey, title: "SD", titleStyle: const TextStyle(color: Colors.white)),
-                    PieChartSectionData(value: 30, color: Colors.blueGrey, title: "SMP", titleStyle: const TextStyle(color: Colors.white)),
-                    PieChartSectionData(value: 30, color: Colors.indigo, title: "SMA", titleStyle: const TextStyle(color: Colors.white)),
+                    PieChartSectionData(
+                      value: 40,
+                      color: Colors.grey,
+                      title: "SD",
+                      titleStyle: const TextStyle(color: Colors.white),
+                    ),
+                    PieChartSectionData(
+                      value: 30,
+                      color: Colors.blueGrey,
+                      title: "SMP",
+                      titleStyle: const TextStyle(color: Colors.white),
+                    ),
+                    PieChartSectionData(
+                      value: 30,
+                      color: Colors.indigo,
+                      title: "SMA",
+                      titleStyle: const TextStyle(color: Colors.white),
+                    ),
                   ],
                 ),
               ],

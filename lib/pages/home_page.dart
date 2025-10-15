@@ -21,247 +21,208 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(backgroundColor: Colors.white, elevation: 0),
-      drawer: Drawer(
-        shape: const RoundedRectangleBorder(
-          
-        ),
-        child: ListView(
-          padding: EdgeInsets.zero,
-        backgroundColor: Colors.white,
-        child: Column(
-          children: [
-            const SizedBox(height: 40),
-            Container(
-              height: 60,
-              padding: const EdgeInsets.all(16),
-              color: Colors.white,
-              alignment: Alignment.centerLeft,
+      drawer: _buildDrawer(context),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: _dashboardLayout(),
+      ),
+    );
+  }
+
+  // --- Drawer ---
+  Drawer _buildDrawer(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          const SizedBox(height: 40),
+          // --- Header ---
+          Container(
+            height: 60,
+            padding: const EdgeInsets.all(16),
+            alignment: Alignment.centerLeft,
+            child: Row(
+              children: [
+                Image.asset(
+                  'assets/images/juwara.png',
+                  width: 40,
+                  height: 40,
+                  fit: BoxFit.contain,
+                ),
+                const SizedBox(width: 12),
+                const Text(
+                  'Jawara App',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.only(left: 16, top: 8, bottom: 8),
+            child: Text(
+              "Menu",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey,
+              ),
+            ),
+          ),
+
+          // --- Dashboard with submenu ---
+          ExpansionTile(
+            leading: const Icon(Icons.dashboard, color: Colors.blueAccent),
+            title: const Text(
+              "Dashboard",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            childrenPadding: const EdgeInsets.only(left: 32),
+            children: [
+              ListTile(
+                leading: const Icon(
+                  Icons.directions_walk,
+                  color: Color.fromARGB(255, 0, 0, 0),
+                ),
+                title: const Text("Kegiatan"),
+                onTap: () {
+                  context.pop(); // close the drawer
+                  context.go('/home');
+                },
+              ),
+              ListTile(
+                leading: const Icon(
+                  Icons.people,
+                  color: Color.fromARGB(255, 0, 0, 0),
+                ),
+                title: const Text("Kependudukan"),
+                onTap: () {
+                  context.go('/kependudukan');
+                },
+              ),
+            ],
+          ),
+
+          // --- Tambah Kegiatan ---
+          ListTile(
+            leading: const Icon(
+              Icons.add_circle_outline,
+              color: Colors.blueAccent,
+            ),
+            title: const Text("Tambah Kegiatan"),
+            onTap: () {
+              context.go('/addKegiatan');
+            },
+          ),
+
+          const Divider(),
+
+          // --- Logout / Profile ---
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: InkWell(
+              onTap: () => _showProfileDialog(context),
               child: Row(
                 children: [
-                  Image.asset(
-                    'assets/images/juwara.png',
-                    width: 40,
-                    height: 40,
-                    fit: BoxFit.contain,
+                  const CircleAvatar(
+                    backgroundColor: Colors.white,
+                    child: Icon(
+                      Icons.person,
+                      size: 40,
+                      color: Colors.blueAccent,
+                    ),
                   ),
                   const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Admin User",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      Text(
+                        widget.email,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showProfileDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
+        content: Row(
+          children: [
+            const CircleAvatar(
+              backgroundColor: Colors.white,
+              child: Icon(Icons.person, size: 40, color: Colors.blueAccent),
+            ),
+            const SizedBox(width: 20),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
                   const Text(
-                    'Jawara App',
+                    "Admin User",
                     style: TextStyle(
-                      fontSize: 20,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  Text(
+                    widget.email,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
                       color: Colors.black87,
                     ),
                   ),
                 ],
               ),
             ),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 16),
-                child: const Text(
-                  "Menu",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey,
-                  ),
-                ),
-              ),
-            ),
-
-            // --- Menu Dashboard (parent)
-            ExpansionTile(
-              leading: const Icon(Icons.dashboard, color: Colors.blueAccent),
-              title: const Text(
-                "Dashboard",
-                style: TextStyle(fontWeight: FontWeight.bold),
-            Expanded(
-              child: ListView.builder(
-                itemCount: _menuTitles.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    leading: Icon(
-                      _menuIcons[index],
-                      color: _selectedIndex == index
-                          ? Colors.black
-                          : Colors.grey[700],
-                    ),
-                    title: Text(
-                      _menuTitles[index],
-                      style: TextStyle(
-                        color: _selectedIndex == index
-                            ? Colors.black
-                            : Colors.grey,
-                        fontWeight: _selectedIndex == index
-                            ? FontWeight.bold
-                            : FontWeight.normal,
-                      ),
-                    ),
-                    selected: _selectedIndex == index,
-                    onTap: () {
-                      setState(() => _selectedIndex = index);
-                      Navigator.pop(context);
-                    },
-                  );
-                },
-              ),
-              tilePadding: const EdgeInsets.symmetric(horizontal: 16), 
-              childrenPadding: const EdgeInsets.only(left: 48), 
-              children: [
-                ListTile(
-                  leading: const Icon(Icons.people, color: Colors.blueAccent),
-                  title: const Text("Kependudukan"),
-                  onTap: () {
-                    Navigator.pop(context); // tutup drawer
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const KependudukanPage(),
-                      ),
-                    );
-                  },
+          ],
+        ),
+        actions: [
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
+            onPressed: () {
+              Navigator.pop(context);
+              context.go('/');
+            },
+            child: Row(
+              children: const [
+                Icon(Icons.logout, color: Colors.black),
+                SizedBox(width: 20),
+                Text(
+                  "Log out",
+                  style: TextStyle(fontSize: 16, color: Colors.black),
                 ),
               ],
             ),
-
-            // --- Menu Tambah Kegiatan
-            ListTile(
-              leading: const Icon(Icons.add_circle_outline, color: Colors.blueAccent),
-              title: const Text("Tambah Kegiatan"),
-              onTap: () {
-                Navigator.pop(context);
-                _showAddKegiatanDialog(context);
-              },
-            ),
-
-            const Divider(),
-
-            // --- Logout
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: InkWell(
-                onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      backgroundColor: Colors.white,
-                      content: Row(
-                        children: [
-                          const CircleAvatar(
-                            backgroundColor: Colors.white,
-                            child: Icon(
-                              Icons.person,
-                              size: 40,
-                              color: Colors.blueAccent,
-                            ),
-                          ),
-                          const SizedBox(width: 20),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Text(
-                                  "Admin User",
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                                Text(
-                                  widget.email,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const Divider(),
-                        ],
-                      ),
-                      actions: [
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                          ),
-                          onPressed: () {
-                            Navigator.pop(context);
-                            context.go('/');
-                          },
-                          child: Row(
-                            children: [
-                              const Icon(Icons.logout, color: Colors.black),
-                              const SizedBox(width: 20),
-                              const Text(
-                                "Log out",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.black,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-
-                child: Row(
-                  children: [
-                    const CircleAvatar(
-                      backgroundColor: Colors.white,
-                      child: Icon(
-                        Icons.person,
-                        size: 40,
-                        color: Colors.blueAccent,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "Admin User",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        Text(
-                          widget.email,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.black87,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            ListTile(
-              //   leading: const Icon(Icons.logout, color: Colors.red),
-              //   title: const Text("Logout"),
-              //   onTap: () => context.go('/'),
-            ),
-          ],
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: _selectedIndex == 0
-            ? _dashboardLayout()
-            : Center(child: _buildPageContent(_selectedIndex)),
+          ),
+        ],
       ),
     );
   }
@@ -286,11 +247,7 @@ class _HomePageState extends State<HomePage> {
                 children: const [
                   Text(
                     "1",
-                    style: TextStyle(
-                      fontSize: 48,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
+                    style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 4),
                   Text(
@@ -434,290 +391,102 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // --- Add Kegiatan ---
-  Widget _addKegiatan() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.only(bottom: 24),
-      child: _templateGrid(
-        title: "Kegiatan Baru Nich",
-        items: [
-          _featureCard("Nama kegiatan", Icons.tag_faces_outlined),
-          _featureCard("Kategori kegiatan", Icons.category_outlined),
-          _featureCard("Tanggal kegiatan", Icons.date_range_outlined),
-          _featureCard("Lokasi kegiatan", Icons.location_on_outlined),
-          _featureCard("Penanggung jawab", Icons.person_outline),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPageContent(int index) {
-    Widget content;
-
-    switch (index) {
-      case 0:
-        content = _dashboardLayout();
-        break;
-      case 1:
-        content = _addKegiatan();
-        break;
-      default:
-        content = const SizedBox();
-    }
-
-    if (index != 0) {
-      return SingleChildScrollView(
+  // --- Info Card ---
+  Widget _infoCard({
+    required String title,
+    required String emoji,
+    required Color color,
+    required Widget content,
+  }) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      color: color,
+      child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            content,
-            const SizedBox(height: 24),
-            Center(
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text("${_menuTitles[index]} berhasil disimpan!"),
-                      backgroundColor: Colors.green,
-                    ),
-                  );
-                },
-                icon: const Icon(
-                  Icons.check_circle_outline,
-                  color: Color.fromARGB(255, 255, 255, 255),
-                ),
-                label: const Text(
-                  "Simpan",
-                  style: TextStyle(fontSize: 16, color: Colors.white),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.greenAccent,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 32,
-                    vertical: 14,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+            Row(
+              children: [
+                Text(emoji, style: const TextStyle(fontSize: 20)),
+                const SizedBox(width: 6),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-              ),
+              ],
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 16),
+            Expanded(child: content),
           ],
         ),
-      );
-    }
-
-    return content;
+      ),
+    );
   }
 
-  Widget _templateGrid({required String title, required List<Widget> items}) {
-    final screenWidth = MediaQuery.of(context).size.width;
+  List<PieChartSectionData> _buildPieChartSections() {
+    return [
+      PieChartSectionData(
+        color: Colors.blue,
+        value: 100,
+        title: "100%",
+        radius: 50,
+      ),
+    ];
+  }
 
-    // determine how many columns fit nicely
-    final crossAxisCount = screenWidth > 1000
-        ? 3
-        : screenWidth > 600
-        ? 2
-        : 1;
+  Widget _legend(String label, Color color) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(width: 12, height: 12, color: color),
+        const SizedBox(width: 4),
+        Text(label, style: const TextStyle(fontSize: 12)),
+      ],
+    );
+  }
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
+  void _showAddKegiatanDialog(BuildContext context) {
+    final TextEditingController kegiatanController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Tambah Kegiatan"),
+          content: TextField(
+            controller: kegiatanController,
+            decoration: const InputDecoration(
+              labelText: "Nama Kegiatan",
+              border: OutlineInputBorder(),
             ),
           ),
-          const SizedBox(height: 16),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              return GridView.builder(
-                itemCount: items.length,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: crossAxisCount,
-                  mainAxisSpacing: 12,
-                  crossAxisSpacing: 12,
-                  childAspectRatio:
-                      (constraints.maxWidth / crossAxisCount) / 160,
-                ),
-                itemBuilder: (context, index) => items[index],
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _featureCard(String title, IconData icon) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      width: double.infinity,
-      child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        color: const Color.fromARGB(255, 255, 255, 255),
-        elevation: 3,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(icon, size: 36, color: Colors.black),
-              const SizedBox(width: 12),
-
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
-                      ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Batal"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      "Kegiatan '${kegiatanController.text}' berhasil ditambahkan!",
                     ),
-                    const SizedBox(height: 8),
-                    TextField(
-                      decoration: InputDecoration(
-                        hintText: "Masukkan $title...",
-                        contentPadding: const EdgeInsets.symmetric(
-                          vertical: 10,
-                          horizontal: 12,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// --- Info Card ---
-Widget _infoCard({
-  required String title,
-  required String emoji,
-  required Color color,
-  required Widget content,
-}) {
-  return Card(
-    elevation: 4,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-    color: color,
-    child: Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(emoji, style: const TextStyle(fontSize: 20)),
-              const SizedBox(width: 6),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Expanded(child: content),
-        ],
-      ),
-    ),
-  );
-}
-
-List<PieChartSectionData> _buildPieChartSections() {
-  return [
-    PieChartSectionData(
-      color: Colors.blue,
-      value: 100,
-      title: "100%",
-      radius: 50,
-    ),
-  ];
-}
-
-Widget _legend(String label, Color color) {
-  return Row(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      Container(width: 12, height: 12, color: color),
-      const SizedBox(width: 4),
-      Text(label, style: const TextStyle(fontSize: 12)),
-    ],
-  );
-}
-
-Widget _buildSidebarItem({
-  required IconData icon,
-  required String title,
-  required VoidCallback onTap,
-}) {
-  return ListTile(
-    leading: Icon(icon, color: Colors.grey[800]),
-    title: Text(title),
-    onTap: onTap,
-  );
-}
-
-void _showAddKegiatanDialog(BuildContext context) {
-  final TextEditingController kegiatanController = TextEditingController();
-
-  showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        title: const Text("Tambah Kegiatan"),
-        content: TextField(
-          controller: kegiatanController,
-          decoration: const InputDecoration(
-            labelText: "Nama Kegiatan",
-            border: OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Batal"),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    "Kegiatan '${kegiatanController.text}' berhasil ditambahkan!",
+                    backgroundColor: Colors.green,
                   ),
-                  backgroundColor: Colors.green,
-                ),
-              );
-            },
-            child: const Text("Simpan"),
-          ),
-        ],
-      );
-    },
-  );
+                );
+              },
+              child: const Text("Simpan"),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
