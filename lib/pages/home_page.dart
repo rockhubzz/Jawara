@@ -12,11 +12,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 0;
-
-  final List<String> _menuTitles = ['Dashboard', 'Tambah Kegiatan'];
-  final List<IconData> _menuIcons = [Icons.dashboard, Icons.directions_walk];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -21,8 +21,11 @@ class MyApp extends StatelessWidget {
         //   path: '/',
         //   builder: (context, state) => const HomePage(email: 'raki@mail.com'),
         // ),
+        // end debug mode
 
         //present
+        GoRoute(path: '/', builder: (context, state) => const LoginPage()),
+        //end present
         GoRoute(
           path: '/home',
           builder: (context, state) {
@@ -30,7 +33,6 @@ class MyApp extends StatelessWidget {
             return HomePage(email: loggedInUserEmail ?? 'Unknown User');
           },
         ),
-        GoRoute(path: '/', builder: (context, state) => const LoginPage()),
         GoRoute(
           path: '/kependudukan',
           builder: (context, state) => const KependudukanPage(),
@@ -40,7 +42,6 @@ class MyApp extends StatelessWidget {
           path: '/addKegiatan',
           builder: (context, state) => const AddKegiatanPage(),
         ),
-        //end route
       ],
     );
 
