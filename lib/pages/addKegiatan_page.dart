@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import '../widgets/appDrawer.dart';
 
 class AddKegiatanPage extends StatelessWidget {
   const AddKegiatanPage({super.key});
@@ -8,8 +10,9 @@ class AddKegiatanPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Tambah Kegiatan"),
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       ),
+      drawer: AppDrawer(email: 'admin1@mail.com'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.only(bottom: 24, top: 16),
         child: _templateGrid(

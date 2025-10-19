@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:go_router/go_router.dart';
+import '../widgets/appDrawer.dart';
 
 class KependudukanPage extends StatelessWidget {
   const KependudukanPage({super.key});
@@ -9,14 +10,11 @@ class KependudukanPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[100],
+      drawer: AppDrawer(email: 'admin1@mail.com'),
       appBar: AppBar(
         title: const Text("Data Kependudukan"),
         backgroundColor: const Color.fromARGB(255, 255, 255, 255),
         elevation: 2,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/home'),
-        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
