@@ -16,6 +16,18 @@ class AppDrawer extends StatelessWidget {
     debugPrint('Current Path: $currentPath');
 
     return Drawer(
+      backgroundColor: Colors.white,
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          const SizedBox(height: 40),
+
+          // --- Header ---
+          Container(
+            height: 60,
+            padding: const EdgeInsets.all(16),
+            alignment: Alignment.centerLeft,
+            child: Row(
       child: Column(
         children: [
           // ========= TOP CONTENT (Menus) =========
@@ -62,52 +74,64 @@ class AppDrawer extends StatelessWidget {
                     ),
                   ),
                 ),
+              ],
+            ),
+          ),
 
-                // --- Dashboard (with submenu) ---
-                ExpansionTile(
-                  initiallyExpanded: isDashboardExpanded,
-                  leading: const Icon(
-                    Icons.dashboard,
-                    color: Colors.blueAccent,
-                  ),
-                  title: const Text(
-                    "Dashboard",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  childrenPadding: const EdgeInsets.only(left: 32),
-                  children: [
-                    _buildMenuItem(
-                      context,
-                      icon: Icons.directions_walk,
-                      label: "Kegiatan",
-                      route: '/home',
-                      currentPath: currentPath,
-                    ),
-                    _buildMenuItem(
-                      context,
-                      icon: Icons.people,
-                      label: "Kependudukan",
-                      route: '/kependudukan',
-                      currentPath: currentPath,
-                    ),
-                  ],
-                ),
+          // --- Label Menu ---
+          const Padding(
+            padding: EdgeInsets.only(left: 16, top: 8, bottom: 8),
+            child: Text(
+              "Menu",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey,
+              ),
+            ),
+          ),
 
-                // --- Tambah Kegiatan ---
-                _buildMenuItem(
-                  context,
-                  icon: Icons.add_circle_outline,
-                  label: "Tambah Kegiatan",
-                  route: '/addKegiatan',
-                  currentPath: currentPath,
+          // --- Dashboard (dengan submenu) ---
+          ExpansionTile(
+            leading: const Icon(Icons.dashboard, color: Colors.blueAccent),
+            title: const Text(
+              "Dashboard",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            childrenPadding: const EdgeInsets.only(left: 32),
+            children: [
+              ListTile(
+                leading: const Icon(Icons.directions_walk, color: Colors.black),
+                title: const Text("Kegiatan"),
+                onTap: () {
+                  context.pop();
+                  context.go('/home');
+                },
+              ),
+              ListTile(
+                leading: const Icon(
+                  Icons.account_balance_wallet,
+                  color: Colors.black,
                 ),
+                title: const Text("Keuangan"),
+                onTap: () {
+                  Navigator.pop(context); // tutup drawer dulu
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    context.go('/keuangan');
+                  });
+                },
+              ),
+            ],
+          ),
 
                 const Divider(),
               ],
             ),
           ),
 
-          // ========= BOTTOM SECTION (Logout/Profile) =========
+          const Divider(),
+
+          // --- Profil Admin ---
           Padding(
             padding: const EdgeInsets.all(16),
             child: InkWell(
