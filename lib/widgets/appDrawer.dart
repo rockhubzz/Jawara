@@ -8,11 +8,11 @@ class AppDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String currentPath = '/home';
-    currentPath = GoRouterState.of(context).uri.toString();
+    String currentPath = GoRouterState.of(context).uri.toString();
     final bool isDashboardExpanded =
         currentPath.startsWith('/home') ||
         currentPath.startsWith('/kependudukan');
+
     debugPrint('Current Path: $currentPath');
 
     return Drawer(
@@ -28,57 +28,26 @@ class AppDrawer extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             alignment: Alignment.centerLeft,
             child: Row(
-      child: Column(
-        children: [
-          // ========= TOP CONTENT (Menus) =========
-          Expanded(
-            child: ListView(
-              padding: EdgeInsets.zero,
               children: [
-                const SizedBox(height: 40),
-
-                // --- Header ---
-                Container(
-                  height: 60,
-                  padding: const EdgeInsets.all(16),
-                  alignment: Alignment.centerLeft,
-                  child: Row(
-                    children: [
-                      Image.asset(
-                        'assets/images/juwara.png',
-                        width: 40,
-                        height: 40,
-                        fit: BoxFit.contain,
-                      ),
-                      const SizedBox(width: 12),
-                      const Text(
-                        'Jawara App',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                      ),
-                    ],
-                  ),
+                Image.asset(
+                  'assets/images/juwara.png',
+                  width: 40,
+                  height: 40,
+                  fit: BoxFit.contain,
                 ),
-
-                const Padding(
-                  padding: EdgeInsets.only(left: 16, top: 8, bottom: 8),
-                  child: Text(
-                    "Menu",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey,
-                    ),
+                const SizedBox(width: 12),
+                const Text(
+                  'Jawara App',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
                   ),
                 ),
               ],
             ),
           ),
 
-          // --- Label Menu ---
           const Padding(
             padding: EdgeInsets.only(left: 16, top: 8, bottom: 8),
             child: Text(
@@ -93,6 +62,7 @@ class AppDrawer extends StatelessWidget {
 
           // --- Dashboard (dengan submenu) ---
           ExpansionTile(
+            initiallyExpanded: isDashboardExpanded,
             leading: const Icon(Icons.dashboard, color: Colors.blueAccent),
             title: const Text(
               "Dashboard",
@@ -115,18 +85,13 @@ class AppDrawer extends StatelessWidget {
                 ),
                 title: const Text("Keuangan"),
                 onTap: () {
-                  Navigator.pop(context); // tutup drawer dulu
+                  Navigator.pop(context);
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     context.go('/keuangan');
                   });
                 },
               ),
             ],
-          ),
-
-                const Divider(),
-              ],
-            ),
           ),
 
           const Divider(),
@@ -166,7 +131,7 @@ class AppDrawer extends StatelessWidget {
                                 ),
                               ),
                               Text(
-                                'admin1@mail.com',
+                                email,
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
@@ -243,37 +208,6 @@ class AppDrawer extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildMenuItem(
-    BuildContext context, {
-    required IconData icon,
-    required String label,
-    required String route,
-    required String currentPath,
-  }) {
-    final bool isSelected = currentPath == route;
-
-    return Container(
-      color: isSelected ? Colors.blue.shade50 : null,
-      child: ListTile(
-        leading: Icon(
-          icon,
-          color: isSelected ? Colors.blueAccent : Colors.black,
-        ),
-        title: Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? Colors.blueAccent : Colors.black,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-          ),
-        ),
-        onTap: () {
-          context.pop(); // close drawer
-          context.go(route);
-        },
       ),
     );
   }
