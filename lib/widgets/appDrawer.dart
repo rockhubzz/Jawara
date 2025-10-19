@@ -10,9 +10,16 @@ class AppDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     String currentPath = '/home';
     currentPath = GoRouterState.of(context).uri.toString();
+    // Untuk Dashboard
     final bool isDashboardExpanded =
         currentPath.startsWith('/home') ||
         currentPath.startsWith('/kependudukan');
+
+    // Untuk Data Warga & Rumah
+    final bool isDataWargaRumahExpanded =
+        currentPath.startsWith('/tambahRumah') ||
+        currentPath.startsWith('/tambahWarga');
+
     debugPrint('Current Path: $currentPath');
 
     return Drawer(
@@ -100,6 +107,36 @@ class AppDrawer extends StatelessWidget {
                   label: "Tambah Kegiatan",
                   route: '/addKegiatan',
                   currentPath: currentPath,
+                ),
+
+                // --- Data Warga & Rumah ---
+                ExpansionTile(
+                  initiallyExpanded: isDataWargaRumahExpanded,
+                  leading: const Icon(
+                    Icons.people_alt,
+                    color: Colors.blueAccent,
+                  ),
+                  title: const Text(
+                    "Data Warga & Rumah",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  childrenPadding: const EdgeInsets.only(left: 32),
+                  children: [
+                    _buildMenuItem(
+                      context,
+                      icon: Icons.add_card_rounded,
+                      label: "Warga - Tambah",
+                      route: '/tambahWarga',
+                      currentPath: currentPath,
+                    ),
+                    _buildMenuItem(
+                      context,
+                      icon: Icons.add_home,
+                      label: "Rumah - Tambah",
+                      route: '/tambahRumah',
+                      currentPath: currentPath,
+                    ),
+                  ],
                 ),
 
                 const Divider(),
