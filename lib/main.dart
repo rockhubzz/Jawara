@@ -17,10 +17,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final GoRouter router = GoRouter(
       routes: [
-        // 🏠 Halaman Login (default)
         GoRoute(path: '/', builder: (context, state) => const LoginPage()),
 
-        // 🏡 Halaman Home (Dashboard)
         GoRoute(
           path: '/home',
           builder: (context, state) {
@@ -29,19 +27,16 @@ class MyApp extends StatelessWidget {
           },
         ),
 
-        // 👥 Halaman Kependudukan
         GoRoute(
           path: '/kependudukan',
           builder: (context, state) => const KependudukanPage(),
         ),
 
-        // 💰 Halaman Keuangan
         GoRoute(
           path: '/keuangan',
           builder: (context, state) => const Keuangan(),
         ),
 
-        // ➕ Halaman Tambah Kegiatan
         GoRoute(
           path: '/addKegiatan',
           builder: (context, state) => const AddKegiatanPage(),
