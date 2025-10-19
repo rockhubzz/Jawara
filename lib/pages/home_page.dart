@@ -103,6 +103,19 @@ class _HomePageState extends State<HomePage> {
                   context.go('/kependudukan');
                 },
               ),
+              ListTile(
+                leading: const Icon(
+                  Icons.account_balance_wallet,
+                  color: Color.fromARGB(255, 0, 0, 0),
+                ),
+                title: const Text("Keuangan"),
+                onTap: () {
+                  Navigator.pop(context); // Tutup drawer
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    context.go('/keuangan');
+                  });
+                },
+              ),
             ],
           ),
 

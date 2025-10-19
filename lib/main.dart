@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
+import 'package:jawara/pages/login_page.dart';
+import 'package:jawara/pages/home_page.dart';
+import 'package:jawara/pages/kependudukan_page.dart';
+import 'package:jawara/Dashboard/Keuangan.dart';
 import 'package:jawara/pages/addKegiatan_page.dart';
-import 'pages/login_page.dart';
-import 'pages/home_page.dart';
-import 'pages/kependudukan_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,13 +18,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final GoRouter router = GoRouter(
       routes: [
-        // debug mode
-        // GoRoute(
-        //   path: '/',
-        //   builder: (context, state) => const HomePage(email: 'raki@mail.com'),
-        // ),
+        // Halaman login (default)
+        GoRoute(path: '/', builder: (context, state) => const LoginPage()),
 
-        //present
+        // Halaman dashboard (Home)
         GoRoute(
           path: '/home',
           builder: (context, state) {
@@ -30,17 +29,24 @@ class MyApp extends StatelessWidget {
             return HomePage(email: loggedInUserEmail ?? 'Unknown User');
           },
         ),
-        GoRoute(path: '/', builder: (context, state) => const LoginPage()),
+
+        // Kependudukan
         GoRoute(
           path: '/kependudukan',
           builder: (context, state) => const KependudukanPage(),
         ),
-        GoRoute(path: '/', builder: (context, state) => const LoginPage()),
+
+        // Keuangan
+        GoRoute(
+          path: '/keuangan',
+          builder: (context, state) => const Keuangan(),
+        ),
+
+        // Tambah Kegiatan
         GoRoute(
           path: '/addKegiatan',
           builder: (context, state) => const AddKegiatanPage(),
         ),
-        //end route
       ],
     );
 

@@ -3,15 +3,18 @@ import 'package:go_router/go_router.dart';
 
 class AppDrawer extends StatelessWidget {
   final String email;
+
   const AppDrawer({super.key, required this.email});
 
   @override
   Widget build(BuildContext context) {
     return Drawer(
+      backgroundColor: Colors.white,
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
           const SizedBox(height: 40),
+
           // --- Header ---
           Container(
             height: 60,
@@ -37,6 +40,8 @@ class AppDrawer extends StatelessWidget {
               ],
             ),
           ),
+
+          // --- Label Menu ---
           const Padding(
             padding: EdgeInsets.only(left: 16, top: 8, bottom: 8),
             child: Text(
@@ -49,7 +54,7 @@ class AppDrawer extends StatelessWidget {
             ),
           ),
 
-          // --- Dashboard with submenu ---
+          // --- Dashboard (dengan submenu) ---
           ExpansionTile(
             leading: const Icon(Icons.dashboard, color: Colors.blueAccent),
             title: const Text(
@@ -59,24 +64,24 @@ class AppDrawer extends StatelessWidget {
             childrenPadding: const EdgeInsets.only(left: 32),
             children: [
               ListTile(
-                leading: const Icon(
-                  Icons.directions_walk,
-                  color: Color.fromARGB(255, 0, 0, 0),
-                ),
+                leading: const Icon(Icons.directions_walk, color: Colors.black),
                 title: const Text("Kegiatan"),
                 onTap: () {
-                  context.pop(); // close the drawer
+                  context.pop();
                   context.go('/home');
                 },
               ),
               ListTile(
                 leading: const Icon(
-                  Icons.people,
-                  color: Color.fromARGB(255, 0, 0, 0),
+                  Icons.account_balance_wallet,
+                  color: Colors.black,
                 ),
-                title: const Text("Kependudukan"),
+                title: const Text("Keuangan"),
                 onTap: () {
-                  context.go('/kependudukan');
+                  Navigator.pop(context); // tutup drawer dulu
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    context.go('/keuangan');
+                  });
                 },
               ),
             ],
@@ -96,7 +101,7 @@ class AppDrawer extends StatelessWidget {
 
           const Divider(),
 
-          // --- Logout / Profile ---
+          // --- Profil Admin ---
           Padding(
             padding: const EdgeInsets.all(16),
             child: InkWell(
