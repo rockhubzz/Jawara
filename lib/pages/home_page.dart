@@ -20,14 +20,14 @@ class _HomePageState extends State<HomePage> {
       drawer: AppDrawer(email: widget.email),
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: _dashboardLayout(),
+        child: _dashboardLayout(context),
       ),
     );
   }
 }
 
 // --- Dashboard ---
-Widget _dashboardLayout() {
+Widget _dashboardLayout(BuildContext context) {
   return LayoutBuilder(
     builder: (context, constraints) {
       bool isWide = constraints.maxWidth > 800;
@@ -38,6 +38,7 @@ Widget _dashboardLayout() {
         childAspectRatio: isWide ? 1.8 : 1.4,
         children: [
           _infoCard(
+            context: context,
             title: "Total Kegiatan",
             emoji: "🎉",
             color: Colors.blue[100]!,
@@ -57,6 +58,7 @@ Widget _dashboardLayout() {
             ),
           ),
           _infoCard(
+            context: context,
             title: "Kegiatan per Kategori",
             emoji: "📁",
             color: Colors.green[100]!,
@@ -89,6 +91,7 @@ Widget _dashboardLayout() {
             ),
           ),
           _infoCard(
+            context: context,
             title: "Kegiatan berdasarkan Waktu",
             emoji: "⏰",
             color: Colors.yellow[100]!,
@@ -102,6 +105,7 @@ Widget _dashboardLayout() {
             ),
           ),
           _infoCard(
+            context: context,
             title: "Penanggung Jawab Terbanyak",
             emoji: "🧑‍💼",
             color: Colors.purple[100]!,
@@ -119,6 +123,7 @@ Widget _dashboardLayout() {
             ),
           ),
           _infoCard(
+            context: context,
             title: "Kegiatan per Bulan (Tahun Ini)",
             emoji: "📅",
             color: Colors.pink[50]!,
@@ -192,6 +197,7 @@ Widget _dashboardLayout() {
 
 // --- Info Card ---
 Widget _infoCard({
+  required BuildContext context,
   required String title,
   required String emoji,
   required Color color,
@@ -216,6 +222,19 @@ Widget _infoCard({
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
+              ),
+              ListTile(
+                leading: const Icon(
+                  Icons.account_balance_wallet,
+                  color: Color.fromARGB(255, 0, 0, 0),
+                ),
+                title: const Text("Keuangan"),
+                onTap: () {
+                  Navigator.pop(context);
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    context.go('/keuangan');
+                  });
+                },
               ),
             ],
           ),
