@@ -28,7 +28,7 @@ class KependudukanPage extends StatelessWidget {
               crossAxisCount: MediaQuery.of(context).size.width > 700 ? 2 : 1,
               crossAxisSpacing: 16,
               mainAxisSpacing: 16,
-              childAspectRatio: 2.5, // 💡 kartu kecil & melebar
+              childAspectRatio: 2.5,
               children: [
                 _infoCard(
                   title: "Total Keluarga",
