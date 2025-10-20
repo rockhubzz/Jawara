@@ -122,6 +122,34 @@ class AppDrawer extends StatelessWidget {
             ],
           ),
 
+          ExpansionTile(
+            initiallyExpanded: isDashboardExpanded,
+            leading: Icon(
+              Icons.dashboard,
+              color: isDashboardExpanded ? activeColor : inactiveColor,
+            ),
+            title: Text(
+              "Data Warga & Rumah",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: isDashboardExpanded ? activeColor : inactiveColor,
+              ),
+            ),
+            childrenPadding: const EdgeInsets.only(left: 32),
+            children: [
+              buildNavTile(
+                title: "Tambah Rumah",
+                icon: Icons.directions_walk,
+                route: '/tambahRumah',
+              ),
+              buildNavTile(
+                title: "Tambah Warga",
+                icon: Icons.account_balance_wallet,
+                route: '/tambahWarga',
+              ),
+            ],
+          ),
+
           const Divider(),
 
           buildNavTile(

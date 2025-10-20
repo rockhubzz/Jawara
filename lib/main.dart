@@ -5,6 +5,7 @@ import 'pages/login_page.dart';
 import 'Dashboard/Kegiatan.dart';
 import 'Dashboard/Kependudukan.dart';
 import 'Dashboard/Keuangan.dart';
+import 'data_warga_rumah/tambahRumah_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -17,8 +18,14 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final GoRouter router = GoRouter(
       routes: [
-        GoRoute(path: '/', builder: (context, state) => const LoginPage()),
+        // debug mode
+        // GoRoute(
+        //   path: '/',
+        //   builder: (context, state) => const HomePage(email: 'raki@mail.com'),
+        // ),
 
+        //present
+        GoRoute(path: '/', builder: (context, state) => const LoginPage()),
         GoRoute(
           path: '/dashboard/kegiatan',
           builder: (context, state) {
@@ -26,7 +33,6 @@ class MyApp extends StatelessWidget {
             return HomePage(email: loggedInUserEmail ?? 'Unknown User');
           },
         ),
-
         GoRoute(
           path: '/dashboard/kependudukan',
           builder: (context, state) => const KependudukanPage(),
@@ -36,11 +42,15 @@ class MyApp extends StatelessWidget {
           path: '/dashboard/keuangan',
           builder: (context, state) => const Keuangan(),
         ),
-
         GoRoute(
           path: '/kegiatan/tambah',
           builder: (context, state) => const AddKegiatanPage(),
         ),
+        GoRoute(
+          path: '/tambahRumah',
+          builder: (context, state) => const TambahRumahPage(),
+        ),
+        //end route
       ],
     );
 
