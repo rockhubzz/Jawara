@@ -195,6 +195,62 @@ class AppDrawer extends StatelessWidget {
             ],
           ),
 
+          // Pemasukan
+          ExpansionTile(
+            initiallyExpanded: isPemasukanExpanded,
+            leading: Icon(
+              Icons.request_page_outlined,
+              color: isPemasukanExpanded ? activeColor : inactiveColor,
+            ),
+            title: Text(
+              "Pemasukan",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: isPemasukanExpanded ? activeColor : inactiveColor,
+              ),
+            ),
+            childrenPadding: const EdgeInsets.only(left: 32),
+            children: [
+              buildNavTile(
+                context: context,
+                title: "Tagih Iuran",
+                icon: Icons.payments_outlined,
+                route: '/pemasukan/tagihIuran',
+              ),
+            ],
+          ),
+
+          // Pemasukkan
+          ExpansionTile(
+            initiallyExpanded: isPemasukanExpanded,
+            leading: Icon(
+              Icons.request_page_outlined,
+              color: isPemasukanExpanded ? activeColor : inactiveColor,
+            ),
+            title: Text(
+              "Pemasukan",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: isPemasukanExpanded ? activeColor : inactiveColor,
+              ),
+            ),
+            childrenPadding: const EdgeInsets.only(left: 32),
+            children: [
+              buildNavTile(
+                context: context,
+                title: "Semua Pemasukan",
+                icon: Icons.payments_outlined,
+                route: 'Pemasukan/PemasukanLainDaftar',
+              ),
+              buildNavTile(
+                context: context,
+                title: "Semua Pemasukan",
+                icon: Icons.payments_outlined,
+                route: 'Pemasukan/PemasukanTambahanDaftar',
+              ),
+            ],
+          ),
+
           // Laporan Keuangan
           ExpansionTile(
             initiallyExpanded: isPemasukanExpanded,
