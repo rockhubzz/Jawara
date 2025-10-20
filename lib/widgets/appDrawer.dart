@@ -10,6 +10,8 @@ class AppDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     String currentPath = GoRouterState.of(context).uri.toString();
     final bool isDashboardExpanded = currentPath.startsWith('/dashboard');
+    final bool isDataWargaExpanded = currentPath.startsWith('/data_warga_rumah');
+    final bool isPemasukanExpanded = currentPath.startsWith('/pemasukan');
 
     debugPrint('Current Path: $currentPath');
 
@@ -122,18 +124,19 @@ class AppDrawer extends StatelessWidget {
             ],
           ),
 
+          // menu Data Warga & Rumah
           ExpansionTile(
-            initiallyExpanded: isDashboardExpanded,
+            initiallyExpanded: isDataWargaExpanded,
             leading: Icon(
               Icons
                   .home_work_rounded, 
-              color: isDashboardExpanded ? activeColor : inactiveColor,
+              color: isDataWargaExpanded ? activeColor : inactiveColor,
             ),
             title: Text(
               "Data Warga & Rumah",
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: isDashboardExpanded ? activeColor : inactiveColor,
+                color: isDataWargaExpanded ? activeColor : inactiveColor,
               ),
             ),
             childrenPadding: const EdgeInsets.only(left: 32),
@@ -141,12 +144,37 @@ class AppDrawer extends StatelessWidget {
               buildNavTile(
                 title: "Rumah - Tambah",
                 icon: Icons.house_outlined, 
-                route: '/tambahRumah',
+                route: '/data_warga_rumah/tambahRumah',
               ),
               buildNavTile(
                 title: "Warga - Tambah",
                 icon: Icons.people_alt_outlined, 
-                route: '/tambahWarga',
+                route: '/data_warga_rumah/tambahWarga',
+              ),
+            ],
+          ),
+
+          // menu Pemasukan
+          ExpansionTile(
+            initiallyExpanded: isPemasukanExpanded,
+            leading: Icon(
+              Icons
+                  .request_page_outlined, 
+              color: isPemasukanExpanded ? activeColor : inactiveColor,
+            ),
+            title: Text(
+              "Pemasukan",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: isPemasukanExpanded ? activeColor : inactiveColor,
+              ),
+            ),
+            childrenPadding: const EdgeInsets.only(left: 32),
+            children: [
+              buildNavTile(
+                title: "Tagih Iuran",
+                icon: Icons.payments_outlined, 
+                route: '/pemasukan/tagihIuran',
               ),
             ],
           ),

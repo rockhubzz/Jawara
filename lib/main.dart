@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:jawara/pemasukan/tagih_iuran_page.dart';
 import 'Kegiatan & Broadcast/KegiatanTambah.dart';
 import 'pages/login_page.dart';
 import 'Dashboard/Kegiatan.dart';
@@ -48,12 +49,16 @@ class MyApp extends StatelessWidget {
           builder: (context, state) => const AddKegiatanPage(),
         ),
         GoRoute(
-          path: '/tambahRumah',
+          path: '/data_warga_rumah/tambahRumah',
           builder: (context, state) => const TambahRumahPage(),
         ),
         GoRoute(
-          path: '/tambahWarga',
+          path: '/data_warga_rumah/tambahWarga',
           builder: (context, state) => const TambahWargaPage(),
+        ),
+        GoRoute(
+          path: '/pemasukan/tagihIuran',
+          builder: (context, state) => const TagihIuranPage(),
         ),
         //end route
       ],
