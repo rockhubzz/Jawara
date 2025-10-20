@@ -5,6 +5,8 @@ import 'pages/login_page.dart';
 import 'pages/home_page.dart';
 import 'pages/kependudukan_page.dart';
 import 'Dashboard/Keuangan.dart';
+import 'Pengeluaran/DaftarPengeluaran.dart';
+import 'Pengeluaran/TambahPengeluaran.dart';
 
 void main() {
   runApp(const MyApp());
@@ -40,6 +42,16 @@ class MyApp extends StatelessWidget {
         GoRoute(
           path: '/addKegiatan',
           builder: (context, state) => const AddKegiatanPage(),
+        ),
+
+        GoRoute(
+          path: '/Pengeluaran',
+          builder: (context, state) => const DaftarPengeluaranPage(),
+        ),
+
+        GoRoute(
+          path: '/Pengeluaran/tambahPengeluaran',
+          builder: (context, state) => const TambahPengeluaran(),
         ),
       ],
     );
