@@ -212,32 +212,43 @@ Widget _infoCard({
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Row header: emoji + title + optional small action button (safe to place inside Row)
           Row(
             children: [
               Text(emoji, style: const TextStyle(fontSize: 20)),
               const SizedBox(width: 6),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-              ListTile(
-                leading: const Icon(
-                  Icons.account_balance_wallet,
-                  color: Color.fromARGB(255, 0, 0, 0),
-                ),
-                title: const Text("Keuangan"),
-                onTap: () {
+
+              // small button untuk keuangan (digunakan sebagai contoh, bisa dihapus)
+              // navigator dipanggil setelah drawer ditutup agar tidak error
+              TextButton.icon(
+                onPressed: () {
+                  // tutup drawer dulu (jika ada), lalu navigasi
                   Navigator.pop(context);
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     context.go('/keuangan');
                   });
                 },
+                icon: const Icon(Icons.account_balance_wallet, size: 18),
+                label: const Text('Keuangan'),
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                ),
               ),
             ],
           ),
+
           const SizedBox(height: 16),
           Expanded(child: content),
         ],
