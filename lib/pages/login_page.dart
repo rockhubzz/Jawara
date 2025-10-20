@@ -28,7 +28,7 @@ class _LoginPageState extends State<LoginPage> {
         ).showSnackBar(const SnackBar(content: Text('Login successful!')));
 
         var loggedInUserEmail = _emailController.text;
-        context.go('/home', extra: loggedInUserEmail);
+        context.go('/dashboard/kegiatan', extra: loggedInUserEmail);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Invalid email or password')),
