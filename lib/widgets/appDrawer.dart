@@ -9,11 +9,39 @@ class AppDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     String currentPath = GoRouterState.of(context).uri.toString();
-    final bool isDashboardExpanded =
-        currentPath.startsWith('/home') ||
-        currentPath.startsWith('/kependudukan');
+    final bool isDashboardExpanded = currentPath.startsWith('/dashboard');
 
     debugPrint('Current Path: $currentPath');
+
+    Color activeColor = Colors.blueAccent;
+    Color inactiveColor = Colors.black87;
+
+    Widget buildNavTile({
+      required String title,
+      required IconData icon,
+      required String route,
+    }) {
+      final bool isActive =
+          currentPath == route || currentPath.startsWith('$route/');
+      return ListTile(
+        leading: Icon(icon, color: isActive ? activeColor : inactiveColor),
+        title: Text(
+          title,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: isActive ? activeColor : inactiveColor,
+          ),
+        ),
+        tileColor: isActive ? Colors.blueAccent.withOpacity(0.1) : null,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        onTap: () {
+          Navigator.pop(context);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            context.go(route);
+          });
+        },
+      );
+    }
 
     return Drawer(
       backgroundColor: Colors.white,
@@ -60,64 +88,47 @@ class AppDrawer extends StatelessWidget {
             ),
           ),
 
-          // --- Dashboard (dengan submenu) ---
+          // --- Dashboard with submenus ---
           ExpansionTile(
             initiallyExpanded: isDashboardExpanded,
-            leading: const Icon(Icons.dashboard, color: Colors.blueAccent),
-            title: const Text(
+            leading: Icon(
+              Icons.dashboard,
+              color: isDashboardExpanded ? activeColor : inactiveColor,
+            ),
+            title: Text(
               "Dashboard",
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: isDashboardExpanded ? activeColor : inactiveColor,
+              ),
             ),
             childrenPadding: const EdgeInsets.only(left: 32),
             children: [
-              ListTile(
-                leading: const Icon(Icons.directions_walk, color: Colors.black),
-                title: const Text("Kegiatan"),
-                onTap: () {
-                  context.pop();
-                  context.go('/home');
-                },
+              buildNavTile(
+                title: "Kegiatan",
+                icon: Icons.directions_walk,
+                route: '/dashboard/kegiatan',
               ),
-              ListTile(
-                leading: const Icon(
-                  Icons.account_balance_wallet,
-                  color: Colors.black,
-                ),
-                title: const Text("Keuangan"),
-                onTap: () {
-                  Navigator.pop(context);
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    context.go('/keuangan');
-                  });
-                },
+              buildNavTile(
+                title: "Keuangan",
+                icon: Icons.account_balance_wallet,
+                route: '/dashboard/keuangan',
               ),
-              ListTile(
-                leading: const Icon(Icons.people, color: Colors.black),
-                title: const Text("Kependudukan"),
-                onTap: () {
-                  Navigator.pop(context);
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    context.go('/kependudukan');
-                  });
-                },
-              ),
-              ListTile(
-                leading: const Icon(
-                  Icons.add_circle_outline,
-                  color: Colors.black,
-                ),
-                title: const Text("Tambah Kegiatan"),
-                onTap: () {
-                  Navigator.pop(context);
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    context.go('/addKegiatan');
-                  });
-                },
+              buildNavTile(
+                title: "Kependudukan",
+                icon: Icons.people,
+                route: '/dashboard/kependudukan',
               ),
             ],
           ),
 
           const Divider(),
+
+          buildNavTile(
+            title: "Tambah Kegiatan",
+            icon: Icons.add_circle_outline,
+            route: '/kegiatan/tambah',
+          ),
 
           // --- Profil Admin ---
           Padding(
