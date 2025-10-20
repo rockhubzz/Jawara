@@ -125,7 +125,8 @@ class AppDrawer extends StatelessWidget {
           ExpansionTile(
             initiallyExpanded: isDashboardExpanded,
             leading: Icon(
-              Icons.dashboard,
+              Icons
+                  .home_work_rounded, 
               color: isDashboardExpanded ? activeColor : inactiveColor,
             ),
             title: Text(
@@ -138,13 +139,13 @@ class AppDrawer extends StatelessWidget {
             childrenPadding: const EdgeInsets.only(left: 32),
             children: [
               buildNavTile(
-                title: "Tambah Rumah",
-                icon: Icons.directions_walk,
+                title: "Rumah - Tambah",
+                icon: Icons.house_outlined, 
                 route: '/tambahRumah',
               ),
               buildNavTile(
-                title: "Tambah Warga",
-                icon: Icons.account_balance_wallet,
+                title: "Warga - Tambah",
+                icon: Icons.people_alt_outlined, 
                 route: '/tambahWarga',
               ),
             ],

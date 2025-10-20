@@ -6,6 +6,7 @@ import 'Dashboard/Kegiatan.dart';
 import 'Dashboard/Kependudukan.dart';
 import 'Dashboard/Keuangan.dart';
 import 'data_warga_rumah/tambahRumah_page.dart';
+import 'data_warga_rumah/tambahWarga_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -49,6 +50,10 @@ class MyApp extends StatelessWidget {
         GoRoute(
           path: '/tambahRumah',
           builder: (context, state) => const TambahRumahPage(),
+        ),
+        GoRoute(
+          path: '/tambahWarga',
+          builder: (context, state) => const TambahWargaPage(),
         ),
         //end route
       ],
