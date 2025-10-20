@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:jawara/pages/addKegiatan_page.dart';
-import 'package:jawara/pages/login_page.dart';
-import 'package:jawara/pages/home_page.dart';
-import 'package:jawara/pages/kependudukan_page.dart';
-import 'package:jawara/Dashboard/Keuangan.dart';
-import 'package:jawara/data_warga_rumah/tambahRumah_page.dart';
+import 'Kegiatan & Broadcast/KegiatanTambah.dart';
+import 'pages/login_page.dart';
+import 'Dashboard/Kegiatan.dart';
+import 'Dashboard/Kependudukan.dart';
+import 'Dashboard/Keuangan.dart';
+import 'data_warga_rumah/tambahRumah_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -27,22 +27,23 @@ class MyApp extends StatelessWidget {
         //present
         GoRoute(path: '/', builder: (context, state) => const LoginPage()),
         GoRoute(
-          path: '/home',
+          path: '/dashboard/kegiatan',
           builder: (context, state) {
             final loggedInUserEmail = state.extra as String?;
             return HomePage(email: loggedInUserEmail ?? 'Unknown User');
           },
         ),
         GoRoute(
-          path: '/kependudukan',
+          path: '/dashboard/kependudukan',
           builder: (context, state) => const KependudukanPage(),
         ),
-         GoRoute(
-          path: '/keuangan',
+
+        GoRoute(
+          path: '/dashboard/keuangan',
           builder: (context, state) => const Keuangan(),
         ),
         GoRoute(
-          path: '/addKegiatan',
+          path: '/kegiatan/tambah',
           builder: (context, state) => const AddKegiatanPage(),
         ),
         GoRoute(

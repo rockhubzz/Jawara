@@ -10,6 +10,7 @@ class Keuangan extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
+      drawer: AppDrawer(email: 'admin1@mail.com'),
       appBar: AppBar(
         title: const Text(
           "Data Keuangan",
@@ -17,11 +18,12 @@ class Keuangan extends StatelessWidget {
         ),
         backgroundColor: Colors.white,
         elevation: 1,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => context.go('/home'),
-        ),
+        // leading: IconButton(
+        //   icon: const Icon(Icons.arrow_back, color: Colors.black),
+        //   onPressed: () => context.go('/home'),
+        // ),
       ),
+
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
