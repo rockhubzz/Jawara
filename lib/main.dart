@@ -7,6 +7,9 @@ import 'pages/kependudukan_page.dart';
 import 'Dashboard/Keuangan.dart';
 import 'Pengeluaran/DaftarPengeluaran.dart';
 import 'Pengeluaran/TambahPengeluaran.dart';
+import 'Laporan Keuangan/SemuaPengeluaran.dart';
+import 'Laporan Keuangan/SemuaPemasukan.dart';
+import 'Laporan Keuangan/CetakLaporan.dart';
 
 void main() {
   runApp(const MyApp());
@@ -52,6 +55,19 @@ class MyApp extends StatelessWidget {
         GoRoute(
           path: '/Pengeluaran/tambahPengeluaran',
           builder: (context, state) => const TambahPengeluaran(),
+        ),
+
+        GoRoute(
+          path: '/laporanKeuangan/semuaPengeluaran',
+          builder: (context, state) => const SemuaPengeluaran(),
+        ),
+        GoRoute(
+          path: '/laporanKeuangan/semuaPemasukan',
+          builder: (context, state) => const SemuaPemasukan(),
+        ),
+        GoRoute(
+          path: '/laporanKeuangan/cetakLaporan',
+          builder: (context, state) => const CetakLaporan(),
         ),
       ],
     );

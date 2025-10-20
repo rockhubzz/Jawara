@@ -195,6 +195,42 @@ class AppDrawer extends StatelessWidget {
             ],
           ),
 
+          // Laporan Keuangan
+          ExpansionTile(
+            initiallyExpanded: isPemasukanExpanded,
+            leading: Icon(
+              Icons.request_page_outlined,
+              color: isPemasukanExpanded ? activeColor : inactiveColor,
+            ),
+            title: Text(
+              "Laporan Keuangan",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: isPemasukanExpanded ? activeColor : inactiveColor,
+              ),
+            ),
+            childrenPadding: const EdgeInsets.only(left: 32),
+            children: [
+              buildNavTile(
+                context: context,
+                title: "Semua Pengeluaran",
+                icon: Icons.payments_outlined,
+                route: '/laporanKeuangan/semuaPengeluaran',
+              ),
+              buildNavTile(
+                context: context,
+                title: "Semua Pemasukan",
+                icon: Icons.payments_outlined,
+                route: '/laporanKeuangan/semuaPemasukan',
+              ),
+              buildNavTile(
+                context: context,
+                title: "Cetak Laporan",
+                icon: Icons.print_outlined,
+                route: '/laporanKeuangan/cetakLaporan',
+              ),
+            ],
+          ),
           const Divider(),
 
           // Profil admin
