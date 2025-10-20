@@ -91,6 +91,29 @@ class AppDrawer extends StatelessWidget {
                   });
                 },
               ),
+              ListTile(
+                leading: const Icon(Icons.people, color: Colors.black),
+                title: const Text("Kependudukan"),
+                onTap: () {
+                  Navigator.pop(context);
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    context.go('/kependudukan');
+                  });
+                },
+              ),
+              ListTile(
+                leading: const Icon(
+                  Icons.add_circle_outline,
+                  color: Colors.black,
+                ),
+                title: const Text("Tambah Kegiatan"),
+                onTap: () {
+                  Navigator.pop(context);
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    context.go('/addKegiatan');
+                  });
+                },
+              ),
             ],
           ),
 
