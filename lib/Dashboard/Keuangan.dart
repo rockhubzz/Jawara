@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:go_router/go_router.dart';
+import '../widgets/appDrawer.dart';
 
 class Keuangan extends StatelessWidget {
   const Keuangan({super.key});

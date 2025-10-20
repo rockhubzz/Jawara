@@ -13,12 +13,37 @@ class AppDrawer extends StatelessWidget {
         currentPath.startsWith('/home') ||
         currentPath.startsWith('/kependudukan');
 
-    // Untuk Data Warga & Rumah
-    final bool isDataWargaRumahExpanded =
-        currentPath.startsWith('/tambahRumah') ||
-        currentPath.startsWith('/tambahWarga');
-
     debugPrint('Current Path: $currentPath');
+
+    Color activeColor = Colors.blueAccent;
+    Color inactiveColor = Colors.black87;
+
+    Widget buildNavTile({
+      required String title,
+      required IconData icon,
+      required String route,
+    }) {
+      final bool isActive =
+          currentPath == route || currentPath.startsWith('$route/');
+      return ListTile(
+        leading: Icon(icon, color: isActive ? activeColor : inactiveColor),
+        title: Text(
+          title,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: isActive ? activeColor : inactiveColor,
+          ),
+        ),
+        tileColor: isActive ? Colors.blueAccent.withOpacity(0.1) : null,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        onTap: () {
+          Navigator.pop(context);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            context.go(route);
+          });
+        },
+      );
+    }
 
     return Drawer(
       backgroundColor: Colors.white,
