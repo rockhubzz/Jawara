@@ -12,6 +12,7 @@ class AppDrawer extends StatelessWidget {
     final bool isDashboardExpanded = currentPath.startsWith('/dashboard');
     final bool isDataWargaExpanded = currentPath.startsWith('/data_warga_rumah');
     final bool isPemasukanExpanded = currentPath.startsWith('/pemasukan');
+    final bool isKegiatanExpanded = currentPath.startsWith('/kegiatan');
 
     debugPrint('Current Path: $currentPath');
 
@@ -158,7 +159,7 @@ class AppDrawer extends StatelessWidget {
               ),
               buildNavTile(
                 title: "Warga - Daftar",
-                icon: Icons.apartment_outlined, 
+                icon: Icons.people_outline, 
                 route: '/data_warga_rumah/daftarWarga',
               ),
             ],
@@ -189,13 +190,46 @@ class AppDrawer extends StatelessWidget {
             ],
           ),
 
-          const Divider(),
-
-          buildNavTile(
-            title: "Tambah Kegiatan",
-            icon: Icons.add_circle_outline,
-            route: '/kegiatan/tambah',
+          // Kegiatan dan Broadcast
+          ExpansionTile(
+            initiallyExpanded: isKegiatanExpanded,
+            leading: Icon(
+              Icons.event_note_outlined, 
+              color: isKegiatanExpanded ? activeColor : inactiveColor,
+            ),
+            title: Text(
+              "Kegiatan dan Broadcast",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: isKegiatanExpanded ? activeColor : inactiveColor,
+              ),
+            ),
+            childrenPadding: const EdgeInsets.only(left: 32),
+            children: [
+              buildNavTile(
+                title: "Kegiatan - Daftar",
+                icon: Icons.list_alt_outlined, 
+                route: '/kegiatan/daftar',
+              ),
+              buildNavTile(
+                title: "Kegiatan - Tambah",
+                icon: Icons.add_circle_outline, 
+                route: '/kegiatan/tambah',
+              ),
+              buildNavTile(
+                title: "Broadcast - Daftar",
+                icon: Icons.campaign_outlined, 
+                route: '/kegiatan/daftarbroad',
+              ),
+              buildNavTile(
+                title: "Broadcast - Tambah",
+                icon: Icons.add_alert_outlined, 
+                route: '/kegiatan/tambahbroad',
+              ),
+            ],
           ),
+
+          const Divider(),
 
           // --- Profil Admin ---
           Padding(
