@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:jawara/pemasukan/tagih_iuran_page.dart';
 import 'package:jawara/data_warga_rumah/daftar_rumah_page.dart';
+import 'package:jawara/data_warga_rumah/daftar_warga_page.dart';
 import 'package:jawara/data_warga_rumah/tambahRumah_page.dart';
 import 'package:jawara/data_warga_rumah/tambahWarga_page.dart';
 import 'Kegiatan & Broadcast/KegiatanTambah.dart';
@@ -60,6 +61,10 @@ class MyApp extends StatelessWidget {
         GoRoute(
           path: '/data_warga_rumah/daftarRumah',
           builder: (context, state) => const DaftarRumahPage(),
+        ),
+        GoRoute(
+          path: '/data_warga_rumah/daftarWarga',
+          builder: (context, state) => const DaftarWargaPage(),
         ),
         GoRoute(
           path: '/pemasukan/tagihIuran',
