@@ -12,9 +12,20 @@ class KependudukanPage extends StatelessWidget {
       backgroundColor: Colors.grey[100],
       drawer: AppDrawer(email: 'admin1@mail.com'),
       appBar: AppBar(
-        title: const Text("Data Kependudukan"),
         backgroundColor: const Color.fromARGB(255, 255, 255, 255),
         elevation: 2,
+        title: const Text(
+          "Data Kependudukan",
+          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
+        ),
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu, color: Colors.black87),
+            onPressed: () {
+              Scaffold.of(context).openDrawer();
+            },
+          ),
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -54,8 +65,8 @@ class KependudukanPage extends StatelessWidget {
               crossAxisCount: MediaQuery.of(context).size.width > 1000
                   ? 3
                   : MediaQuery.of(context).size.width > 700
-                  ? 2
-                  : 1,
+                      ? 2
+                      : 1,
               crossAxisSpacing: 16,
               mainAxisSpacing: 16,
               childAspectRatio: 1.4,
