@@ -325,7 +325,7 @@ class AppDrawer extends StatelessWidget {
 
           // pesan warga
           ExpansionTile(
-            initiallyExpanded: isKegiatanExpanded,
+            initiallyExpanded: isPesanExpanded,
             leading: Icon(
               Icons.message_outlined,
               color: isPesanExpanded ? activeColor : inactiveColor,
@@ -349,16 +349,16 @@ class AppDrawer extends StatelessWidget {
 
           // penerimaan warga
           ExpansionTile(
-            initiallyExpanded: isKegiatanExpanded,
+            initiallyExpanded: isPenerimaanExpanded,
             leading: Icon(
               Icons.how_to_reg_outlined,
-              color: isPesanExpanded ? activeColor : inactiveColor,
+              color: isPenerimaanExpanded ? activeColor : inactiveColor,
             ),
             title: Text(
               "Penerimaan Warga",
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: isPesanExpanded ? activeColor : inactiveColor,
+                color: isPenerimaanExpanded ? activeColor : inactiveColor,
               ),
             ),
             childrenPadding: const EdgeInsets.only(left: 32),
@@ -373,16 +373,16 @@ class AppDrawer extends StatelessWidget {
 
           // mutasi keluarga
           ExpansionTile(
-            initiallyExpanded: isKegiatanExpanded,
+            initiallyExpanded: isMutasiExpanded,
             leading: Icon(
               Icons.sync_alt,
-              color: isPesanExpanded ? activeColor : inactiveColor,
+              color: isMutasiExpanded ? activeColor : inactiveColor,
             ),
             title: Text(
               "Mutasi Keluarga",
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: isPesanExpanded ? activeColor : inactiveColor,
+                color: isMutasiExpanded ? activeColor : inactiveColor,
               ),
             ),
             childrenPadding: const EdgeInsets.only(left: 32),
