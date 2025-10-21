@@ -38,9 +38,10 @@ class AppDrawer extends StatelessWidget {
     final bool isDataWargaExpanded = currentPath.startsWith(
       '/data_warga_rumah',
     );
-    final bool isPemasukanExpanded = currentPath.startsWith('/pemasukan');
+    final bool isPemasukanExpanded = currentPath.startsWith('/Pemasukan');
     final bool isPengeluaranExpanded = currentPath.startsWith('/Pengeluaran');
     final bool isKegiatanExpanded = currentPath.startsWith('/kegiatan');
+    final bool isLapKeuExpanded = currentPath.startsWith('/laporanKeuangan');
 
     debugPrint('Current Path: $currentPath');
 
@@ -196,7 +197,7 @@ class AppDrawer extends StatelessWidget {
               buildNavTile(
                 title: "Tagih Iuran",
                 icon: Icons.payments_outlined,
-                route: '/pemasukan/tagihIuran',
+                route: '/Pemasukan/tagihIuran',
               ),
               buildNavTile(
                 title: "Pemasukan Lain - Daftar",
@@ -231,7 +232,7 @@ class AppDrawer extends StatelessWidget {
                 // context: context,
                 title: "Daftar - Pengeluaran",
                 icon: Icons.list_alt_outlined,
-                route: '/Pengeluaran',
+                route: '/Pengeluaran/daftarPengeluaran',
               ),
               buildNavTile(
                 // context: context,
@@ -244,16 +245,16 @@ class AppDrawer extends StatelessWidget {
 
           // Laporan Keuangan
           ExpansionTile(
-            initiallyExpanded: isPemasukanExpanded,
+            initiallyExpanded: isLapKeuExpanded,
             leading: Icon(
               Icons.request_page_outlined,
-              color: isPemasukanExpanded ? activeColor : inactiveColor,
+              color: isLapKeuExpanded ? activeColor : inactiveColor,
             ),
             title: Text(
               "Laporan Keuangan",
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: isPemasukanExpanded ? activeColor : inactiveColor,
+                color: isLapKeuExpanded ? activeColor : inactiveColor,
               ),
             ),
             childrenPadding: const EdgeInsets.only(left: 32),
@@ -278,7 +279,7 @@ class AppDrawer extends StatelessWidget {
               ),
             ],
           ),
-          const Divider(),
+          // const Divider(),
           // Profil admin
           // Kegiatan dan Broadcast
           ExpansionTile(

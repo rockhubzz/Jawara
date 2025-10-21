@@ -56,7 +56,7 @@ class MyApp extends StatelessWidget {
         ),
 
         GoRoute(
-          path: '/Pengeluaran',
+          path: '/Pengeluaran/daftarPengeluaran',
           builder: (context, state) => const DaftarPengeluaranPage(),
         ),
 
@@ -79,11 +79,6 @@ class MyApp extends StatelessWidget {
         ),
 
         GoRoute(
-          path: '/Pemasukan',
-          builder: (context, state) => const PemasukanLainDaftar(),
-        ),
-
-        GoRoute(
           path: '/Pemasukan/PemasukanLainTambah',
           builder: (context, state) => const PemasukanLainTambah(),
         ),
@@ -101,7 +96,7 @@ class MyApp extends StatelessWidget {
           builder: (context, state) => const TambahWargaPage(),
         ),
         GoRoute(
-          path: '/pemasukan/tagihIuran',
+          path: '/Pemasukan/tagihIuran',
           builder: (context, state) => const TagihIuranPage(),
         ),
         GoRoute(

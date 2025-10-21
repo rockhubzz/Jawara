@@ -72,22 +72,23 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      drawer: const AppDrawer(email: "esa@gmail.com"),
-      backgroundColor: const Color(0xFFF5F6FA),
+      appBar: AppBar(
+        title: const Text(
+          "Tambah Pemasukan lain",
+          style: TextStyle(color: Colors.black),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.black),
+      ),
+
+      // ✅ Tambahkan drawer agar icon garis 3 bisa buka sidebar
+      drawer: AppDrawer(email: 'admin1@mail.com'),
+
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Stack(
           children: [
-            Positioned(
-              top: 16,
-              left: 16,
-              child: IconButton(
-                icon: const Icon(Icons.menu, size: 28, color: Colors.black),
-                onPressed: () {
-                  _scaffoldKey.currentState?.openDrawer();
-                },
-              ),
-            ),
-
             SingleChildScrollView(
               padding: const EdgeInsets.fromLTRB(20, 70, 20, 20),
               child: Center(
