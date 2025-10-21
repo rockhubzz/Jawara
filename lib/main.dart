@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:jawara/KegiatandanBroadcast/KegiatanDaftar.dart';
+import 'package:jawara/KegiatandanBroadcast/KegiatanTambah.dart';
+import 'package:jawara/KegiatandanBroadcast/BroadcastDaftar.dart';
+import 'package:jawara/KegiatandanBroadcast/BroadcastTambah.dart';
 import 'package:jawara/pemasukan/tagih_iuran_page.dart';
-import 'Kegiatan & Broadcast/KegiatanTambah.dart';
 import 'pages/login_page.dart';
 import 'Dashboard/Kegiatan.dart';
 import 'Dashboard/Kependudukan.dart';
@@ -45,10 +48,6 @@ class MyApp extends StatelessWidget {
           builder: (context, state) => const Keuangan(),
         ),
         GoRoute(
-          path: '/kegiatan/tambah',
-          builder: (context, state) => const AddKegiatanPage(),
-        ),
-        GoRoute(
           path: '/data_warga_rumah/tambahRumah',
           builder: (context, state) => const TambahRumahPage(),
         ),
@@ -60,7 +59,22 @@ class MyApp extends StatelessWidget {
           path: '/pemasukan/tagihIuran',
           builder: (context, state) => const TagihIuranPage(),
         ),
-        //end route
+        GoRoute(
+          path: '/kegiatan/daftar',
+          builder: (context, state) => const KegiatanDaftarPage(),
+        ),
+        GoRoute(
+          path: '/kegiatan/tambah',
+          builder: (context, state) => const KegiatanTambahPage(),
+        ),
+        GoRoute(
+          path: '/kegiatan/daftarbroad',
+          builder: (context, state) => const BroadcastDaftarPage(),
+        ),
+        GoRoute(
+          path: '/kegiatan/tambahbroad',
+          builder: (context, state) => const BroadcastTambahPage(),
+        ),
       ],
     );
 
