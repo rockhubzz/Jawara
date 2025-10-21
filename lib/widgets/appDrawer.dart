@@ -184,8 +184,13 @@ class AppDrawer extends StatelessWidget {
             children: [
               buildNavTile(
                 title: "Tagih Iuran",
-                icon: Icons.payments_outlined, 
+                icon: Icons.receipt_long_outlined, 
                 route: '/pemasukan/tagihIuran',
+              ),
+              buildNavTile(
+                title: "Kategori Iuran",
+                icon: Icons.category_outlined, 
+                route: '/pemasukan/kategoriIuran',
               ),
             ],
           ),

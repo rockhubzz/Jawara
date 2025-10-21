@@ -4,8 +4,8 @@ import 'package:jawara/KegiatandanBroadcast/KegiatanDaftar.dart';
 import 'package:jawara/KegiatandanBroadcast/KegiatanTambah.dart';
 import 'package:jawara/KegiatandanBroadcast/BroadcastDaftar.dart';
 import 'package:jawara/KegiatandanBroadcast/BroadcastTambah.dart';
+import 'package:jawara/pemasukan/kategori_iuran_page.dart';
 import 'package:jawara/pemasukan/tagih_iuran_page.dart';
-
 import 'package:jawara/data_warga_rumah/daftar_rumah_page.dart';
 import 'package:jawara/data_warga_rumah/daftar_warga_page.dart';
 import 'package:jawara/data_warga_rumah/tambahRumah_page.dart';
@@ -69,6 +69,10 @@ class MyApp extends StatelessWidget {
         GoRoute(
           path: '/pemasukan/tagihIuran',
           builder: (context, state) => const TagihIuranPage(),
+        ),
+        GoRoute(
+          path: '/pemasukan/kategoriIuran',
+          builder: (context, state) => const KategoriIuranPage(),
         ),
         GoRoute(
           path: '/kegiatan/daftar',
