@@ -147,6 +147,11 @@ class AppDrawer extends StatelessWidget {
                 route: '/data_warga_rumah/tambahRumah',
               ),
               buildNavTile(
+                title: "Rumah - Daftar",
+                icon: Icons.apartment_outlined, 
+                route: '/data_warga_rumah/daftarRumah',
+              ),
+              buildNavTile(
                 title: "Warga - Tambah",
                 icon: Icons.people_alt_outlined, 
                 route: '/data_warga_rumah/tambahWarga',
