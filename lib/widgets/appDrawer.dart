@@ -13,6 +13,9 @@ class AppDrawer extends StatelessWidget {
     final bool isDataWargaExpanded = currentPath.startsWith('/data_warga_rumah');
     final bool isPemasukanExpanded = currentPath.startsWith('/pemasukan');
     final bool isKegiatanExpanded = currentPath.startsWith('/kegiatan');
+    final bool isPesanExpanded = currentPath.startsWith('/pesan');
+    final bool isPenerimaanExpanded = currentPath.startsWith('/penerimaan');
+    final bool isMutasiExpanded = currentPath.startsWith('/mutasi');
 
     debugPrint('Current Path: $currentPath');
 
@@ -215,6 +218,78 @@ class AppDrawer extends StatelessWidget {
                 title: "Broadcast - Tambah",
                 icon: Icons.add_alert_outlined, 
                 route: '/kegiatan/tambahbroad',
+              ),
+            ],
+          ),
+
+          // pesan warga
+          ExpansionTile(
+            initiallyExpanded: isKegiatanExpanded,
+            leading: Icon(
+              Icons.message_outlined,
+              color: isPesanExpanded ? activeColor : inactiveColor,
+            ),
+            title: Text(
+              "Pesan Warga",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: isPesanExpanded ? activeColor : inactiveColor,
+              ),
+            ),
+            childrenPadding: const EdgeInsets.only(left: 32),
+            children: [
+              buildNavTile(
+                title: "Informasi Aspirasi",
+                icon: Icons.feedback_outlined, 
+                route: '/pesan/informasi',
+              ),
+            ],
+          ),
+
+          // penerimaan warga
+          ExpansionTile(
+            initiallyExpanded: isKegiatanExpanded,
+            leading: Icon(
+              Icons.how_to_reg_outlined,
+              color: isPesanExpanded ? activeColor : inactiveColor,
+            ),
+            title: Text(
+              "Penerimaan Warga",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: isPesanExpanded ? activeColor : inactiveColor,
+              ),
+            ),
+            childrenPadding: const EdgeInsets.only(left: 32),
+            children: [
+              buildNavTile(
+                title: "Penerimaan Warga",
+                icon: Icons.person_add_alt_outlined,
+                route: '/penerimaan/warga',
+              ),
+            ],
+          ),
+
+          // mutasi keluarga
+          ExpansionTile(
+            initiallyExpanded: isKegiatanExpanded,
+            leading: Icon(
+              Icons.sync_alt,
+              color: isPesanExpanded ? activeColor : inactiveColor,
+            ),
+            title: Text(
+              "Mutasi Keluarga",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: isPesanExpanded ? activeColor : inactiveColor,
+              ),
+            ),
+            childrenPadding: const EdgeInsets.only(left: 32),
+            children: [
+              buildNavTile(
+                title: "Daftar",
+                icon: Icons.list_alt_outlined,
+                route: '/mutasi/daftar',
               ),
             ],
           ),
