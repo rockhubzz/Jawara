@@ -53,7 +53,6 @@ class _DaftarPengeluaranPageState extends State<DaftarPengeluaranPage> {
       body: SafeArea(
         child: Stack(
           children: [
-            // Hamburger di atas kiri
             Positioned(
               top: 16,
               left: 16,
@@ -65,7 +64,6 @@ class _DaftarPengeluaranPageState extends State<DaftarPengeluaranPage> {
               ),
             ),
 
-            // Konten utama (card diturunkan ke bawah)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 70, 16, 16),
               child: Card(

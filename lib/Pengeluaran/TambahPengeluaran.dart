@@ -83,7 +83,6 @@ class _TambahPengeluaranState extends State<TambahPengeluaran> {
       body: SafeArea(
         child: Stack(
           children: [
-            // Tombol hamburger di luar card
             Positioned(
               top: 16,
               left: 16,
@@ -95,7 +94,6 @@ class _TambahPengeluaranState extends State<TambahPengeluaran> {
               ),
             ),
 
-            // Konten utama (card turun ke bawah)
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 70, 20, 20),
               child: Center(

@@ -77,7 +77,6 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
       body: SafeArea(
         child: Stack(
           children: [
-            // Tombol Hamburger di atas
             Positioned(
               top: 16,
               left: 16,
@@ -89,14 +88,8 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
               ),
             ),
 
-            // Isi utama halaman (card diturunkan)
             SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(
-                20,
-                70,
-                20,
-                20,
-              ), // tambahkan jarak dari atas
+              padding: const EdgeInsets.fromLTRB(20, 70, 20, 20),
               child: Center(
                 child: Card(
                   elevation: 4,

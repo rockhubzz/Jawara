@@ -52,7 +52,6 @@ class _SemuaPemasukanState extends State<SemuaPemasukan> {
       drawer: const AppDrawer(email: "esa@gmail.com"),
       body: Stack(
         children: [
-          // Isi utama
           Padding(
             padding: const EdgeInsets.only(
               top: 80,
@@ -246,7 +245,6 @@ class _SemuaPemasukanState extends State<SemuaPemasukan> {
             ),
           ),
 
-          // Tombol hamburger di luar card
           Positioned(
             top: 20,
             left: 16,

@@ -53,7 +53,6 @@ class _SemuaPengeluaranState extends State<SemuaPengeluaran> {
 
       body: Stack(
         children: [
-          // Tombol Hamburger di luar Card
           Positioned(
             top: 30,
             left: 16,
@@ -65,7 +64,6 @@ class _SemuaPengeluaranState extends State<SemuaPengeluaran> {
             ),
           ),
 
-          // Konten utama (Card diturunkan)
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 80, 16, 16),
             child: Card(
