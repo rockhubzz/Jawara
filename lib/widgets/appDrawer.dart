@@ -197,6 +197,16 @@ class AppDrawer extends StatelessWidget {
                 icon: Icons.payments_outlined,
                 route: '/pemasukan/tagihIuran',
               ),
+              buildNavTile(
+                title: "Pemasukan Lain - Daftar",
+                icon: Icons.payments_outlined,
+                route: '/Pemasukan/PemasukanLainDaftar',
+              ),
+              buildNavTile(
+                title: "Pemasukan Lain - Tambah",
+                icon: Icons.payments_outlined,
+                route: '/Pemasukan/PemasukanLainTambah',
+              ),
             ],
           ),
 
@@ -227,93 +237,6 @@ class AppDrawer extends StatelessWidget {
                 title: "Tambah - Pengeluaran",
                 icon: Icons.add_circle_outline,
                 route: '/Pengeluaran/tambahPengeluaran',
-              ),
-            ],
-          ),
-
-          // Pemasukan
-          ExpansionTile(
-            initiallyExpanded: isPemasukanExpanded,
-            leading: Icon(
-              Icons.request_page_outlined,
-              color: isPemasukanExpanded ? activeColor : inactiveColor,
-            ),
-            title: Text(
-              "Pemasukan",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: isPemasukanExpanded ? activeColor : inactiveColor,
-              ),
-            ),
-            childrenPadding: const EdgeInsets.only(left: 32),
-            children: [
-              buildNavTile(
-                title: "Kegiatan",
-                icon: Icons.directions_walk,
-                route: '/dashboard/kegiatan',
-              ),
-              buildNavTile(
-                title: "Keuangan",
-                icon: Icons.account_balance_wallet,
-                route: '/dashboard/keuangan',
-              ),
-              buildNavTile(
-                title: "Kependudukan",
-                icon: Icons.people,
-                route: '/dashboard/kependudukan',
-              ),
-            ],
-          ),
-
-          // menu Data Warga & Rumah
-          ExpansionTile(
-            initiallyExpanded: isDataWargaExpanded,
-            leading: Icon(
-              Icons.home_work_rounded,
-              color: isDataWargaExpanded ? activeColor : inactiveColor,
-            ),
-            title: Text(
-              "Data Warga & Rumah",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: isDataWargaExpanded ? activeColor : inactiveColor,
-              ),
-            ),
-            childrenPadding: const EdgeInsets.only(left: 32),
-            children: [
-              buildNavTile(
-                title: "Rumah - Tambah",
-                icon: Icons.house_outlined,
-                route: '/data_warga_rumah/tambahRumah',
-              ),
-              buildNavTile(
-                title: "Warga - Tambah",
-                icon: Icons.people_alt_outlined,
-                route: '/data_warga_rumah/tambahWarga',
-              ),
-            ],
-          ),
-
-          // menu Pemasukan
-          ExpansionTile(
-            initiallyExpanded: isPemasukanExpanded,
-            leading: Icon(
-              Icons.request_page_outlined,
-              color: isPemasukanExpanded ? activeColor : inactiveColor,
-            ),
-            title: Text(
-              "Pemasukan",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: isPemasukanExpanded ? activeColor : inactiveColor,
-              ),
-            ),
-            childrenPadding: const EdgeInsets.only(left: 32),
-            children: [
-              buildNavTile(
-                title: "Tagih Iuran",
-                icon: Icons.payments_outlined,
-                route: '/pemasukan/tagihIuran',
               ),
             ],
           ),
@@ -355,19 +278,6 @@ class AppDrawer extends StatelessWidget {
             ],
           ),
           const Divider(),
-
-          buildNavTile(
-            title: "Tambah Kegiatan",
-            icon: Icons.add_circle_outline,
-            route: '/kegiatan/tambah',
-          ),
-
-          buildNavTile(
-            title: "Tambah Kegiatan",
-            icon: Icons.add_circle_outline,
-            route: '/kegiatan/tambah',
-          ),
-
           // Profil admin
           Padding(
             padding: const EdgeInsets.all(16),

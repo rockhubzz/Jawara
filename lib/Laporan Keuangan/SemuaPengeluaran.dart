@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/appDrawer.dart';
 
 class SemuaPengeluaran extends StatefulWidget {
   const SemuaPengeluaran({super.key});
@@ -8,6 +9,8 @@ class SemuaPengeluaran extends StatefulWidget {
 }
 
 class _SemuaPengeluaranState extends State<SemuaPengeluaran> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   final List<Map<String, String>> pengeluaranList = [
     {
       "no": "1",
@@ -44,173 +47,212 @@ class _SemuaPengeluaranState extends State<SemuaPengeluaran> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: const Color(0xFFF5F7FA),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Card(
-          elevation: 3,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                // Tombol filter
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    ElevatedButton.icon(
-                      onPressed: () {},
-                      icon: const Icon(Icons.filter_list, color: Colors.white),
-                      label: const Text(
-                        '',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF6C63FF),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        minimumSize: const Size(50, 40),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
+      drawer: const AppDrawer(email: "esa@gmail.com"),
 
-                // Tabel header
-                Container(
-                  color: Colors.grey.shade100,
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 10,
-                    horizontal: 12,
-                  ),
-                  child: Row(
-                    children: const [
-                      Expanded(
-                        flex: 1,
-                        child: Text(
-                          "NO",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: Text(
-                          "NAMA",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      Expanded(
-                        flex: 3,
-                        child: Text(
-                          "JENIS PENGELUARAN",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      Expanded(
-                        flex: 3,
-                        child: Text(
-                          "TANGGAL",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      Expanded(
-                        flex: 3,
-                        child: Text(
-                          "NOMINAL",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      Expanded(
-                        flex: 1,
-                        child: Text(
-                          "AKSI",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const Divider(height: 1),
-
-                // Daftar data
-                Expanded(
-                  child: ListView.separated(
-                    itemCount: pengeluaranList.length,
-                    separatorBuilder: (context, index) =>
-                        const Divider(height: 1),
-                    itemBuilder: (context, index) {
-                      final item = pengeluaranList[index];
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 12,
-                          horizontal: 8,
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(flex: 1, child: Text(item['no']!)),
-                            Expanded(flex: 2, child: Text(item['nama']!)),
-                            Expanded(flex: 3, child: Text(item['jenis']!)),
-                            Expanded(flex: 3, child: Text(item['tanggal']!)),
-                            Expanded(flex: 3, child: Text(item['nominal']!)),
-                            Expanded(
-                              flex: 1,
-                              child: PopupMenuButton<String>(
-                                onSelected: (value) {},
-                                itemBuilder: (context) => [
-                                  const PopupMenuItem(
-                                    value: 'edit',
-                                    child: Text('Edit'),
-                                  ),
-                                  const PopupMenuItem(
-                                    value: 'hapus',
-                                    child: Text('Hapus'),
-                                  ),
-                                ],
-                                child: const Icon(Icons.more_horiz),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ),
-
-                // Pagination
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    IconButton(
-                      onPressed: currentPage > 1
-                          ? () => setState(() => currentPage--)
-                          : null,
-                      icon: const Icon(Icons.chevron_left),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF6C63FF),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        currentPage.toString(),
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.chevron_right),
-                    ),
-                  ],
-                ),
-              ],
+      body: Stack(
+        children: [
+          // Tombol Hamburger di luar Card
+          Positioned(
+            top: 30,
+            left: 16,
+            child: IconButton(
+              icon: const Icon(Icons.menu, size: 28, color: Colors.black87),
+              onPressed: () {
+                _scaffoldKey.currentState?.openDrawer();
+              },
             ),
           ),
-        ),
+
+          // Konten utama (Card diturunkan)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 80, 16, 16),
+            child: Card(
+              elevation: 3,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    const Center(
+                      child: Text(
+                        "Laporan Pengeluaran",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Tombol filter
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        ElevatedButton.icon(
+                          onPressed: () {},
+                          icon: const Icon(
+                            Icons.filter_list,
+                            color: Colors.white,
+                          ),
+                          label: const Text(
+                            '',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF6C63FF),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            minimumSize: const Size(50, 40),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Header tabel
+                    Container(
+                      color: Colors.grey.shade100,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 10,
+                        horizontal: 12,
+                      ),
+                      child: const Row(
+                        children: [
+                          Expanded(
+                            flex: 1,
+                            child: Text(
+                              "NO",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 2,
+                            child: Text(
+                              "NAMA",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 3,
+                            child: Text(
+                              "JENIS PENGELUARAN",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 3,
+                            child: Text(
+                              "TANGGAL",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 3,
+                            child: Text(
+                              "NOMINAL",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 1,
+                            child: Text(
+                              "AKSI",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Divider(height: 1),
+
+                    // Daftar data tabel
+                    Expanded(
+                      child: ListView.separated(
+                        itemCount: pengeluaranList.length,
+                        separatorBuilder: (context, index) =>
+                            const Divider(height: 1),
+                        itemBuilder: (context, index) {
+                          final item = pengeluaranList[index];
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 12,
+                              horizontal: 8,
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(flex: 1, child: Text(item['no']!)),
+                                Expanded(flex: 2, child: Text(item['nama']!)),
+                                Expanded(flex: 3, child: Text(item['jenis']!)),
+                                Expanded(
+                                  flex: 3,
+                                  child: Text(item['tanggal']!),
+                                ),
+                                Expanded(
+                                  flex: 3,
+                                  child: Text(item['nominal']!),
+                                ),
+                                Expanded(
+                                  flex: 1,
+                                  child: PopupMenuButton<String>(
+                                    onSelected: (value) {},
+                                    itemBuilder: (context) => [
+                                      const PopupMenuItem(
+                                        value: 'edit',
+                                        child: Text('Edit'),
+                                      ),
+                                      const PopupMenuItem(
+                                        value: 'hapus',
+                                        child: Text('Hapus'),
+                                      ),
+                                    ],
+                                    child: const Icon(Icons.more_horiz),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+
+                    // Pagination
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        IconButton(
+                          onPressed: currentPage > 1
+                              ? () => setState(() => currentPage--)
+                              : null,
+                          icon: const Icon(Icons.chevron_left),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF6C63FF),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            currentPage.toString(),
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () {},
+                          icon: const Icon(Icons.chevron_right),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

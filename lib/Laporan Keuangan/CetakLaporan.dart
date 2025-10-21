@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../widgets/appDrawer.dart'; // pastikan path sesuai letak AppDrawer kamu
 
 class CetakLaporan extends StatefulWidget {
   const CetakLaporan({super.key});
@@ -9,6 +10,8 @@ class CetakLaporan extends StatefulWidget {
 }
 
 class _CetakLaporanState extends State<CetakLaporan> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   final TextEditingController _tanggalMulaiController = TextEditingController();
   final TextEditingController _tanggalAkhirController = TextEditingController();
 
@@ -43,157 +46,187 @@ class _CetakLaporanState extends State<CetakLaporan> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FB),
-      body: Center(
-        child: Card(
-          elevation: 3,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          margin: const EdgeInsets.all(24),
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 800),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Cetak Laporan Keuangan',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 24),
+      key: _scaffoldKey,
 
-                  // Row untuk tanggal mulai & tanggal akhir
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+      drawer: const AppDrawer(email: "esa@gmail.com"),
+
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            padding: const EdgeInsets.only(
+              top: 120,
+              left: 24,
+              right: 24,
+              bottom: 24,
+            ),
+            child: Center(
+              child: Card(
+                elevation: 3,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 800),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 50),
+                        const Text(
+                          'Form Cetak Laporan',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Row tanggal mulai & akhir
+                        Row(
                           children: [
-                            const Text('Tanggal Mulai'),
-                            const SizedBox(height: 8),
-                            TextField(
-                              controller: _tanggalMulaiController,
-                              readOnly: true,
-                              decoration: InputDecoration(
-                                suffixIcon: IconButton(
-                                  icon: const Icon(
-                                    Icons.calendar_today_outlined,
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('Tanggal Mulai'),
+                                  const SizedBox(height: 8),
+                                  TextField(
+                                    controller: _tanggalMulaiController,
+                                    readOnly: true,
+                                    decoration: InputDecoration(
+                                      suffixIcon: IconButton(
+                                        icon: const Icon(
+                                          Icons.calendar_today_outlined,
+                                        ),
+                                        onPressed: () => _selectDate(
+                                          context,
+                                          _tanggalMulaiController,
+                                        ),
+                                      ),
+                                      hintText: '--/--/----',
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
                                   ),
-                                  onPressed: () => _selectDate(
-                                    context,
-                                    _tanggalMulaiController,
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('Tanggal Akhir'),
+                                  const SizedBox(height: 8),
+                                  TextField(
+                                    controller: _tanggalAkhirController,
+                                    readOnly: true,
+                                    decoration: InputDecoration(
+                                      suffixIcon: IconButton(
+                                        icon: const Icon(
+                                          Icons.calendar_today_outlined,
+                                        ),
+                                        onPressed: () => _selectDate(
+                                          context,
+                                          _tanggalAkhirController,
+                                        ),
+                                      ),
+                                      hintText: '--/--/----',
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
                                   ),
-                                ),
-                                hintText: '--/--/----',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
+                                ],
                               ),
                             ),
                           ],
                         ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('Tanggal Akhir'),
-                            const SizedBox(height: 8),
-                            TextField(
-                              controller: _tanggalAkhirController,
-                              readOnly: true,
-                              decoration: InputDecoration(
-                                suffixIcon: IconButton(
-                                  icon: const Icon(
-                                    Icons.calendar_today_outlined,
-                                  ),
-                                  onPressed: () => _selectDate(
-                                    context,
-                                    _tanggalAkhirController,
-                                  ),
+                        const SizedBox(height: 20),
+
+                        // Dropdown Jenis Laporan
+                        const Text('Jenis Laporan'),
+                        const SizedBox(height: 8),
+                        DropdownButtonFormField<String>(
+                          value: _jenisLaporan,
+                          items: _jenisLaporanList
+                              .map(
+                                (item) => DropdownMenuItem(
+                                  value: item,
+                                  child: Text(item),
                                 ),
-                                hintText: '--/--/----',
-                                border: OutlineInputBorder(
+                              )
+                              .toList(),
+                          onChanged: (value) =>
+                              setState(() => _jenisLaporan = value!),
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 24),
+
+                        // Tombol aksi
+                        Row(
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {
+                                // TODO: Tambahkan logika download PDF di sini
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 12,
+                                ),
+                                shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                               ),
+                              child: const Text(
+                                'Download PDF',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            OutlinedButton(
+                              onPressed: _resetForm,
+                              style: OutlinedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 12,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              child: const Text('Reset'),
                             ),
                           ],
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Dropdown Jenis Laporan
-                  const Text('Jenis Laporan'),
-                  const SizedBox(height: 8),
-                  DropdownButtonFormField<String>(
-                    value: _jenisLaporan,
-                    items: _jenisLaporanList
-                        .map(
-                          (item) =>
-                              DropdownMenuItem(value: item, child: Text(item)),
-                        )
-                        .toList(),
-                    onChanged: (value) =>
-                        setState(() => _jenisLaporan = value!),
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+                      ],
                     ),
                   ),
-
-                  const SizedBox(height: 24),
-
-                  // Tombol aksi
-                  Row(
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          // TODO: Tambahkan logika download PDF di sini
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 12,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: const Text(
-                          'Download PDF',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      OutlinedButton(
-                        onPressed: _resetForm,
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 12,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: const Text('Reset'),
-                      ),
-                    ],
-                  ),
-                ],
+                ),
               ),
             ),
           ),
-        ),
+
+          Positioned(
+            top: 20,
+            left: 16,
+            child: IconButton(
+              icon: const Icon(Icons.menu, size: 28, color: Colors.black87),
+              onPressed: () {
+                _scaffoldKey.currentState?.openDrawer();
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

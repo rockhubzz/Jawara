@@ -88,6 +88,11 @@ class MyApp extends StatelessWidget {
           path: '/Pemasukan/PemasukanLainTambah',
           builder: (context, state) => const PemasukanLainTambah(),
         ),
+
+        GoRoute(
+          path: '/Pemasukan/PemasukanLainDaftar',
+          builder: (context, state) => const PemasukanLainDaftar(),
+        ),
         GoRoute(
           path: '/data_warga_rumah/tambahRumah',
           builder: (context, state) => const TambahRumahPage(),

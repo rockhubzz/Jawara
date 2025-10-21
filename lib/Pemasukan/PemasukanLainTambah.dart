@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import '../widgets/appDrawer.dart';
 
 class PemasukanLainTambah extends StatefulWidget {
   const PemasukanLainTambah({Key? key}) : super(key: key);
@@ -11,6 +12,8 @@ class PemasukanLainTambah extends StatefulWidget {
 }
 
 class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _namaController = TextEditingController();
   final TextEditingController _nominalController = TextEditingController();
@@ -68,176 +71,204 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
+      drawer: const AppDrawer(email: "esa@gmail.com"),
       backgroundColor: const Color(0xFFF5F6FA),
-      appBar: AppBar(
-        title: const Text('Buat Pemasukan Non Iuran Baru'),
-        backgroundColor: Colors.indigo,
-      ),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Card(
-            elevation: 4,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+      body: SafeArea(
+        child: Stack(
+          children: [
+            // Tombol Hamburger di atas
+            Positioned(
+              top: 16,
+              left: 16,
+              child: IconButton(
+                icon: const Icon(Icons.menu, size: 28, color: Colors.black),
+                onPressed: () {
+                  _scaffoldKey.currentState?.openDrawer();
+                },
+              ),
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Buat Pemasukan Non Iuran Baru',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
 
-                    // Nama Pemasukan
-                    TextFormField(
-                      controller: _namaController,
-                      decoration: const InputDecoration(
-                        labelText: 'Nama Pemasukan',
-                        hintText: 'Masukkan nama pemasukan',
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (value) =>
-                          value!.isEmpty ? 'Nama pemasukan wajib diisi' : null,
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Tanggal Pemasukan
-                    TextFormField(
-                      controller: _tanggalController,
-                      readOnly: true,
-                      decoration: InputDecoration(
-                        labelText: 'Tanggal Pemasukan',
-                        border: const OutlineInputBorder(),
-                        suffixIcon: IconButton(
-                          icon: const Icon(Icons.calendar_today),
-                          onPressed: _pickDate,
-                        ),
-                      ),
-                      validator: (value) =>
-                          value!.isEmpty ? 'Tanggal wajib diisi' : null,
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Kategori Pemasukan
-                    DropdownButtonFormField<String>(
-                      value: _kategori,
-                      items: _kategoriList
-                          .map(
-                            (item) => DropdownMenuItem(
-                              value: item,
-                              child: Text(item),
+            // Isi utama halaman (card diturunkan)
+            SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(
+                20,
+                70,
+                20,
+                20,
+              ), // tambahkan jarak dari atas
+              child: Center(
+                child: Card(
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Buat Pemasukan Non Iuran Baru',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
                             ),
-                          )
-                          .toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          _kategori = value;
-                        });
-                      },
-                      decoration: const InputDecoration(
-                        labelText: 'Kategori Pemasukan',
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (value) =>
-                          value == null ? 'Pilih kategori pemasukan' : null,
-                    ),
-                    const SizedBox(height: 20),
+                          ),
+                          const SizedBox(height: 20),
 
-                    // Nominal
-                    TextFormField(
-                      controller: _nominalController,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: 'Nominal',
-                        hintText: 'Masukkan nominal pemasukan',
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (value) =>
-                          value!.isEmpty ? 'Nominal wajib diisi' : null,
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Bukti Pemasukan
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Bukti Pemasukan',
-                          style: TextStyle(fontWeight: FontWeight.w500),
-                        ),
-                        const SizedBox(height: 8),
-                        GestureDetector(
-                          onTap: _pickImage,
-                          child: Container(
-                            height: 120,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: Colors.grey.shade200,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.grey.shade400),
+                          // Nama Pemasukan
+                          TextFormField(
+                            controller: _namaController,
+                            decoration: const InputDecoration(
+                              labelText: 'Nama Pemasukan',
+                              border: OutlineInputBorder(),
                             ),
-                            child: _buktiFile != null
-                                ? ClipRRect(
+                            validator: (value) => value!.isEmpty
+                                ? 'Nama pemasukan wajib diisi'
+                                : null,
+                          ),
+                          const SizedBox(height: 20),
+
+                          // Tanggal Pemasukan
+                          TextFormField(
+                            controller: _tanggalController,
+                            readOnly: true,
+                            decoration: InputDecoration(
+                              labelText: 'Tanggal Pemasukan',
+                              border: const OutlineInputBorder(),
+                              suffixIcon: IconButton(
+                                icon: const Icon(Icons.calendar_today),
+                                onPressed: _pickDate,
+                              ),
+                            ),
+                            validator: (value) =>
+                                value!.isEmpty ? 'Tanggal wajib diisi' : null,
+                          ),
+                          const SizedBox(height: 20),
+
+                          // Kategori Pemasukan
+                          DropdownButtonFormField<String>(
+                            value: _kategori,
+                            items: _kategoriList
+                                .map(
+                                  (item) => DropdownMenuItem(
+                                    value: item,
+                                    child: Text(item),
+                                  ),
+                                )
+                                .toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                _kategori = value;
+                              });
+                            },
+                            decoration: const InputDecoration(
+                              labelText: 'Kategori Pemasukan',
+                              border: OutlineInputBorder(),
+                            ),
+                            validator: (value) => value == null
+                                ? 'Pilih kategori pemasukan'
+                                : null,
+                          ),
+                          const SizedBox(height: 20),
+
+                          // Nominal
+                          TextFormField(
+                            controller: _nominalController,
+                            keyboardType: TextInputType.number,
+                            decoration: const InputDecoration(
+                              labelText: 'Nominal',
+                              border: OutlineInputBorder(),
+                            ),
+                            validator: (value) =>
+                                value!.isEmpty ? 'Nominal wajib diisi' : null,
+                          ),
+                          const SizedBox(height: 20),
+
+                          // Bukti Pemasukan
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Bukti Pemasukan',
+                                style: TextStyle(fontWeight: FontWeight.w500),
+                              ),
+                              const SizedBox(height: 8),
+                              GestureDetector(
+                                onTap: _pickImage,
+                                child: Container(
+                                  height: 120,
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade200,
                                     borderRadius: BorderRadius.circular(8),
-                                    child: Image.file(
-                                      _buktiFile!,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  )
-                                : const Center(
-                                    child: Text(
-                                      'Upload bukti pemasukan (.png/.jpg)',
-                                      style: TextStyle(color: Colors.grey),
+                                    border: Border.all(
+                                      color: Colors.grey.shade400,
                                     ),
                                   ),
+                                  child: _buktiFile != null
+                                      ? ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                          child: Image.file(
+                                            _buktiFile!,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        )
+                                      : const Center(
+                                          child: Text(
+                                            'Upload bukti pemasukan (.png/.jpg)',
+                                            style: TextStyle(
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 25),
+                          const SizedBox(height: 25),
 
-                    // Tombol Submit & Reset
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.indigo,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 30,
-                              vertical: 12,
-                            ),
+                          // Tombol Submit & Reset
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.indigo,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 30,
+                                    vertical: 12,
+                                  ),
+                                ),
+                                onPressed: _submitForm,
+                                child: const Text('Submit'),
+                              ),
+                              const SizedBox(width: 10),
+                              OutlinedButton(
+                                onPressed: _resetForm,
+                                style: OutlinedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 30,
+                                    vertical: 12,
+                                  ),
+                                ),
+                                child: const Text('Reset'),
+                              ),
+                            ],
                           ),
-                          onPressed: _submitForm,
-                          child: const Text('Submit'),
-                        ),
-                        const SizedBox(width: 10),
-                        OutlinedButton(
-                          onPressed: _resetForm,
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 30,
-                              vertical: 12,
-                            ),
-                          ),
-                          child: const Text('Reset'),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
+          ],
         ),
       ),
     );
