@@ -144,22 +144,27 @@ class AppDrawer extends StatelessWidget {
             children: [
               buildNavTile(
                 title: "Rumah - Tambah",
-                icon: Icons.house_outlined, 
+                icon: Icons.add_home_outlined, 
                 route: '/data_warga_rumah/tambahRumah',
               ),
               buildNavTile(
                 title: "Rumah - Daftar",
-                icon: Icons.apartment_outlined, 
+                icon: Icons.home_work_outlined, 
                 route: '/data_warga_rumah/daftarRumah',
               ),
               buildNavTile(
+                title: "Keluarga",
+                icon: Icons.family_restroom_outlined, 
+                route: '/data_warga_rumah/keluarga',
+              ),
+              buildNavTile(
                 title: "Warga - Tambah",
-                icon: Icons.people_alt_outlined, 
+                icon: Icons.person_add_alt_1_outlined, 
                 route: '/data_warga_rumah/tambahWarga',
               ),
               buildNavTile(
                 title: "Warga - Daftar",
-                icon: Icons.people_outline, 
+                icon: Icons.groups_2_outlined, 
                 route: '/data_warga_rumah/daftarWarga',
               ),
             ],
@@ -170,7 +175,7 @@ class AppDrawer extends StatelessWidget {
             initiallyExpanded: isPemasukanExpanded,
             leading: Icon(
               Icons
-                  .request_page_outlined, 
+                  .account_balance_wallet_outlined, 
               color: isPemasukanExpanded ? activeColor : inactiveColor,
             ),
             title: Text(
@@ -184,12 +189,12 @@ class AppDrawer extends StatelessWidget {
             children: [
               buildNavTile(
                 title: "Tagih Iuran",
-                icon: Icons.request_quote_outlined, 
+                icon: Icons.attach_money_outlined, 
                 route: '/pemasukan/tagihIuran',
               ),
               buildNavTile(
                 title: "Kategori Iuran",
-                icon: Icons.list_alt_outlined, 
+                icon: Icons.category_outlined, 
                 route: '/pemasukan/kategoriIuran',
               ),
               buildNavTile(
