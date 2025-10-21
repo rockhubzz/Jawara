@@ -35,7 +35,9 @@ class AppDrawer extends StatelessWidget {
 
     // Tentukan submenu mana yang terbuka
     final bool isDashboardExpanded = currentPath.startsWith('/dashboard');
-    final bool isDataWargaExpanded = currentPath.startsWith('/data_warga_rumah');
+    final bool isDataWargaExpanded = currentPath.startsWith(
+      '/data_warga_rumah',
+    );
     final bool isPemasukanExpanded = currentPath.startsWith('/Pemasukan');
     final bool isPengeluaranExpanded = currentPath.startsWith('/Pengeluaran');
     final bool isKegiatanExpanded = currentPath.startsWith('/kegiatan');
@@ -133,14 +135,14 @@ class AppDrawer extends StatelessWidget {
             childrenPadding: const EdgeInsets.only(left: 32),
             children: [
               buildNavTile(
-                title: "Kegiatan",
-                icon: Icons.directions_walk,
-                route: '/dashboard/kegiatan',
-              ),
-              buildNavTile(
                 title: "Keuangan",
                 icon: Icons.account_balance_wallet,
                 route: '/dashboard/keuangan',
+              ),
+              buildNavTile(
+                title: "Kegiatan",
+                icon: Icons.directions_walk,
+                route: '/dashboard/kegiatan',
               ),
               buildNavTile(
                 title: "Kependudukan",
@@ -167,29 +169,29 @@ class AppDrawer extends StatelessWidget {
             childrenPadding: const EdgeInsets.only(left: 32),
             children: [
               buildNavTile(
-                title: "Rumah - Tambah",
-                icon: Icons.add_home_outlined, 
-                route: '/data_warga_rumah/tambahRumah',
-              ),
-              buildNavTile(
-                title: "Rumah - Daftar",
-                icon: Icons.home_work_outlined, 
-                route: '/data_warga_rumah/daftarRumah',
-              ),
-              buildNavTile(
-                title: "Keluarga",
-                icon: Icons.family_restroom_outlined, 
-                route: '/data_warga_rumah/keluarga',
+                title: "Warga - Daftar",
+                icon: Icons.groups_2_outlined,
+                route: '/data_warga_rumah/daftarWarga',
               ),
               buildNavTile(
                 title: "Warga - Tambah",
-                icon: Icons.person_add_alt_1_outlined, 
+                icon: Icons.person_add_alt_1_outlined,
                 route: '/data_warga_rumah/tambahWarga',
               ),
               buildNavTile(
-                title: "Warga - Daftar",
-                icon: Icons.groups_2_outlined, 
-                route: '/data_warga_rumah/daftarWarga',
+                title: "Keluarga",
+                icon: Icons.family_restroom_outlined,
+                route: '/data_warga_rumah/keluarga',
+              ),
+              buildNavTile(
+                title: "Rumah - Daftar",
+                icon: Icons.home_work_outlined,
+                route: '/data_warga_rumah/daftarRumah',
+              ),
+              buildNavTile(
+                title: "Rumah - Tambah",
+                icon: Icons.add_home_outlined,
+                route: '/data_warga_rumah/tambahRumah',
               ),
             ],
           ),
@@ -198,8 +200,7 @@ class AppDrawer extends StatelessWidget {
           ExpansionTile(
             initiallyExpanded: isPemasukanExpanded,
             leading: Icon(
-              Icons
-                  .account_balance_wallet_outlined, 
+              Icons.account_balance_wallet_outlined,
               color: isPemasukanExpanded ? activeColor : inactiveColor,
             ),
             title: Text(
@@ -212,28 +213,28 @@ class AppDrawer extends StatelessWidget {
             childrenPadding: const EdgeInsets.only(left: 32),
             children: [
               buildNavTile(
-                title: "Tagih Iuran",
-                icon: Icons.attach_money_outlined, 
-                route: '/Pemasukan/tagihIuran',
-              ),
-              buildNavTile(
                 title: "Kategori Iuran",
-                icon: Icons.category_outlined, 
+                icon: Icons.category_outlined,
                 route: '/Pemasukan/kategoriIuran',
               ),
               buildNavTile(
+                title: "Tagih Iuran",
+                icon: Icons.attach_money_outlined,
+                route: '/Pemasukan/tagihIuran',
+              ),
+              buildNavTile(
                 title: "Tagihan",
-                icon: Icons.receipt_long_outlined, 
+                icon: Icons.receipt_long_outlined,
                 route: '/Pemasukan/tagihan',
               ),
               buildNavTile(
                 title: "Pemasukan Lain - Daftar",
-                icon: Icons.payments_outlined,
+                icon: Icons.list_alt_outlined,
                 route: '/Pemasukan/PemasukanLainDaftar',
               ),
               buildNavTile(
                 title: "Pemasukan Lain - Tambah",
-                icon: Icons.payments_outlined,
+                icon: Icons.add_card_outlined,
                 route: '/Pemasukan/PemasukanLainTambah',
               ),
             ],
@@ -257,20 +258,20 @@ class AppDrawer extends StatelessWidget {
             children: [
               buildNavTile(
                 // context: context,
-                title: "Semua Pengeluaran",
-                icon: Icons.payments_outlined,
-                route: '/laporanKeuangan/semuaPengeluaran',
-              ),
-              buildNavTile(
-                // context: context,
                 title: "Semua Pemasukan",
-                icon: Icons.payments_outlined,
+                icon: Icons.trending_up_outlined,
                 route: '/laporanKeuangan/semuaPemasukan',
               ),
               buildNavTile(
                 // context: context,
+                title: "Semua Pengeluaran",
+                icon: Icons.trending_down_outlined,
+                route: '/laporanKeuangan/semuaPengeluaran',
+              ),
+              buildNavTile(
+                // context: context,
                 title: "Cetak Laporan",
-                icon: Icons.print_outlined,
+                icon: Icons.picture_as_pdf_outlined,
                 route: '/laporanKeuangan/cetakLaporan',
               ),
             ],
