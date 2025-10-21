@@ -40,6 +40,7 @@ class AppDrawer extends StatelessWidget {
     );
     final bool isPemasukanExpanded = currentPath.startsWith('/pemasukan');
     final bool isPengeluaranExpanded = currentPath.startsWith('/Pengeluaran');
+    final bool isKegiatanExpanded = currentPath.startsWith('/kegiatan');
 
     debugPrint('Current Path: $currentPath');
 
@@ -279,6 +280,48 @@ class AppDrawer extends StatelessWidget {
           ),
           const Divider(),
           // Profil admin
+          // Kegiatan dan Broadcast
+          ExpansionTile(
+            initiallyExpanded: isKegiatanExpanded,
+            leading: Icon(
+              Icons.event_note_outlined,
+              color: isKegiatanExpanded ? activeColor : inactiveColor,
+            ),
+            title: Text(
+              "Kegiatan dan Broadcast",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: isKegiatanExpanded ? activeColor : inactiveColor,
+              ),
+            ),
+            childrenPadding: const EdgeInsets.only(left: 32),
+            children: [
+              buildNavTile(
+                title: "Kegiatan - Daftar",
+                icon: Icons.list_alt_outlined,
+                route: '/kegiatan/daftar',
+              ),
+              buildNavTile(
+                title: "Kegiatan - Tambah",
+                icon: Icons.add_circle_outline,
+                route: '/kegiatan/tambah',
+              ),
+              buildNavTile(
+                title: "Broadcast - Daftar",
+                icon: Icons.campaign_outlined,
+                route: '/kegiatan/daftarbroad',
+              ),
+              buildNavTile(
+                title: "Broadcast - Tambah",
+                icon: Icons.add_alert_outlined,
+                route: '/kegiatan/tambahbroad',
+              ),
+            ],
+          ),
+
+          const Divider(),
+
+          // --- Profil Admin ---
           Padding(
             padding: const EdgeInsets.all(16),
             child: InkWell(
