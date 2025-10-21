@@ -40,7 +40,6 @@ class AppDrawer extends StatelessWidget {
     );
     final bool isPemasukanExpanded = currentPath.startsWith('/pemasukan');
     final bool isPengeluaranExpanded = currentPath.startsWith('/Pengeluaran');
-    final bool isPemasukanExpanded = currentPath.startsWith('/pemasukan');
 
     debugPrint('Current Path: $currentPath');
 
@@ -218,13 +217,13 @@ class AppDrawer extends StatelessWidget {
             childrenPadding: const EdgeInsets.only(left: 32),
             children: [
               buildNavTile(
-                context: context,
+                // context: context,
                 title: "Daftar - Pengeluaran",
                 icon: Icons.list_alt_outlined,
                 route: '/Pengeluaran',
               ),
               buildNavTile(
-                context: context,
+                // context: context,
                 title: "Tambah - Pengeluaran",
                 icon: Icons.add_circle_outline,
                 route: '/Pengeluaran/tambahPengeluaran',
@@ -336,19 +335,19 @@ class AppDrawer extends StatelessWidget {
             childrenPadding: const EdgeInsets.only(left: 32),
             children: [
               buildNavTile(
-                context: context,
+                // context: context,
                 title: "Semua Pengeluaran",
                 icon: Icons.payments_outlined,
                 route: '/laporanKeuangan/semuaPengeluaran',
               ),
               buildNavTile(
-                context: context,
+                // context: context,
                 title: "Semua Pemasukan",
                 icon: Icons.payments_outlined,
                 route: '/laporanKeuangan/semuaPemasukan',
               ),
               buildNavTile(
-                context: context,
+                // context: context,
                 title: "Cetak Laporan",
                 icon: Icons.print_outlined,
                 route: '/laporanKeuangan/cetakLaporan',
