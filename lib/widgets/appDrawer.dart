@@ -220,7 +220,7 @@ class AppDrawer extends StatelessWidget {
             ],
           ),
 
-          // Pemasukkan
+          // Pemasukkann
           ExpansionTile(
             initiallyExpanded: isPemasukanExpanded,
             leading: Icon(
