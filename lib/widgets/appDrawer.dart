@@ -34,13 +34,45 @@ class AppDrawer extends StatelessWidget {
     String currentPath = GoRouterState.of(context).uri.toString();
 
     // Tentukan submenu mana yang terbuka
-    final bool isDashboardExpanded =
-        currentPath.startsWith('/home') ||
-        currentPath.startsWith('/kependudukan');
+    final bool isDashboardExpanded = currentPath.startsWith('/dashboard');
+    final bool isDataWargaExpanded = currentPath.startsWith(
+      '/data_warga_rumah',
+    );
+    final bool isPemasukanExpanded = currentPath.startsWith('/pemasukan');
     final bool isPengeluaranExpanded = currentPath.startsWith('/Pengeluaran');
     final bool isPemasukanExpanded = currentPath.startsWith('/pemasukan');
 
     debugPrint('Current Path: $currentPath');
+
+    Color activeColor = Colors.blueAccent;
+    Color inactiveColor = Colors.black87;
+
+    Widget buildNavTile({
+      required String title,
+      required IconData icon,
+      required String route,
+    }) {
+      final bool isActive =
+          currentPath == route || currentPath.startsWith('$route/');
+      return ListTile(
+        leading: Icon(icon, color: isActive ? activeColor : inactiveColor),
+        title: Text(
+          title,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: isActive ? activeColor : inactiveColor,
+          ),
+        ),
+        tileColor: isActive ? Colors.blueAccent.withOpacity(0.1) : null,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        onTap: () {
+          Navigator.pop(context);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            context.go(route);
+          });
+        },
+      );
+    }
 
     return Drawer(
       backgroundColor: Colors.white,
@@ -82,59 +114,89 @@ class AppDrawer extends StatelessWidget {
             ),
           ),
 
-          // Dashboard
+          // --- Dashboard (dengan submenu) ---
           ExpansionTile(
             initiallyExpanded: isDashboardExpanded,
-            leading: const Icon(Icons.dashboard, color: Colors.blueAccent),
-            title: const Text(
+            leading: Icon(
+              Icons.dashboard,
+              color: isDashboardExpanded ? activeColor : inactiveColor,
+            ),
+            title: Text(
               "Dashboard",
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: isDashboardExpanded ? activeColor : inactiveColor,
+              ),
             ),
             childrenPadding: const EdgeInsets.only(left: 32),
             children: [
-              ListTile(
-                leading: const Icon(Icons.directions_walk, color: Colors.black),
-                title: const Text("Kegiatan"),
-                onTap: () {
-                  context.pop();
-                  context.go('/home');
-                },
+              buildNavTile(
+                title: "Kegiatan",
+                icon: Icons.directions_walk,
+                route: '/dashboard/kegiatan',
               ),
-              ListTile(
-                leading: const Icon(
-                  Icons.account_balance_wallet,
-                  color: Colors.black,
-                ),
-                title: const Text("Keuangan"),
-                onTap: () {
-                  Navigator.pop(context);
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    context.go('/keuangan');
-                  });
-                },
+              buildNavTile(
+                title: "Keuangan",
+                icon: Icons.account_balance_wallet,
+                route: '/dashboard/keuangan',
               ),
-              ListTile(
-                leading: const Icon(Icons.people, color: Colors.black),
-                title: const Text("Kependudukan"),
-                onTap: () {
-                  Navigator.pop(context);
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    context.go('/kependudukan');
-                  });
-                },
+              buildNavTile(
+                title: "Kependudukan",
+                icon: Icons.people,
+                route: '/dashboard/kependudukan',
               ),
-              ListTile(
-                leading: const Icon(
-                  Icons.add_circle_outline,
-                  color: Colors.black,
-                ),
-                title: const Text("Tambah Kegiatan"),
-                onTap: () {
-                  Navigator.pop(context);
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    context.go('/addKegiatan');
-                  });
-                },
+            ],
+          ),
+
+          // menu Data Warga & Rumah
+          ExpansionTile(
+            initiallyExpanded: isDataWargaExpanded,
+            leading: Icon(
+              Icons.home_work_rounded,
+              color: isDataWargaExpanded ? activeColor : inactiveColor,
+            ),
+            title: Text(
+              "Data Warga & Rumah",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: isDataWargaExpanded ? activeColor : inactiveColor,
+              ),
+            ),
+            childrenPadding: const EdgeInsets.only(left: 32),
+            children: [
+              buildNavTile(
+                title: "Rumah - Tambah",
+                icon: Icons.house_outlined,
+                route: '/data_warga_rumah/tambahRumah',
+              ),
+              buildNavTile(
+                title: "Warga - Tambah",
+                icon: Icons.people_alt_outlined,
+                route: '/data_warga_rumah/tambahWarga',
+              ),
+            ],
+          ),
+
+          // menu Pemasukan
+          ExpansionTile(
+            initiallyExpanded: isPemasukanExpanded,
+            leading: Icon(
+              Icons.request_page_outlined,
+              color: isPemasukanExpanded ? activeColor : inactiveColor,
+            ),
+            title: Text(
+              "Pemasukan",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: isPemasukanExpanded ? activeColor : inactiveColor,
+              ),
+            ),
+            childrenPadding: const EdgeInsets.only(left: 32),
+            children: [
+              buildNavTile(
+                title: "Tagih Iuran",
+                icon: Icons.payments_outlined,
+                route: '/pemasukan/tagihIuran',
               ),
             ],
           ),
@@ -187,15 +249,53 @@ class AppDrawer extends StatelessWidget {
             childrenPadding: const EdgeInsets.only(left: 32),
             children: [
               buildNavTile(
-                context: context,
-                title: "Tagih Iuran",
-                icon: Icons.payments_outlined,
-                route: '/pemasukan/tagihIuran',
+                title: "Kegiatan",
+                icon: Icons.directions_walk,
+                route: '/dashboard/kegiatan',
+              ),
+              buildNavTile(
+                title: "Keuangan",
+                icon: Icons.account_balance_wallet,
+                route: '/dashboard/keuangan',
+              ),
+              buildNavTile(
+                title: "Kependudukan",
+                icon: Icons.people,
+                route: '/dashboard/kependudukan',
               ),
             ],
           ),
 
-          // Pemasukan
+          // menu Data Warga & Rumah
+          ExpansionTile(
+            initiallyExpanded: isDataWargaExpanded,
+            leading: Icon(
+              Icons.home_work_rounded,
+              color: isDataWargaExpanded ? activeColor : inactiveColor,
+            ),
+            title: Text(
+              "Data Warga & Rumah",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: isDataWargaExpanded ? activeColor : inactiveColor,
+              ),
+            ),
+            childrenPadding: const EdgeInsets.only(left: 32),
+            children: [
+              buildNavTile(
+                title: "Rumah - Tambah",
+                icon: Icons.house_outlined,
+                route: '/data_warga_rumah/tambahRumah',
+              ),
+              buildNavTile(
+                title: "Warga - Tambah",
+                icon: Icons.people_alt_outlined,
+                route: '/data_warga_rumah/tambahWarga',
+              ),
+            ],
+          ),
+
+          // menu Pemasukan
           ExpansionTile(
             initiallyExpanded: isPemasukanExpanded,
             leading: Icon(
@@ -212,41 +312,9 @@ class AppDrawer extends StatelessWidget {
             childrenPadding: const EdgeInsets.only(left: 32),
             children: [
               buildNavTile(
-                context: context,
                 title: "Tagih Iuran",
                 icon: Icons.payments_outlined,
                 route: '/pemasukan/tagihIuran',
-              ),
-            ],
-          ),
-
-          // Pemasukkann
-          ExpansionTile(
-            initiallyExpanded: isPemasukanExpanded,
-            leading: Icon(
-              Icons.request_page_outlined,
-              color: isPemasukanExpanded ? activeColor : inactiveColor,
-            ),
-            title: Text(
-              "Pemasukan",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: isPemasukanExpanded ? activeColor : inactiveColor,
-              ),
-            ),
-            childrenPadding: const EdgeInsets.only(left: 32),
-            children: [
-              buildNavTile(
-                context: context,
-                title: "Semua Pemasukan",
-                icon: Icons.payments_outlined,
-                route: 'Pemasukan/PemasukanLainDaftar',
-              ),
-              buildNavTile(
-                context: context,
-                title: "Semua Pemasukan",
-                icon: Icons.payments_outlined,
-                route: 'Pemasukan/PemasukanTambahanDaftar',
               ),
             ],
           ),
@@ -288,6 +356,18 @@ class AppDrawer extends StatelessWidget {
             ],
           ),
           const Divider(),
+
+          buildNavTile(
+            title: "Tambah Kegiatan",
+            icon: Icons.add_circle_outline,
+            route: '/kegiatan/tambah',
+          ),
+
+          buildNavTile(
+            title: "Tambah Kegiatan",
+            icon: Icons.add_circle_outline,
+            route: '/kegiatan/tambah',
+          ),
 
           // Profil admin
           Padding(

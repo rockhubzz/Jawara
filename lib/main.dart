@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:jawara/pages/addKegiatan_page.dart';
+import 'package:jawara/pemasukan/tagih_iuran_page.dart';
+import 'Kegiatan & Broadcast/KegiatanTambah.dart';
 import 'pages/login_page.dart';
-import 'pages/home_page.dart';
-import 'pages/kependudukan_page.dart';
+import 'Dashboard/Kegiatan.dart';
+import 'Dashboard/Kependudukan.dart';
 import 'Dashboard/Keuangan.dart';
 import 'Pengeluaran/DaftarPengeluaran.dart';
 import 'Pengeluaran/TambahPengeluaran.dart';
@@ -12,6 +13,8 @@ import 'Laporan Keuangan/SemuaPemasukan.dart';
 import 'Laporan Keuangan/CetakLaporan.dart';
 import 'Pemasukan/PemasukanLainDaftar.dart';
 import 'Pemasukan/PemasukanLainTambah.dart';
+import 'data_warga_rumah/tambahRumah_page.dart';
+import 'data_warga_rumah/tambahWarga_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -24,28 +27,32 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final GoRouter router = GoRouter(
       routes: [
-        GoRoute(path: '/', builder: (context, state) => const LoginPage()),
+        // debug mode
+        // GoRoute(
+        //   path: '/',
+        //   builder: (context, state) => const HomePage(email: 'raki@mail.com'),
+        // ),
 
+        //present
+        GoRoute(path: '/', builder: (context, state) => const LoginPage()),
         GoRoute(
-          path: '/home',
+          path: '/dashboard/kegiatan',
           builder: (context, state) {
             final loggedInUserEmail = state.extra as String?;
             return HomePage(email: loggedInUserEmail ?? 'Unknown User');
           },
         ),
-
         GoRoute(
-          path: '/kependudukan',
+          path: '/dashboard/kependudukan',
           builder: (context, state) => const KependudukanPage(),
         ),
 
         GoRoute(
-          path: '/keuangan',
+          path: '/dashboard/keuangan',
           builder: (context, state) => const Keuangan(),
         ),
-
         GoRoute(
-          path: '/addKegiatan',
+          path: '/kegiatan/tambah',
           builder: (context, state) => const AddKegiatanPage(),
         ),
 
@@ -81,6 +88,19 @@ class MyApp extends StatelessWidget {
           path: '/Pemasukan/PemasukanLainTambah',
           builder: (context, state) => const PemasukanLainTambah(),
         ),
+        GoRoute(
+          path: '/data_warga_rumah/tambahRumah',
+          builder: (context, state) => const TambahRumahPage(),
+        ),
+        GoRoute(
+          path: '/data_warga_rumah/tambahWarga',
+          builder: (context, state) => const TambahWargaPage(),
+        ),
+        GoRoute(
+          path: '/pemasukan/tagihIuran',
+          builder: (context, state) => const TagihIuranPage(),
+        ),
+        //end route
       ],
     );
 
