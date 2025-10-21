@@ -48,7 +48,7 @@ class BroadcastDaftarPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 🔹 Header (judul + tombol filter)
+                //  Header (judul + tombol filter)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -79,47 +79,60 @@ class BroadcastDaftarPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
 
-                // 🔹 Tabel tanpa scroll horizontal
-                Table(
-                  border: TableBorder.all(
-                    color: const Color(0xFFE0E0E0),
-                    width: 1,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  columnWidths: const {
-                    0: FlexColumnWidth(0.6), // NO
-                    1: FlexColumnWidth(1.4), // Pengirim
-                    2: FlexColumnWidth(2.5), // Judul
-                    3: FlexColumnWidth(1.4), // Tanggal
-                    4: FlexColumnWidth(1.2), // Aksi
-                  },
-                  defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                  children: [
-                    // 🔸 Header
-                    TableRow(
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFF3F0FF),
+                // tabel
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(minWidth: 700), // batas minimal agar tabel gak sempit
+                    child: Table(
+                      border: TableBorder.all(
+                        color: const Color(0xFFE0E0E0),
+                        width: 1,
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      children: const [
-                        _HeaderCell("NO"),
-                        _HeaderCell("PENGIRIM"),
-                        _HeaderCell("JUDUL"),
-                        _HeaderCell("TANGGAL"),
-                        _HeaderCell("AKSI"),
+                      columnWidths: const {
+                        0: FlexColumnWidth(0.6),
+                        1: FlexColumnWidth(1.4),
+                        2: FlexColumnWidth(2.5),
+                        3: FlexColumnWidth(1.4),
+                        4: FlexColumnWidth(1.2),
+                      },
+                      defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                      children: [
+                        // Header
+                        TableRow(
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFF3F0FF),
+                          ),
+                          children: const [
+                            _HeaderCell("NO"),
+                            _HeaderCell("PENGIRIM"),
+                            _HeaderCell("JUDUL"),
+                            _HeaderCell("TANGGAL"),
+                            _HeaderCell("AKSI"),
+                          ],
+                        ),
+
+                        _dataRowTable(
+                          1,
+                          "Admin Jawara",
+                          "Gotong Royong di Kampus Polinema",
+                          "17 Oktober 2025",
+                        ),
+                        _dataRowTable(
+                          2,
+                          "Admin Jawara",
+                          "Kerja Bakti Bersama Masyarakat Sekitar",
+                          "14 Oktober 2025",
+                        ),
                       ],
                     ),
-
-                    // 🔸 Data rows
-                    _dataRowTable(1, "Admin Jawara",
-                        "Gotong Royong di Kampus Polinema", "17 Oktober 2025"),
-                    _dataRowTable(2, "Admin Jawara",
-                        "Kerja Bakti Bersama Masyarakat Sekitar", "14 Oktober 2025"),
-                  ],
+                  ),
                 ),
 
                 const SizedBox(height: 20),
 
-                // 🔹 Pagination
+                // Pagination
                 Center(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -156,7 +169,6 @@ class BroadcastDaftarPage extends StatelessWidget {
   }
 }
 
-// 🔸 Widget Header Cell
 class _HeaderCell extends StatelessWidget {
   final String text;
   const _HeaderCell(this.text);
@@ -176,7 +188,6 @@ class _HeaderCell extends StatelessWidget {
   }
 }
 
-// 🔸 Table Row untuk data
 TableRow _dataRowTable(int no, String pengirim, String judul, String tanggal) {
   return TableRow(
     children: [
@@ -205,7 +216,6 @@ TableRow _dataRowTable(int no, String pengirim, String judul, String tanggal) {
   );
 }
 
-// 🔸 Widget Data Cell (biar rapi & padding rata)
 class _DataCell extends StatelessWidget {
   final Widget child;
   const _DataCell(this.child);

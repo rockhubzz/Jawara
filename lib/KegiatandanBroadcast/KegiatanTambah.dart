@@ -6,7 +6,7 @@ class KegiatanTambahPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
+    final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF4F6F8),
@@ -27,91 +27,108 @@ class KegiatanTambahPage extends StatelessWidget {
           ),
         ),
       ),
-      drawer: AppDrawer(email: 'admin1@mail.com'),
+      drawer: const AppDrawer(email: 'admin1@mail.com'),
 
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(12),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 900),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(14),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Form Kegiatan Baru",
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF6C63FF),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 900),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.15),
+                      blurRadius: 8,
+                      offset: const Offset(0, 3),
                     ),
-                  ),
+                  ],
+                ),
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Form Kegiatan Baru",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF6C63FF),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
 
-                  // ✅ Tambah jarak dari judul ke form
-                  const SizedBox(height: 16),
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        final double width = constraints.maxWidth;
+                        final bool isMobile = width < 700;
 
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      int crossAxisCount = width > 1000
-                          ? 3
-                          : width > 700
-                              ? 2
-                              : 1;
+                        return Wrap(
+                          spacing: 12,
+                          runSpacing: 12,
+                          children: [
+                            SizedBox(
+                              width: isMobile
+                                  ? double.infinity
+                                  : (width / 2) - 16,
+                              child: const _InputField(
+                                label: "Nama Kegiatan",
+                                icon: Icons.event_note_outlined,
+                                hint: "Masukkan nama kegiatan...",
+                              ),
+                            ),
+                            SizedBox(
+                              width: isMobile
+                                  ? double.infinity
+                                  : (width / 2) - 16,
+                              child: const _InputField(
+                                label: "Kategori Kegiatan",
+                                icon: Icons.category_outlined,
+                                hint: "Masukkan kategori...",
+                              ),
+                            ),
+                            SizedBox(
+                              width: isMobile
+                                  ? double.infinity
+                                  : (width / 2) - 16,
+                              child: const _InputField(
+                                label: "Tanggal Kegiatan",
+                                icon: Icons.date_range_outlined,
+                                hint: "Pilih tanggal kegiatan...",
+                              ),
+                            ),
+                            SizedBox(
+                              width: isMobile
+                                  ? double.infinity
+                                  : (width / 2) - 16,
+                              child: const _InputField(
+                                label: "Lokasi Kegiatan",
+                                icon: Icons.location_on_outlined,
+                                hint: "Masukkan lokasi kegiatan...",
+                              ),
+                            ),
+                            SizedBox(
+                              width: isMobile
+                                  ? double.infinity
+                                  : (width / 2) - 16,
+                              child: const _InputField(
+                                label: "Penanggung Jawab",
+                                icon: Icons.person_outline,
+                                hint: "Masukkan nama penanggung jawab...",
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
 
-                      return GridView.count(
-                        crossAxisCount: crossAxisCount,
-                        crossAxisSpacing: 10,
-                        mainAxisSpacing: 0, // tetap rapat antarbaris
-                        childAspectRatio: 3.5,
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        children: const [
-                          _InputField(
-                            label: "Nama Kegiatan",
-                            icon: Icons.event_note_outlined,
-                            hint: "Masukkan nama kegiatan...",
-                          ),
-                          _InputField(
-                            label: "Kategori Kegiatan",
-                            icon: Icons.category_outlined,
-                            hint: "Masukkan kategori...",
-                          ),
-                          _InputField(
-                            label: "Tanggal Kegiatan",
-                            icon: Icons.date_range_outlined,
-                            hint: "Pilih tanggal kegiatan...",
-                          ),
-                          _InputField(
-                            label: "Lokasi Kegiatan",
-                            icon: Icons.location_on_outlined,
-                            hint: "Masukkan lokasi kegiatan...",
-                          ),
-                          _InputField(
-                            label: "Penanggung Jawab",
-                            icon: Icons.person_outline,
-                            hint: "Masukkan nama penanggung jawab...",
-                          ),
-                        ],
-                      );
-                    },
-                  ),
+                    const SizedBox(height: 24),
 
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 12),
+                    Align(
+                      alignment: Alignment.centerRight,
                       child: ElevatedButton.icon(
                         onPressed: () {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -138,8 +155,8 @@ class KegiatanTambahPage extends StatelessWidget {
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -164,7 +181,7 @@ class _InputField extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextField(
       decoration: InputDecoration(
-        prefixIcon: Icon(icon, color: Color(0xFF6C63FF)),
+        prefixIcon: Icon(icon, color: const Color(0xFF6C63FF)),
         labelText: label,
         hintText: hint,
         labelStyle: const TextStyle(
@@ -174,7 +191,7 @@ class _InputField extends StatelessWidget {
         filled: true,
         fillColor: const Color(0xFFF9F9FF),
         contentPadding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide:
