@@ -5,7 +5,14 @@ import 'package:jawara/KegiatandanBroadcast/KegiatanTambah.dart';
 import 'package:jawara/KegiatandanBroadcast/BroadcastDaftar.dart';
 import 'package:jawara/KegiatandanBroadcast/BroadcastTambah.dart';
 import 'package:jawara/PenerimaanWarga/PenerimaanWarga.dart';
-import 'package:jawara/pemasukan/tagih_iuran_page.dart';
+import 'package:jawara/data_warga_rumah/keluarga_page.dart';
+import 'package:jawara/Pemasukan/tagihan_page.dart';
+import 'package:jawara/Pemasukan/kategori_iuran_page.dart';
+import 'package:jawara/Pemasukan/tagih_iuran_page.dart';
+import 'package:jawara/data_warga_rumah/daftar_rumah_page.dart';
+import 'package:jawara/data_warga_rumah/daftar_warga_page.dart';
+import 'package:jawara/data_warga_rumah/tambahRumah_page.dart';
+import 'package:jawara/data_warga_rumah/tambahWarga_page.dart';
 import 'pages/login_page.dart';
 import 'Dashboard/Kegiatan.dart';
 import 'Dashboard/Kependudukan.dart';
@@ -22,7 +29,6 @@ import 'data_warga_rumah/tambahWarga_page.dart';
 import 'PesanWarga/InformasiAspirasi.dart';
 import 'PenerimaanWarga/PenerimaanWarga.dart';
 import 'MutasiKeluarga/Daftar.dart';
-
 
 void main() {
   runApp(const MyApp());
@@ -101,8 +107,28 @@ class MyApp extends StatelessWidget {
           builder: (context, state) => const TambahWargaPage(),
         ),
         GoRoute(
+          path: '/data_warga_rumah/keluarga',
+          builder: (context, state) => const DataKeluargaPage(),
+        ),
+        GoRoute(
+          path: '/data_warga_rumah/daftarRumah',
+          builder: (context, state) => const DaftarRumahPage(),
+        ),
+        GoRoute(
+          path: '/data_warga_rumah/daftarWarga',
+          builder: (context, state) => const DaftarWargaPage(),
+        ),
+        GoRoute(
           path: '/Pemasukan/tagihIuran',
           builder: (context, state) => const TagihIuranPage(),
+        ),
+        GoRoute(
+          path: '/Pemasukan/kategoriIuran',
+          builder: (context, state) => const KategoriIuranPage(),
+        ),
+        GoRoute(
+          path: '/Pemasukan/tagihan',
+          builder: (context, state) => const TagihanPage(),
         ),
         GoRoute(
           path: '/kegiatan/daftar',
