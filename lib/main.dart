@@ -4,7 +4,6 @@ import 'package:jawara/KegiatandanBroadcast/KegiatanDaftar.dart';
 import 'package:jawara/KegiatandanBroadcast/KegiatanTambah.dart';
 import 'package:jawara/KegiatandanBroadcast/BroadcastDaftar.dart';
 import 'package:jawara/KegiatandanBroadcast/BroadcastTambah.dart';
-import 'package:jawara/PenerimaanWarga/PenerimaanWarga.dart';
 import 'package:jawara/data_warga_rumah/keluarga_page.dart';
 import 'package:jawara/Pemasukan/tagihan_page.dart';
 import 'package:jawara/Pemasukan/kategori_iuran_page.dart';
@@ -24,11 +23,15 @@ import 'Laporan Keuangan/SemuaPemasukan.dart';
 import 'Laporan Keuangan/CetakLaporan.dart';
 import 'Pemasukan/PemasukanLainDaftar.dart';
 import 'Pemasukan/PemasukanLainTambah.dart';
-import 'data_warga_rumah/tambahRumah_page.dart';
-import 'data_warga_rumah/tambahWarga_page.dart';
 import 'PesanWarga/InformasiAspirasi.dart';
 import 'PenerimaanWarga/PenerimaanWarga.dart';
 import 'MutasiKeluarga/Daftar.dart';
+import 'MutasiKeluarga/Tambah.dart';
+import 'Log Aktivitas/SemuaAktifitas.dart';
+import 'Manajemen Pengguna/DaftarPengguna.dart';
+import 'Manajemen Pengguna/TambahPengguna.dart';
+import 'Channel Transfer/DaftarChannel.dart';
+import 'Channel Transfer/TambahChannel.dart';
 
 void main() {
   runApp(const MyApp());
@@ -166,6 +169,30 @@ class MyApp extends StatelessWidget {
         GoRoute(
           path: '/mutasi/daftar',
           builder: (context, state) => const DaftarPage(),
+        ),
+        GoRoute(
+          path: '/mutasi/tambah',
+          builder: (context, state) => const BuatMutasiKeluargaPage(),
+        ),
+        GoRoute(
+          path: '/log/daftar',
+          builder: (context, state) => const RiwayatAktivitasPage(),
+        ),
+        GoRoute(
+          path: '/user/daftar',
+          builder: (context, state) => const DaftarPenggunaPage(),
+        ),
+        GoRoute(
+          path: '/user/tambah',
+          builder: (context, state) => const TambahAkunPenggunaPage(),
+        ),
+        GoRoute(
+          path: '/channel/daftar',
+          builder: (context, state) => const DaftarMetodePembayaranPage(),
+        ),
+        GoRoute(
+          path: '/channel/tambah',
+          builder: (context, state) => const BuatTransferChannelPage(),
         ),
       ],
     );
