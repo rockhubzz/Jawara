@@ -131,6 +131,15 @@ class MyApp extends StatelessWidget {
           builder: (context, state) => const TagihanPage(),
         ),
         GoRoute(
+          path: '/Pengeluaran',
+          builder: (context, state) => const DaftarPengeluaranPage(),
+        ),
+
+        GoRoute(
+          path: '/Pengeluaran/tambahPengeluaran',
+          builder: (context, state) => const TambahPengeluaran(),
+        ),
+        GoRoute(
           path: '/kegiatan/daftar',
           builder: (context, state) => const KegiatanDaftarPage(),
         ),

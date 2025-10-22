@@ -240,6 +240,35 @@ class AppDrawer extends StatelessWidget {
             ],
           ),
 
+          // Pengeluaran
+          ExpansionTile(
+            initiallyExpanded: isPengeluaranExpanded,
+            leading: Icon(
+              Icons.money_off_csred_rounded,
+              color: isPengeluaranExpanded ? activeColor : inactiveColor,
+            ),
+            title: Text(
+              "Pengeluaran",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: isPengeluaranExpanded ? activeColor : inactiveColor,
+              ),
+            ),
+            childrenPadding: const EdgeInsets.only(left: 32),
+            children: [
+              buildNavTile(
+                title: "Daftar - Pengeluaran",
+                icon: Icons.list_alt_outlined,
+                route: '/Pengeluaran/daftarPengeluaran',
+              ),
+              buildNavTile(
+                title: "Tambah - Pengeluaran",
+                icon: Icons.add_circle_outline,
+                route: '/Pengeluaran/tambahPengeluaran',
+              ),
+            ],
+          ),
+
           // Laporan Keuangan
           ExpansionTile(
             initiallyExpanded: isLapKeuExpanded,
