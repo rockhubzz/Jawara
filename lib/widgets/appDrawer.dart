@@ -45,6 +45,9 @@ class AppDrawer extends StatelessWidget {
     final bool isPesanExpanded = currentPath.startsWith('/pesan');
     final bool isPenerimaanExpanded = currentPath.startsWith('/penerimaan');
     final bool isMutasiExpanded = currentPath.startsWith('/mutasi');
+    final bool isLogAktivitasExpanded = currentPath.startsWith('/log');
+    final bool isManajemenPenggunaExpanded = currentPath.startsWith('/user');
+    final bool isChannelExpanded = currentPath.startsWith('/channel');
 
     debugPrint('Current Path: $currentPath');
 
@@ -388,9 +391,94 @@ class AppDrawer extends StatelessWidget {
             childrenPadding: const EdgeInsets.only(left: 32),
             children: [
               buildNavTile(
-                title: "Daftar",
+                title: "Daftar Mutasi Keluarga",
                 icon: Icons.list_alt_outlined,
                 route: '/mutasi/daftar',
+              ),
+              buildNavTile(
+                title: "Tambah Mutasi Keluarga",
+                icon: Icons.add_circle_outline,
+                route: '/mutasi/tambah',
+              ),
+            ],
+          ),
+          ExpansionTile(
+            initiallyExpanded: isLogAktivitasExpanded,
+            leading: Icon(
+              Icons.receipt_long_rounded,
+              color: isLogAktivitasExpanded ? activeColor : inactiveColor,
+            ),
+            title: Text(
+              "Log Aktivitas",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: isLogAktivitasExpanded ? activeColor : inactiveColor,
+              ),
+            ),
+            childrenPadding: const EdgeInsets.only(left: 32),
+            children: [
+              buildNavTile(
+                title: "Semua Aktivitas",
+                icon: Icons.local_activity_rounded,
+                route: '/log/daftar',
+              ),
+            ],
+          ),
+
+          ExpansionTile(
+            initiallyExpanded: isManajemenPenggunaExpanded,
+            leading: Icon(
+              Icons.supervised_user_circle_outlined,
+              color: isManajemenPenggunaExpanded ? activeColor : inactiveColor,
+            ),
+            title: Text(
+              "Manajemen Pengguna",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: isManajemenPenggunaExpanded
+                    ? activeColor
+                    : inactiveColor,
+              ),
+            ),
+            childrenPadding: const EdgeInsets.only(left: 32),
+            children: [
+              buildNavTile(
+                title: "Daftar Pengguna",
+                icon: Icons.list_alt_sharp,
+                route: '/user/daftar',
+              ),
+              buildNavTile(
+                title: "Tambah Pengguna",
+                icon: Icons.add_circle_outline_outlined,
+                route: '/user/tambah',
+              ),
+            ],
+          ),
+
+          ExpansionTile(
+            initiallyExpanded: isChannelExpanded,
+            leading: Icon(
+              Icons.attach_money_sharp,
+              color: isChannelExpanded ? activeColor : inactiveColor,
+            ),
+            title: Text(
+              "Channel Transfer",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: isChannelExpanded ? activeColor : inactiveColor,
+              ),
+            ),
+            childrenPadding: const EdgeInsets.only(left: 32),
+            children: [
+              buildNavTile(
+                title: "Daftar Channel Transfer",
+                icon: Icons.list_alt_sharp,
+                route: '/channel/daftar',
+              ),
+              buildNavTile(
+                title: "Tambah Channel Transfer",
+                icon: Icons.add_circle_outline_outlined,
+                route: '/channel/tambah',
               ),
             ],
           ),
