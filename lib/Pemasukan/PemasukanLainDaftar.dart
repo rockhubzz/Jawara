@@ -103,107 +103,74 @@ class _PemasukanLainDaftarState extends State<PemasukanLainDaftar> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Header tabel
-                    Container(
-                      color: Colors.grey.shade100,
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 10,
-                        horizontal: 12,
-                      ),
-                      child: Row(
-                        children: const [
-                          Expanded(
-                            flex: 1,
-                            child: Text(
-                              "NO",
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          Expanded(
-                            flex: 2,
-                            child: Text(
-                              "NAMA",
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          Expanded(
-                            flex: 3,
-                            child: Text(
-                              "JENIS PEMASUKAN",
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          Expanded(
-                            flex: 3,
-                            child: Text(
-                              "TANGGAL",
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          Expanded(
-                            flex: 3,
-                            child: Text(
-                              "NOMINAL",
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          Expanded(
-                            flex: 1,
-                            child: Text(
-                              "AKSI",
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const Divider(height: 1),
-
-                    // Daftar data
                     Expanded(
-                      child: ListView.separated(
+                      child: ListView.builder(
                         itemCount: pemasukanList.length,
-                        separatorBuilder: (context, index) =>
-                            const Divider(height: 1),
                         itemBuilder: (context, index) {
                           final item = pemasukanList[index];
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 12,
-                              horizontal: 8,
+                          return Card(
+                            elevation: 2,
+                            margin: const EdgeInsets.symmetric(vertical: 8),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                            child: Row(
-                              children: [
-                                Expanded(flex: 1, child: Text(item['no']!)),
-                                Expanded(flex: 2, child: Text(item['nama']!)),
-                                Expanded(flex: 3, child: Text(item['jenis']!)),
-                                Expanded(
-                                  flex: 3,
-                                  child: Text(item['tanggal']!),
-                                ),
-                                Expanded(
-                                  flex: 3,
-                                  child: Text(item['nominal']!),
-                                ),
-                                Expanded(
-                                  flex: 1,
-                                  child: PopupMenuButton<String>(
-                                    onSelected: (value) {},
-                                    itemBuilder: (context) => [
-                                      const PopupMenuItem(
-                                        value: 'edit',
-                                        child: Text('Edit'),
+                            child: Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Baris atas: No + Aksi
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "No: ${item['no']}",
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                        ),
                                       ),
-                                      const PopupMenuItem(
-                                        value: 'hapus',
-                                        child: Text('Hapus'),
+                                      PopupMenuButton<String>(
+                                        onSelected: (value) {},
+                                        itemBuilder: (context) => [
+                                          const PopupMenuItem(
+                                            value: 'edit',
+                                            child: Text('Edit'),
+                                          ),
+                                          const PopupMenuItem(
+                                            value: 'hapus',
+                                            child: Text('Hapus'),
+                                          ),
+                                        ],
+                                        child: const Icon(Icons.more_horiz),
                                       ),
                                     ],
-                                    child: const Icon(Icons.more_horiz),
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(height: 6),
+
+                                  Text(
+                                    "Nama: ${item['nama']}",
+                                    style: const TextStyle(fontSize: 15),
+                                  ),
+                                  Text(
+                                    "Jenis Pemasukan: ${item['jenis']}",
+                                    style: const TextStyle(fontSize: 15),
+                                  ),
+                                  Text(
+                                    "Tanggal: ${item['tanggal']}",
+                                    style: const TextStyle(fontSize: 15),
+                                  ),
+                                  Text(
+                                    "Nominal: ${item['nominal']}",
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      color: Colors.black87,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           );
                         },
