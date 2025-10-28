@@ -1,16 +1,32 @@
-# jawara
+## Deskripsi Proyek
 
-A new Flutter project.
+JAWARA merupakan aplikasi pencatatan dan pengelolaan data desa berbasis digital yang dirancang untuk membantu pemerintah desa dalam memonitor dan mengelola berbagai informasi penting secara efisien melalui satu platform terpadu.
 
-## Getting Started
+Aplikasi ini menampilkan berbagai dashboard interaktif seperti:
 
-This project is a starting point for a Flutter application.
+- Dashboard Kependudukan — menampilkan data warga berdasarkan usia, jenis kelamin, pekerjaan, dan status keluarga.
 
-A few resources to get you started if this is your first Flutter project:
+- Dashboard Keuangan Desa — memonitor pemasukan dan pengeluaran kas desa.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- Dashboard Kegiatan — menampilkan agenda kegiatan desa dan laporan pelaksanaannya.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- Manajemen Data Warga — fitur untuk menambah, mengubah, dan menghapus data penduduk secara mudah.
+
+Tampilan mobile-friendly JAWARA memudahkan perangkat desa untuk mengakses data kapan pun dan di mana pun, tanpa harus menggunakan komputer.
+
+---
+
+## Tujuan Proyek
+
+1. Digitalisasi administrasi desa agar pencatatan data lebih cepat, aman, dan efisien.
+2. Memudahkan perangkat desa dalam memantau kondisi kependudukan, keuangan, dan kegiatan secara real-time.
+3. Meningkatkan transparansi dan akuntabilitas dalam pengelolaan data dan anggaran desa.
+4. Menyediakan akses data yang terpusat dan mudah digunakan baik melalui tampilan web maupun mobile.
+5. Mendukung transformasi desa cerdas (smart village) dengan sistem informasi terpadu.
+
+---
+
+## Teknologi yang Digunakan
+Frontend (Mobile)	: Flutter / Dart
+
+Version Control : Git & GitHub
