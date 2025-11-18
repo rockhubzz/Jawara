@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:jawara/services/user_service.dart';
 
 class AppDrawer extends StatelessWidget {
   final String email;
@@ -505,13 +506,40 @@ class AppDrawer extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Text(
-                                "Admin User",
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black87,
-                                ),
+                              FutureBuilder<String?>(
+                                future: UserService.getUsername(),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return const Text(
+                                      "Loading...",
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 18,
+                                      ),
+                                    );
+                                  }
+
+                                  if (!snapshot.hasData ||
+                                      snapshot.data == null) {
+                                    return const Text(
+                                      "Unknown User",
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 18,
+                                      ),
+                                    );
+                                  }
+
+                                  return Text(
+                                    snapshot.data!,
+                                    style: const TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  );
+                                },
                               ),
                               Text(
                                 email,
@@ -568,21 +596,75 @@ class AppDrawer extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        "Admin User",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
+                      FutureBuilder<String?>(
+                        future: UserService.getUsername(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Text(
+                              "Loading...",
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 18,
+                              ),
+                            );
+                          }
+
+                          if (!snapshot.hasData || snapshot.data == null) {
+                            return const Text(
+                              "Unknown User",
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 18,
+                              ),
+                            );
+                          }
+
+                          return Text(
+                            snapshot.data!,
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          );
+                        },
                       ),
-                      Text(
-                        email,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black87,
-                        ),
+                      FutureBuilder<String?>(
+                        future: UserService.getEmail(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Text(
+                              "Loading...",
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black87,
+                              ),
+                            );
+                          }
+
+                          if (!snapshot.hasData || snapshot.data == null) {
+                            return const Text(
+                              "Unknown Email",
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black87,
+                              ),
+                            );
+                          }
+
+                          return Text(
+                            snapshot.data!,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.black87,
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),

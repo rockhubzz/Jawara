@@ -1,47 +1,43 @@
 import 'package:flutter/material.dart';
-import '../widgets/appDrawer.dart';
 import '../services/user_service.dart';
 
-class TambahAkunPenggunaPage extends StatefulWidget {
-  const TambahAkunPenggunaPage({super.key});
+class EditUserPage extends StatefulWidget {
+  final Map user;
+  const EditUserPage({super.key, required this.user});
 
   @override
-  State<TambahAkunPenggunaPage> createState() => _TambahAkunPenggunaPageState();
+  State<EditUserPage> createState() => _EditUserPageState();
 }
 
-class _TambahAkunPenggunaPageState extends State<TambahAkunPenggunaPage> {
+class _EditUserPageState extends State<EditUserPage> {
   final _formKey = GlobalKey<FormState>();
 
-  final TextEditingController namaController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController hpController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final TextEditingController konfirmasiPasswordController =
-      TextEditingController();
-
+  late TextEditingController namaController;
+  late TextEditingController emailController;
+  late TextEditingController hpController;
   String? selectedRole;
+
   bool isLoading = false;
 
-  // ==============================
-  //            SUBMIT
-  // ==============================
+  @override
+  void initState() {
+    super.initState();
+    namaController = TextEditingController(text: widget.user["name"]);
+    emailController = TextEditingController(text: widget.user["email"]);
+    hpController = TextEditingController(text: widget.user["hp"]);
+    selectedRole = widget.user["role"];
+  }
+
   void _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
-    if (passwordController.text != konfirmasiPasswordController.text) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Password tidak sama")));
-      return;
-    }
-
     setState(() => isLoading = true);
 
-    final result = await UserService.createUser(
+    final result = await UserService.updateUser(
+      id: widget.user["id"],
       name: namaController.text.trim(),
       email: emailController.text.trim(),
       hp: hpController.text.trim(),
-      password: passwordController.text.trim(),
       role: selectedRole!,
     );
 
@@ -50,7 +46,7 @@ class _TambahAkunPenggunaPageState extends State<TambahAkunPenggunaPage> {
     if (result["success"] == true) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Akun berhasil ditambahkan"),
+          content: Text("Akun berhasil diperbarui"),
           backgroundColor: Colors.green,
         ),
       );
@@ -66,12 +62,11 @@ class _TambahAkunPenggunaPageState extends State<TambahAkunPenggunaPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
-      drawer: const AppDrawer(email: 'admin1@mail.com'),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         title: const Text(
-          'Tambah Akun Pengguna',
+          'Edit Akun Pengguna',
           style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
         ),
         iconTheme: const IconThemeData(color: Colors.black87),
@@ -99,7 +94,7 @@ class _TambahAkunPenggunaPageState extends State<TambahAkunPenggunaPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'Tambah Akun Pengguna',
+                    'Edit Akun Pengguna',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w700,
@@ -108,7 +103,7 @@ class _TambahAkunPenggunaPageState extends State<TambahAkunPenggunaPage> {
                   ),
                   const SizedBox(height: 20),
 
-                  // === Nama ===
+                  // NAMA
                   const Text('Nama Lengkap'),
                   const SizedBox(height: 6),
                   TextFormField(
@@ -119,7 +114,7 @@ class _TambahAkunPenggunaPageState extends State<TambahAkunPenggunaPage> {
                   ),
                   const SizedBox(height: 14),
 
-                  // === Email ===
+                  // EMAIL
                   const Text('Email'),
                   const SizedBox(height: 6),
                   TextFormField(
@@ -131,7 +126,7 @@ class _TambahAkunPenggunaPageState extends State<TambahAkunPenggunaPage> {
                   ),
                   const SizedBox(height: 14),
 
-                  // === Nomor HP ===
+                  // HP
                   const Text('Nomor HP'),
                   const SizedBox(height: 6),
                   TextFormField(
@@ -143,35 +138,11 @@ class _TambahAkunPenggunaPageState extends State<TambahAkunPenggunaPage> {
                   ),
                   const SizedBox(height: 14),
 
-                  // === Password ===
-                  const Text('Password'),
-                  const SizedBox(height: 6),
-                  TextFormField(
-                    controller: passwordController,
-                    obscureText: true,
-                    decoration: _inputDecoration('Masukkan password'),
-                    validator: (v) =>
-                        v!.isEmpty ? "Password tidak boleh kosong" : null,
-                  ),
-                  const SizedBox(height: 14),
-
-                  // === Konfirmasi Password ===
-                  const Text('Konfirmasi Password'),
-                  const SizedBox(height: 6),
-                  TextFormField(
-                    controller: konfirmasiPasswordController,
-                    obscureText: true,
-                    decoration: _inputDecoration('Masukkan ulang password'),
-                    validator: (v) =>
-                        v!.isEmpty ? "Konfirmasi password wajib diisi" : null,
-                  ),
-                  const SizedBox(height: 14),
-
-                  // === Role ===
+                  // ROLE
                   const Text('Role'),
                   const SizedBox(height: 6),
                   DropdownButtonFormField<String>(
-                    value: selectedRole,
+                    initialValue: selectedRole,
                     decoration: _inputDecoration('-- Pilih Role --'),
                     items: const [
                       DropdownMenuItem(value: 'admin', child: Text('Admin')),
@@ -192,7 +163,7 @@ class _TambahAkunPenggunaPageState extends State<TambahAkunPenggunaPage> {
                   ),
                   const SizedBox(height: 24),
 
-                  // === Buttons ===
+                  // BUTTONS
                   Row(
                     children: [
                       ElevatedButton(
@@ -222,15 +193,13 @@ class _TambahAkunPenggunaPageState extends State<TambahAkunPenggunaPage> {
                               ),
                       ),
                       const SizedBox(width: 12),
+
                       OutlinedButton(
                         onPressed: () {
-                          _formKey.currentState!.reset();
-                          namaController.clear();
-                          emailController.clear();
-                          hpController.clear();
-                          passwordController.clear();
-                          konfirmasiPasswordController.clear();
-                          setState(() => selectedRole = null);
+                          namaController.text = widget.user["name"];
+                          emailController.text = widget.user["email"];
+                          hpController.text = widget.user["hp"];
+                          setState(() => selectedRole = widget.user["role"]);
                         },
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(color: Color(0xFFE2E8F0)),
@@ -252,9 +221,6 @@ class _TambahAkunPenggunaPageState extends State<TambahAkunPenggunaPage> {
     );
   }
 
-  // ==============================
-  //      INPUT DECORATION
-  // ==============================
   InputDecoration _inputDecoration(String hint) {
     return InputDecoration(
       hintText: hint,

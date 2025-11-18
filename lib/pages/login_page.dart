@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+
+const String apiUrl = "http://192.168.66.189:8000/api/login";
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -16,24 +21,49 @@ class _LoginPageState extends State<LoginPage> {
   bool _isLoading = false;
 
   Future<void> _login() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() => _isLoading = true);
-      await Future.delayed(const Duration(seconds: 2));
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "email": _emailController.text,
+          "password": _passwordController.text,
+        }),
+      );
+
       setState(() => _isLoading = false);
 
-      if (_emailController.text == 'admin1@mail.com' &&
-          _passwordController.text == 'passwrod') {
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        final token = data["token"];
+        final user = data["user"];
+
+        // Save token for later API calls
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString("token", token);
+        await prefs.setString("email", user["email"]);
+        await prefs.setInt("user_id", user["id"]);
+
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('Login successful!')));
+        ).showSnackBar(const SnackBar(content: Text("Login success!")));
 
-        var loggedInUserEmail = _emailController.text;
-        context.go('/dashboard/kegiatan', extra: loggedInUserEmail);
+        context.go('/dashboard/kegiatan', extra: user["email"]);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Invalid email or password')),
+          const SnackBar(content: Text("Email atau password salah")),
         );
       }
+    } catch (e) {
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Error: $e")));
     }
   }
 
