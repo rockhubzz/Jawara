@@ -204,7 +204,6 @@ class _DaftarWargaPageState extends State<DaftarWargaPage> {
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
       ),
-      drawer: AppDrawer(email: 'admin1@mail.com'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(

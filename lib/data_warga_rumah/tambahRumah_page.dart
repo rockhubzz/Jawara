@@ -43,9 +43,6 @@ class _TambahRumahPageState extends State<TambahRumahPage> {
         iconTheme: const IconThemeData(color: Colors.black),
       ),
 
-      // ✅ Tambahkan drawer agar icon garis 3 bisa buka sidebar
-      drawer: AppDrawer(email: 'admin1@mail.com'),
-
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
