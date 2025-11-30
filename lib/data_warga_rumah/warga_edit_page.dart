@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import '../../services/keluarga_service.dart';
 import '../../services/warga_service.dart';
 
-class WargaAddPage extends StatefulWidget {
-  final int? wargaId; // null = create, not null = edit
+class WargaEditPage extends StatefulWidget {
+  final int wargaId; // now expecting only ID
 
-  const WargaAddPage({super.key, this.wargaId});
+  const WargaEditPage({super.key, required this.wargaId});
 
   @override
-  State<WargaAddPage> createState() => _WargaAddPageState();
+  State<WargaEditPage> createState() => _WargaEditPageState();
 }
 
-class _WargaAddPageState extends State<WargaAddPage> {
+class _WargaEditPageState extends State<WargaEditPage> {
   final nama = TextEditingController();
   final nik = TextEditingController();
   String? jenisKelamin;
@@ -30,10 +30,7 @@ class _WargaAddPageState extends State<WargaAddPage> {
 
   Future<void> initData() async {
     await loadKeluarga();
-
-    if (widget.wargaId != null) {
-      await loadExistingWarga(widget.wargaId!);
-    }
+    await loadExistingWarga(widget.wargaId);
 
     loading = false;
     setState(() {});
@@ -58,21 +55,13 @@ class _WargaAddPageState extends State<WargaAddPage> {
     final body = {
       "nama": nama.text,
       "nik": nik.text,
-      "keluarga_id": keluargaId.toString(),
       "jenis_kelamin": jenisKelamin,
       "status_domisili": statusDomisili,
       "status_hidup": statusHidup,
+      "keluarga_id": keluargaId.toString(),
     };
 
-    bool ok = false;
-
-    if (widget.wargaId == null) {
-      // ADD
-      ok = await WargaService.create(body);
-    } else {
-      // UPDATE
-      ok = await WargaService.update(widget.wargaId!, body);
-    }
+    final ok = await WargaService.update(widget.wargaId, body);
 
     if (!mounted) return;
 
@@ -114,12 +103,9 @@ class _WargaAddPageState extends State<WargaAddPage> {
           onPressed: () => Navigator.pop(context),
         ),
 
-        title: Text(
-          widget.wargaId == null
-              ? "Tambah Warga"
-              : "Edit Warga #${widget.wargaId}",
-        ),
+        title: Text("Edit Warga #${widget.wargaId}"),
       ),
+
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: ListView(
@@ -165,10 +151,8 @@ class _WargaAddPageState extends State<WargaAddPage> {
             ),
 
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: save,
-              child: Text(widget.wargaId == null ? "Simpan" : "Update"),
-            ),
+
+            ElevatedButton(onPressed: save, child: const Text("Update")),
           ],
         ),
       ),

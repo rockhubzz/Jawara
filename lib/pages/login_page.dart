@@ -3,8 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-
-const String apiUrl = "http://192.168.66.189:8000/api/login";
+import '../services/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -17,11 +16,24 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+
   bool _isPasswordVisible = false;
   bool _isLoading = false;
 
   Future<void> _login() async {
     if (!_formKey.currentState!.validate()) return;
+
+    // GET dynamic URL **here**
+    final base = AuthService.baseUrl;
+
+    if (base == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Gagal menemukan server Laravel di LAN")),
+      );
+      return;
+    }
+
+    final apiUrl = "$base/login";
 
     setState(() => _isLoading = true);
 
@@ -43,7 +55,6 @@ class _LoginPageState extends State<LoginPage> {
         final token = data["token"];
         final user = data["user"];
 
-        // Save token for later API calls
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString("token", token);
         await prefs.setString("email", user["email"]);
@@ -51,7 +62,7 @@ class _LoginPageState extends State<LoginPage> {
 
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text("Login success!")));
+        ).showSnackBar(const SnackBar(content: Text("Login berhasil!")));
 
         context.go('/dashboard/kegiatan', extra: user["email"]);
       } else {
@@ -79,9 +90,7 @@ class _LoginPageState extends State<LoginPage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Row(
-                mainAxisSize: MainAxisSize.min, // shrink to fit content
-                crossAxisAlignment:
-                    CrossAxisAlignment.center, // align vertically
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Image.asset(
                     'assets/images/juwara.png',
@@ -89,20 +98,19 @@ class _LoginPageState extends State<LoginPage> {
                     height: 40,
                     fit: BoxFit.contain,
                   ),
-                  const SizedBox(width: 15), // space between image and text
+                  const SizedBox(width: 15),
                   const Text(
                     "Jawara Pintar",
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
-                      color: Color.fromARGB(255, 0, 0, 0),
+                      color: Colors.black,
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 20),
 
-              // Title text above the card
               const Text(
                 "Selamat Datang",
                 style: TextStyle(
@@ -113,12 +121,11 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 8),
               const Text(
-                "Login untuk mengakses sistem Jawara Pintar.",
+                "Login untuk mengakses sistem.",
                 style: TextStyle(fontSize: 16, color: Colors.black54),
               ),
               const SizedBox(height: 32),
 
-              // Single Card with the form
               Card(
                 elevation: 8,
                 shape: RoundedRectangleBorder(
@@ -142,7 +149,6 @@ class _LoginPageState extends State<LoginPage> {
 
                         const SizedBox(height: 24),
 
-                        // Email field
                         TextFormField(
                           controller: _emailController,
                           decoration: const InputDecoration(
@@ -152,17 +158,16 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Please enter your email';
+                              return 'Masukkan email Anda';
                             }
                             if (!value.contains('@')) {
-                              return 'Enter a valid email address';
+                              return 'Email tidak valid';
                             }
                             return null;
                           },
                         ),
                         const SizedBox(height: 16),
 
-                        // Password field
                         TextFormField(
                           controller: _passwordController,
                           obscureText: !_isPasswordVisible,
@@ -185,28 +190,22 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Please enter your password';
+                              return 'Masukkan password Anda';
                             }
                             if (value.length < 6) {
-                              return 'Password must be at least 6 characters';
+                              return 'Minimal 6 karakter';
                             }
                             return null;
                           },
                         ),
                         const SizedBox(height: 24),
 
-                        // Login button
                         SizedBox(
                           width: double.infinity,
                           height: 48,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color.fromRGBO(
-                                114,
-                                107,
-                                255,
-                                1,
-                              ),
+                              backgroundColor: const Color(0xFF726BFF),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -227,43 +226,11 @@ class _LoginPageState extends State<LoginPage> {
                                   ),
                           ),
                         ),
-                        const SizedBox(height: 16),
-
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Text(
-                              "Belum punya akun? ",
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w100,
-                                color: Colors.black,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            GestureDetector(
-                              onTap: () {
-                                // Handle "Create an account" tap
-                              },
-                              child: const Text(
-                                "Daftar",
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w100,
-                                  color: Colors.blueAccent,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
                       ],
                     ),
                   ),
                 ),
               ),
-
-              // Optional footer text below the card
-              const SizedBox(height: 16),
             ],
           ),
         ),

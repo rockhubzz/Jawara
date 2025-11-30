@@ -10,7 +10,6 @@ import 'package:jawara/Pemasukan/kategori_iuran_page.dart';
 import 'package:jawara/Pemasukan/tagih_iuran_page.dart';
 import 'package:jawara/data_warga_rumah/daftar_rumah_page.dart';
 import 'package:jawara/data_warga_rumah/daftar_warga_page.dart';
-import 'package:jawara/data_warga_rumah/tambahRumah_page.dart';
 import 'package:jawara/data_warga_rumah/tambahWarga_page.dart';
 import 'pages/login_page.dart';
 import 'Dashboard/Kegiatan.dart';
@@ -32,9 +31,16 @@ import 'Manajemen Pengguna/DaftarPengguna.dart';
 import 'Manajemen Pengguna/TambahPengguna.dart';
 import 'Channel Transfer/DaftarChannel.dart';
 import 'Channel Transfer/TambahChannel.dart';
+import 'services/auth_service.dart';
+import 'data_warga_rumah/rumah_form_page.dart';
+import 'data_warga_rumah/rumah_detail_page.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  AuthService.init(); // auto-detect server
+
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -102,12 +108,8 @@ class MyApp extends StatelessWidget {
           builder: (context, state) => const PemasukanLainDaftar(),
         ),
         GoRoute(
-          path: '/data_warga_rumah/tambahRumah',
-          builder: (context, state) => const TambahRumahPage(),
-        ),
-        GoRoute(
           path: '/data_warga_rumah/tambahWarga',
-          builder: (context, state) => const TambahWargaPage(),
+          builder: (context, state) => const WargaAddPage(),
         ),
         GoRoute(
           path: '/data_warga_rumah/keluarga',
@@ -115,11 +117,11 @@ class MyApp extends StatelessWidget {
         ),
         GoRoute(
           path: '/data_warga_rumah/daftarRumah',
-          builder: (context, state) => const DaftarRumahPage(),
+          builder: (context, state) => const RumahListPage(),
         ),
         GoRoute(
           path: '/data_warga_rumah/daftarWarga',
-          builder: (context, state) => const DaftarWargaPage(),
+          builder: (context, state) => const WargaListPage(),
         ),
         GoRoute(
           path: '/Pemasukan/tagihIuran',
@@ -184,6 +186,34 @@ class MyApp extends StatelessWidget {
         GoRoute(
           path: '/channel/tambah',
           builder: (context, state) => const BuatTransferChannelPage(),
+        ),
+        GoRoute(
+          path: '/rumah',
+          name: 'rumah-list',
+          builder: (context, state) => const RumahListPage(),
+          routes: [
+            GoRoute(
+              path: 'add',
+              name: 'rumah-add',
+              builder: (context, state) => const RumahFormPage(),
+            ),
+            GoRoute(
+              path: 'edit/:id',
+              name: 'rumah-edit',
+              builder: (context, state) {
+                final data = state.extra as Map<String, dynamic>;
+                return RumahFormPage(data: data);
+              },
+            ),
+            GoRoute(
+              path: 'detail/:id',
+              name: 'rumah-detail',
+              builder: (context, state) {
+                final data = state.extra as Map<String, dynamic>;
+                return RumahDetailPage(rumah: data);
+              },
+            ),
+          ],
         ),
       ],
     );

@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'auth_service.dart';
 
 class UserService {
-  static const String baseUrl = "http://192.168.66.189:8000/api";
+  static String? get baseUrl => AuthService.baseUrl;
 
   // ===== Token Getter =====
   static Future<String?> _getToken() async {

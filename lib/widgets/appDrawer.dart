@@ -173,14 +173,9 @@ class AppDrawer extends StatelessWidget {
             childrenPadding: const EdgeInsets.only(left: 32),
             children: [
               buildNavTile(
-                title: "Warga - Daftar",
+                title: "Warga",
                 icon: Icons.groups_2_outlined,
                 route: '/data_warga_rumah/daftarWarga',
-              ),
-              buildNavTile(
-                title: "Warga - Tambah",
-                icon: Icons.person_add_alt_1_outlined,
-                route: '/data_warga_rumah/tambahWarga',
               ),
               buildNavTile(
                 title: "Keluarga",
@@ -188,14 +183,9 @@ class AppDrawer extends StatelessWidget {
                 route: '/data_warga_rumah/keluarga',
               ),
               buildNavTile(
-                title: "Rumah - Daftar",
+                title: "Rumah",
                 icon: Icons.home_work_outlined,
                 route: '/data_warga_rumah/daftarRumah',
-              ),
-              buildNavTile(
-                title: "Rumah - Tambah",
-                icon: Icons.add_home_outlined,
-                route: '/data_warga_rumah/tambahRumah',
               ),
             ],
           ),
