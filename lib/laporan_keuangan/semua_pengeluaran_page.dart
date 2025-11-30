@@ -52,6 +52,7 @@ class _SemuaPengeluaranState extends State<SemuaPengeluaran> {
     
       body: Stack(
         children: [
+          // Tombol menu di atas
           Positioned(
             top: 30,
             left: 16,
@@ -63,23 +64,33 @@ class _SemuaPengeluaranState extends State<SemuaPengeluaran> {
             ),
           ),
 
+          // Card utama isi tabel
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 80, 16, 16),
-            child: Card(
-              elevation: 3,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 10,
+                    offset: Offset(0, 4),
+                  ),
+                ],
               ),
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(20.0),
                 child: Column(
                   children: [
+                    // Judul
                     const Center(
                       child: Text(
                         "Laporan Pengeluaran",
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
+                          color: Color(0xFF2D3142),
                         ),
                       ),
                     ),
@@ -89,22 +100,19 @@ class _SemuaPengeluaranState extends State<SemuaPengeluaran> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        ElevatedButton.icon(
+                        ElevatedButton(
                           onPressed: () {},
-                          icon: const Icon(
-                            Icons.filter_list,
-                            color: Colors.white,
-                          ),
-                          label: const Text(
-                            '',
-                            style: TextStyle(color: Colors.white),
-                          ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF6C63FF),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                            minimumSize: const Size(50, 40),
+                            minimumSize: const Size(45, 40),
+                            elevation: 0,
+                          ),
+                          child: const Icon(
+                            Icons.filter_list,
+                            color: Colors.white,
                           ),
                         ),
                       ],
@@ -113,7 +121,10 @@ class _SemuaPengeluaranState extends State<SemuaPengeluaran> {
 
                     // Header tabel
                     Container(
-                      color: Colors.grey.shade100,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                       padding: const EdgeInsets.symmetric(
                         vertical: 10,
                         horizontal: 12,
@@ -167,7 +178,7 @@ class _SemuaPengeluaranState extends State<SemuaPengeluaran> {
                     ),
                     const Divider(height: 1),
 
-                    // Daftar data tabel
+                    // Daftar isi tabel
                     Expanded(
                       child: ListView.separated(
                         itemCount: pengeluaranList.length,
@@ -175,10 +186,16 @@ class _SemuaPengeluaranState extends State<SemuaPengeluaran> {
                             const Divider(height: 1),
                         itemBuilder: (context, index) {
                           final item = pengeluaranList[index];
-                          return Padding(
+                          return Container(
                             padding: const EdgeInsets.symmetric(
                               vertical: 12,
                               horizontal: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              color: index % 2 == 0
+                                  ? Colors.white
+                                  : Colors.grey.shade50,
                             ),
                             child: Row(
                               children: [
