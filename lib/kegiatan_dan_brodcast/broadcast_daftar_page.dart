@@ -1,313 +1,210 @@
 import 'package:flutter/material.dart';
-import '../widgets/appDrawer.dart';
 
 class BroadcastDaftarPage extends StatelessWidget {
   const BroadcastDaftarPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isMobile = screenWidth < 700; // breakpoint mobile
-
-    // Data broadcast
-    final data = [
-      {
-        "no": 1,
-        "pengirim": "Admin Jawara",
-        "judul": "Gotong Royong di Kampus Polinema",
-        "tanggal": "17 Oktober 2025"
-      },
-      {
-        "no": 2,
-        "pengirim": "Admin Jawara",
-        "judul": "Kerja Bakti Bersama Masyarakat Sekitar",
-        "tanggal": "14 Oktober 2025"
-      },
-    ];
-
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F6F8),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0.5,
-        title: const Text(
-          "Daftar Broadcast",
-          style: TextStyle(
-            color: Colors.black87,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(Icons.menu, color: Colors.black87),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-          ),
-        ),
-      ),
+      backgroundColor: Colors.white, // halaman putih
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-        child: Center(
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 1200),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(14),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.15),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Row Back Button + Judul
+            Row(
               children: [
-                // Header
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      "Daftar Broadcast",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF6C63FF),
-                      ),
-                    ),
-                    ElevatedButton.icon(
-                      onPressed: () {},
-                      icon: const Icon(Icons.filter_list, size: 18),
-                      label: const Text("Filter"),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF6C63FF),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 10),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        elevation: 0,
-                      ),
-                    ),
-                  ],
+                IconButton(
+                  icon: Icon(Icons.arrow_back, color: Colors.black),
+                  onPressed: () => Navigator.pop(context),
                 ),
-                const SizedBox(height: 20),
-
-                // Table atau Card
-                if (!isMobile)
-                  _buildTableView(data)
-                else
-                  _buildMobileCardView(data),
-
-                const SizedBox(height: 20),
-
-                // Pagination
-                Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.chevron_left),
-                        onPressed: () {},
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF6C63FF),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: const Text(
-                          "1",
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.chevron_right),
-                        onPressed: () {},
-                      ),
-                    ],
+                SizedBox(width: 8),
+                Text(
+                  "Daftar Broadcast",
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
                   ),
                 ),
               ],
             ),
-          ),
-        ),
-      ),
-    );
-  }
 
-  Widget _buildTableView(List<Map<String, dynamic>> data) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minWidth: 700),
-        child: Table(
-          border: TableBorder.all(
-            color: const Color(0xFFE0E0E0),
-            width: 1,
-          ),
-          columnWidths: const {
-            0: FlexColumnWidth(0.6),
-            1: FlexColumnWidth(1.4),
-            2: FlexColumnWidth(2.5),
-            3: FlexColumnWidth(1.4),
-            4: FlexColumnWidth(1.2),
-          },
-          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-          children: [
-            // Header
-            const TableRow(
-              decoration: BoxDecoration(color: Color(0xFFF3F0FF)),
-              children: [
-                _HeaderCell("NO"),
-                _HeaderCell("PENGIRIM"),
-                _HeaderCell("JUDUL"),
-                _HeaderCell("TANGGAL"),
-                _HeaderCell("AKSI"),
-              ],
-            ),
-            ...data.map((item) => _dataRowTable(
-                  item["no"],
-                  item["pengirim"],
-                  item["judul"],
-                  item["tanggal"],
-                )),
-          ],
-        ),
-      ),
-    );
-  }
+            SizedBox(height: 20),
 
-  Widget _buildMobileCardView(List<Map<String, dynamic>> data) {
-    return Column(
-      children: data
-          .map(
-            (item) => Card(
-              elevation: 1,
-              margin: const EdgeInsets.symmetric(vertical: 6),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "${item["judul"]}",
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
+            // Card pembungkus seluruh konten
+            Container(
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white, // card pembungkus putih
+                borderRadius: BorderRadius.circular(14),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 6,
+                    offset: Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  // Tombol Tambah & Filter
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xFFBC6C25),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        onPressed: () {},
+                        icon: Icon(Icons.add, color: Colors.white),
+                        label: Text("Tambah",
+                            style: TextStyle(color: Colors.white)),
+                      ),
+                      SizedBox(width: 10),
+                      ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xFFDCA15D),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        onPressed: () {},
+                        icon: Icon(Icons.filter_list, color: Colors.white),
+                        label: Text("Filter",
+                            style: TextStyle(color: Colors.white)),
+                      ),
+                    ],
+                  ),
+
+                  SizedBox(height: 16),
+
+                  // List broadcast tanpa scroll internal
+                  Column(
+                    children: List.generate(
+                      3,
+                      (index) => Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: _broadcastCard(index + 1),
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const Icon(Icons.person_outline, size: 16),
-                        const SizedBox(width: 4),
-                        Text("${item["pengirim"]}"),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        const Icon(Icons.date_range_outlined, size: 16),
-                        const SizedBox(width: 4),
-                        Text("${item["tanggal"]}"),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.edit,
-                              color: Colors.amber, size: 20),
-                          tooltip: 'Edit',
-                          onPressed: () {},
+                  ),
+
+                  // Pagination di dalam card
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.chevron_left, color: Color(0xFFBC6C25)),
+                      Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                        margin: EdgeInsets.symmetric(horizontal: 8),
+                        decoration: BoxDecoration(
+                          color: Color(0xFFBC6C25),
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.delete,
-                              color: Colors.redAccent, size: 20),
-                          tooltip: 'Hapus',
-                          onPressed: () {},
+                        child: Text(
+                          "1",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, color: Colors.white),
                         ),
-                      ],
-                    ),
-                  ],
-                ),
+                      ),
+                      Icon(Icons.chevron_right, color: Color(0xFFBC6C25)),
+                    ],
+                  ),
+                ],
               ),
-            ),
-          )
-          .toList(),
-    );
-  }
-}
-
-// Reusable Table Cell Widgets
-class _HeaderCell extends StatelessWidget {
-  final String text;
-  const _HeaderCell(this.text);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(10),
-      child: Text(
-        text,
-        style: const TextStyle(
-          fontWeight: FontWeight.bold,
-          color: Colors.black87,
-        ),
-      ),
-    );
-  }
-}
-
-class _DataCell extends StatelessWidget {
-  final Widget child;
-  const _DataCell(this.child);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-      child: DefaultTextStyle(
-        style: const TextStyle(color: Colors.black87, fontSize: 14),
-        overflow: TextOverflow.ellipsis,
-        child: child,
-      ),
-    );
-  }
-}
-
-// Data row builder
-TableRow _dataRowTable(int no, String pengirim, String judul, String tanggal) {
-  return TableRow(
-    children: [
-      _DataCell(Text(no.toString())),
-      _DataCell(Text(pengirim)),
-      _DataCell(Text(judul)),
-      _DataCell(Text(tanggal)),
-      _DataCell(
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.edit, color: Colors.amber, size: 18),
-              tooltip: 'Edit',
-              onPressed: () {},
-            ),
-            IconButton(
-              icon: const Icon(Icons.delete, color: Colors.redAccent, size: 18),
-              tooltip: 'Hapus',
-              onPressed: () {},
             ),
           ],
         ),
       ),
-    ],
-  );
+    );
+  }
+
+  // CARD BROADCAST 
+  Widget _broadcastCard(int number) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Color(0xFFF4D9B2), // cream background
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Color(0xFFBC6C25),
+          width: 2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 4,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
+      padding: EdgeInsets.all(16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // Angka bulat 
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: Color(0xFFBC6C25),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black26,
+                  blurRadius: 4,
+                  offset: Offset(0, 2),
+                ),
+              ],
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              number.toString(),
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          SizedBox(width: 16),
+
+          // Isi teks + tombol edit & delete
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "Judul Broadcast",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                SizedBox(height: 4),
+                Text("Kategori : Informasi"),
+                Text("Penanggung Jawab : Admin"),
+                Text("Tanggal : 18-11-2025"),
+                SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Icon(Icons.edit, color: Colors.orange),
+                    SizedBox(width: 20),
+                    Icon(Icons.delete, color: Colors.red),
+                  ],
+                )
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
