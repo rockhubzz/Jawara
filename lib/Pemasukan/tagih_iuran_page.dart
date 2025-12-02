@@ -68,10 +68,6 @@ class _TagihIuranPageState extends State<TagihIuranPage> {
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
       ),
-
-      // Drawer untuk sidebar
-      drawer: AppDrawer(email: 'admin1@mail.com'),
-
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),

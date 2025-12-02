@@ -166,7 +166,6 @@ class _DataKeluargaPageState extends State<DataKeluargaPage> {
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
       ),
-      drawer: AppDrawer(email: 'admin1@mail.com'),
       body: Column(
         children: [
           // Tombol aksi atas (Filter di sebelah kiri)

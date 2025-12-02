@@ -175,7 +175,6 @@ class _KategoriIuranPageState extends State<KategoriIuranPage> {
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
       ),
-      drawer: AppDrawer(email: 'admin1@mail.com'),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
