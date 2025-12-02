@@ -11,10 +11,25 @@ class SemuaMenuPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Semua Menu"),
-        backgroundColor: Colors.grey[200],
-        centerTitle: true,
-      ),
+          backgroundColor: Colors.white,
+          elevation: 0.5,
+          leading: IconButton(
+            icon: const Icon(
+              Icons.arrow_back_ios_new,
+              color: Color(0xFF2E7D32),
+            ),
+            onPressed: () => context.go('/beranda'),
+          ),
+          title: const Text(
+            "Semua Menu",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF2E7D32),
+            ),
+          ),
+          centerTitle: false,
+        ),
 
       body: Container(
         decoration: const BoxDecoration(
