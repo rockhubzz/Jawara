@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:jawara/services/rumah_service.dart';
 import 'rumah_form_page.dart';
 import 'rumah_detail_page.dart';
+import 'package:go_router/go_router.dart';
+
 import 'package:jawara/widgets/appDrawer.dart';
 
 class RumahListPage extends StatefulWidget {
@@ -39,9 +41,15 @@ class _RumahListPageState extends State<RumahListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Daftar Rumah")),
-      drawer: const AppDrawer(email: 'admin1@mail.com'),
+      appBar: AppBar(
+        title: const Text("Daftar Rumah"),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => context.go('/beranda'),
+        ),
+      ),
 
+      // drawer: const AppDrawer(email: 'admin1@mail.com'),
       body: loading
           ? const Center(child: CircularProgressIndicator())
           : ListView.builder(

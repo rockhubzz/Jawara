@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:jawara/widgets/appDrawer.dart';
 import 'package:jawara/services/tagihan_service.dart';
+import 'package:go_router/go_router.dart';
 
 class TagihanPage extends StatefulWidget {
   const TagihanPage({super.key});
@@ -182,6 +183,11 @@ class _TagihanPageState extends State<TagihanPage> {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F9FC),
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => context.go('/beranda'),
+        ),
+
         title: const Text("Tagihan", style: TextStyle(color: Colors.black)),
         backgroundColor: Colors.white,
         elevation: 0,

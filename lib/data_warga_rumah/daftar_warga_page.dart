@@ -3,6 +3,7 @@ import '../../services/warga_service.dart';
 import 'tambahWarga_page.dart';
 import 'warga_edit_page.dart';
 import 'warga_detail_page.dart';
+import 'package:go_router/go_router.dart';
 import '../../widgets/appDrawer.dart';
 
 class WargaListPage extends StatefulWidget {
@@ -56,8 +57,13 @@ class _WargaListPageState extends State<WargaListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Daftar Warga")),
-      drawer: const AppDrawer(email: 'admin1@mail.com'),
+      appBar: AppBar(
+        title: const Text("Daftar Warga"),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => context.go('/beranda'),
+        ),
+      ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.blue,
         onPressed: () => Navigator.push(

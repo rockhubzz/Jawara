@@ -7,7 +7,7 @@ class AuthService {
   static String? ip;
 
   static String? get baseUrl {
-    if (ip == null) return "http://192.168.10.70:8000/api"; // default fallback
+    if (ip == null) return "http://192.168.75.96:8000/api"; // ip address api
     return "http://$ip:8000/api";
   }
 

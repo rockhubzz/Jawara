@@ -18,7 +18,7 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
 
   bool _isPasswordVisible = false;
-  bool _rememberMe = false;
+  // bool _rememberMe = false;
   bool _isLoading = false;
 
   Future<void> _login() async {
@@ -65,7 +65,7 @@ class _LoginPageState extends State<LoginPage> {
           context,
         ).showSnackBar(const SnackBar(content: Text("Login berhasil!")));
 
-        context.go('/beranda', extra: user["email"]);
+        context.go('/beranda', extra: user["name"]);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Email atau password salah")),
@@ -78,7 +78,6 @@ class _LoginPageState extends State<LoginPage> {
       ).showSnackBar(SnackBar(content: Text("Error: $e")));
     }
   }
-
   //if (_emailController.text == 'admin1@mail.com' &&
   //       _passwordController.text == 'passwrod') {
   //     context.go('/dashboard/kegiatan', extra: loggedInUserEmail);

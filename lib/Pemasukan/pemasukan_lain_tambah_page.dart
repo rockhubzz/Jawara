@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:go_router/go_router.dart';
+
 import '../widgets/appDrawer.dart';
+import '../services/pemasukan_lain_service.dart';
 
 class PemasukanLainTambah extends StatefulWidget {
   const PemasukanLainTambah({Key? key}) : super(key: key);
@@ -20,6 +23,8 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
   final TextEditingController _tanggalController = TextEditingController();
   String? _kategori;
   File? _buktiFile;
+
+  bool isSubmitting = false;
 
   final List<String> _kategoriList = ['Donasi', 'Sponsor', 'Event', 'Lainnya'];
 
@@ -60,10 +65,38 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
     });
   }
 
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
+  Future<void> _submitForm() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => isSubmitting = true);
+
+    final payload = {
+      "nama": _namaController.text,
+      "jenis": _kategori,
+      "tanggal": _tanggalController.text,
+      "nominal": _nominalController.text,
+      "bukti": null, // karena service tidak menerima file
+    };
+
+    final ok = await PemasukanService.create(payload);
+
+    setState(() => isSubmitting = false);
+
+    if (ok) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Pemasukan berhasil disimpan')),
+        const SnackBar(
+          content: Text('Pemasukan berhasil disimpan'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      context.go('/pemasukan/lain_daftar'); // kembali ke list
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Gagal menyimpan pemasukan'),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -73,6 +106,10 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => context.go('/beranda'),
+        ),
         title: const Text(
           "Tambah Pemasukan lain",
           style: TextStyle(color: Colors.black),
@@ -110,7 +147,6 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
                           ),
                           const SizedBox(height: 20),
 
-                          // Nama Pemasukan
                           TextFormField(
                             controller: _namaController,
                             decoration: const InputDecoration(
@@ -123,7 +159,6 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
                           ),
                           const SizedBox(height: 20),
 
-                          // Tanggal Pemasukan
                           TextFormField(
                             controller: _tanggalController,
                             readOnly: true,
@@ -140,7 +175,6 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
                           ),
                           const SizedBox(height: 20),
 
-                          // Kategori Pemasukan
                           DropdownButtonFormField<String>(
                             value: _kategori,
                             items: _kategoriList
@@ -152,9 +186,7 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
                                 )
                                 .toList(),
                             onChanged: (value) {
-                              setState(() {
-                                _kategori = value;
-                              });
+                              setState(() => _kategori = value);
                             },
                             decoration: const InputDecoration(
                               labelText: 'Kategori Pemasukan',
@@ -166,7 +198,6 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
                           ),
                           const SizedBox(height: 20),
 
-                          // Nominal
                           TextFormField(
                             controller: _nominalController,
                             keyboardType: TextInputType.number,
@@ -179,7 +210,6 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
                           ),
                           const SizedBox(height: 20),
 
-                          // Bukti Pemasukan
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -212,7 +242,7 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
                                         )
                                       : const Center(
                                           child: Text(
-                                            'Upload bukti pemasukan (.png/.jpg)',
+                                            'Upload bukti pemasukan (.png/.jpg) — *tidak dikirim ke backend*',
                                             style: TextStyle(
                                               color: Colors.grey,
                                             ),
@@ -224,7 +254,6 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
                           ),
                           const SizedBox(height: 25),
 
-                          // Tombol Submit & Reset
                           Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
@@ -236,18 +265,21 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
                                     vertical: 12,
                                   ),
                                 ),
-                                onPressed: _submitForm,
-                                child: const Text('Submit'),
+                                onPressed: isSubmitting ? null : _submitForm,
+                                child: isSubmitting
+                                    ? const SizedBox(
+                                        height: 18,
+                                        width: 18,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Colors.white,
+                                        ),
+                                      )
+                                    : const Text('Submit'),
                               ),
                               const SizedBox(width: 10),
                               OutlinedButton(
                                 onPressed: _resetForm,
-                                style: OutlinedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 30,
-                                    vertical: 12,
-                                  ),
-                                ),
                                 child: const Text('Reset'),
                               ),
                             ],

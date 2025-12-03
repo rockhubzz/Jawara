@@ -66,3 +66,11 @@ Route::post('/tagihan/semua', [TagihanIuranController::class, 'storeAll']);
 Route::get('/tagihan/{id}', [TagihanIuranController::class, 'show']);
 Route::put('/tagihan/{id}', [TagihanIuranController::class, 'update']);
 Route::delete('/tagihan/{id}', [TagihanIuranController::class, 'destroy']);
+
+use App\Http\Controllers\Api\PemasukanLainController;
+
+Route::get('/pemasukan', [PemasukanLainController::class, 'index']);
+Route::post('/pemasukan', [PemasukanLainController::class, 'store']);
+Route::get('/pemasukan/{id}', [PemasukanLainController::class, 'show']);
+Route::put('/pemasukan/{id}', [PemasukanLainController::class, 'update']);
+Route::delete('/pemasukan/{id}', [PemasukanLainController::class, 'destroy']);

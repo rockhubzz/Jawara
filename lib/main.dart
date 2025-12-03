@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:jawara/data_warga_rumah/tambahRumah_page.dart';
 import 'package:jawara/kegiatan_dan_brodcast/kegiatan_daftar_page.dart';
 import 'package:jawara/kegiatan_dan_brodcast/kegiatan_tambah_page.dart';
 import 'package:jawara/kegiatan_dan_brodcast/broadcast_daftar_page.dart';
@@ -24,6 +25,7 @@ import 'laporan_keuangan/semua_pemasukan_page.dart';
 import 'laporan_keuangan/cetak_laporan_page.dart';
 import 'pemasukan/pemasukan_lain_daftar_page.dart';
 import 'pemasukan/pemasukan_lain_tambah_page.dart';
+import 'pemasukan/pemasukan_lain_edit.dart';
 import 'pesan_warga/informasi_aspirasi_page.dart';
 import 'penerimaan_warga/penerimaan_warga_page.dart';
 import 'mutasi_keluarga/daftar_page.dart';
@@ -62,7 +64,8 @@ class MyApp extends StatelessWidget {
         GoRoute(path: '/', builder: (context, state) => const LoginPage()),
         GoRoute(
           path: '/beranda',
-          builder: (context, state) => HomePage(email: "admin1@mail.com"),
+          builder: (context, state) =>
+              HomePage(username: state.extra as String? ?? 'User'),
         ),
         GoRoute(
           path: '/beranda/semua_menu',
@@ -114,12 +117,24 @@ class MyApp extends StatelessWidget {
         ),
 
         GoRoute(
+          path: '/pemasukan-lain/edit',
+          builder: (context, state) {
+            final data = state.extra as Map<String, dynamic>;
+            return EditPemasukanLain(data: data);
+          },
+        ),
+
+        GoRoute(
           path: '/pemasukan/lain_daftar',
           builder: (context, state) => const PemasukanLainDaftar(),
         ),
         GoRoute(
           path: '/data_warga_rumah/tambahWarga',
           builder: (context, state) => const WargaAddPage(),
+        ),
+        GoRoute(
+          path: '/data_warga_rumah/tambahRumah',
+          builder: (context, state) => const TambahRumahPage(),
         ),
         GoRoute(
           path: '/data_warga_rumah/keluarga',

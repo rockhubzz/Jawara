@@ -3,14 +3,14 @@ import 'package:go_router/go_router.dart';
 import 'package:jawara/widgets/appDrawer.dart';
 
 class HomePage extends StatelessWidget {
-  final String email;
+  final String username;
 
-  const HomePage({super.key, required this.email});
+  const HomePage({super.key, required this.username});
 
   @override
   Widget build(BuildContext context) {
     return AppDrawer(
-      email: email,
+      username: username,
       currentIndex: 0,
       body: _buildBody(context), // langsung panggil body
     );
@@ -23,7 +23,7 @@ class HomePage extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color.fromARGB(255, 255, 235, 188), 
+            Color.fromARGB(255, 255, 235, 188),
             Color.fromARGB(255, 181, 255, 183),
           ],
         ),
@@ -34,11 +34,11 @@ class HomePage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text(
-              "Selamat Siang,",
+              "Selamat Datang,",
               style: TextStyle(fontSize: 14, color: Colors.black54),
             ),
             Text(
-              email,
+              username,
               style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,

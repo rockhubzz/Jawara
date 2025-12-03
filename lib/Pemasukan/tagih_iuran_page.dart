@@ -3,6 +3,7 @@ import 'package:jawara/widgets/appDrawer.dart';
 import 'package:jawara/services/kategori_iuran_service.dart';
 import 'package:jawara/services/tagihan_service.dart';
 import 'package:jawara/services/keluarga_service.dart';
+import 'package:go_router/go_router.dart';
 
 class TagihIuranPage extends StatefulWidget {
   const TagihIuranPage({super.key});
@@ -147,12 +148,16 @@ class _TagihIuranPageState extends State<TagihIuranPage> {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F9FC),
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => context.go('/beranda'),
+        ),
+
         title: const Text("Tagih Iuran", style: TextStyle(color: Colors.black)),
         backgroundColor: Colors.white,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
       ),
-      drawer: AppDrawer(email: 'admin1@mail.com'),
 
       body: Center(
         child: SingleChildScrollView(

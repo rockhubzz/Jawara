@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:jawara/services/user_service.dart';
 
 class AppDrawer extends StatelessWidget {
   final Widget body;
   final int currentIndex;
-  final String email;
+  final String username;
 
   const AppDrawer({
     super.key,
     required this.body,
     required this.currentIndex,
-    required this.email,
+    required this.username,
   });
 
   // Warna utama hijau tua

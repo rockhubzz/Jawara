@@ -3,6 +3,7 @@ import 'package:jawara/widgets/appDrawer.dart';
 import 'package:jawara/services/keluarga_service.dart';
 import 'keluarga_formpage.dart';
 import 'keluarga_detail_page.dart';
+import 'package:go_router/go_router.dart';
 
 class DataKeluargaPage extends StatefulWidget {
   const DataKeluargaPage({super.key});
@@ -189,6 +190,11 @@ class _DataKeluargaPageState extends State<DataKeluargaPage> {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F9FC),
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => context.go('/beranda'),
+        ),
+
         title: const Text(
           "Data Keluarga",
           style: TextStyle(color: Colors.black),
@@ -197,8 +203,8 @@ class _DataKeluargaPageState extends State<DataKeluargaPage> {
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
       ),
-      drawer: AppDrawer(email: 'admin1@mail.com'),
 
+      // drawer: AppDrawer(email: 'admin1@mail.com'),
       floatingActionButton: FloatingActionButton(
         backgroundColor: const Color(0xFF6C63FF),
         child: const Icon(Icons.add, color: Colors.white),

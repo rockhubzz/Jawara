@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import '../services/user_service.dart';
 import '../widgets/appDrawer.dart';
 import 'EditPengguna.dart';
-import 'TambahPengguna.dart';
+import 'tambah_pengguna_page.dart';
+import 'package:go_router/go_router.dart';
 
 class DaftarPenggunaPage extends StatefulWidget {
   const DaftarPenggunaPage({super.key});
@@ -57,8 +58,13 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: const AppDrawer(email: "admin1@mail.com"),
+      // drawer: const AppDrawer(email: "admin1@mail.com"),
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => context.go('/beranda'),
+        ),
+
         title: const Text("Daftar Pengguna"),
         actions: [
           IconButton(icon: const Icon(Icons.refresh), onPressed: fetchUsers),
