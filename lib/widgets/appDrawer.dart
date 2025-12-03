@@ -128,10 +128,10 @@ class AppDrawer extends StatelessWidget {
                 onTap: () => _onTap(context, 3),
               ),
               _navItem(
-                icon: Icons.menu,
+                icon: Icons.logout,
                 label: "Keluar",
                 isActive: currentIndex == 4,
-                onTap: () => _onTap(context, 4),
+                onTap: () => _showLogoutDialog(context),
               ),
             ],
           ),
@@ -172,6 +172,62 @@ class AppDrawer extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // supaya tidak tertutup saat klik luar
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: lightGreen,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: const Text(
+            "Konfirmasi Keluar",
+            style: TextStyle(fontWeight: FontWeight.bold, color: primaryGreen),
+          ),
+          content: const Text(
+            "Apakah Anda yakin ingin keluar dari aplikasi?",
+            style: TextStyle(color: Colors.black87, fontSize: 14),
+          ),
+          actionsPadding: const EdgeInsets.only(bottom: 10, right: 10),
+          actions: [
+            TextButton(
+              style: TextButton.styleFrom(foregroundColor: primaryGreen),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text(
+                "Tidak",
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              ),
+            ),
+            Container(
+              decoration: BoxDecoration(
+                color: primaryGreen,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  context.go('/');
+                },
+                child: const Text(
+                  "Iya, Keluar",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
@@ -15,31 +16,43 @@ class PemasukanLainTambah extends StatefulWidget {
 }
 
 class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _namaController = TextEditingController();
-  final TextEditingController _nominalController = TextEditingController();
-  final TextEditingController _tanggalController = TextEditingController();
+
+  final _namaController = TextEditingController();
+  final _nominalController = TextEditingController();
+  final _tanggalController = TextEditingController();
   String? _kategori;
   File? _buktiFile;
 
   bool isSubmitting = false;
+  bool isLoadingSubmit = false;
+  bool isLoadingReset = false;
 
   final List<String> _kategoriList = ['Donasi', 'Sponsor', 'Event', 'Lainnya'];
 
   Future<void> _pickDate() async {
-    DateTime? pickedDate = await showDatePicker(
+    final picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime(2020),
       lastDate: DateTime(2100),
+      helpText: "Pilih Tanggal Pemasukan",
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(primary: Color(0xFF2E7D32)),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(foregroundColor: Color(0xFF2E7D32)),
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
 
-    if (pickedDate != null) {
-      setState(() {
-        _tanggalController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
-      });
+    if (picked != null) {
+      _tanggalController.text = DateFormat('yyyy-MM-dd').format(picked);
+      setState(() {});
     }
   }
 
@@ -48,20 +61,24 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
     if (image != null) {
-      setState(() {
-        _buktiFile = File(image.path);
-      });
+      setState(() => _buktiFile = File(image.path));
     }
   }
 
-  void _resetForm() {
-    _formKey.currentState!.reset();
+  void _resetForm() async {
+    setState(() => isLoadingReset = true);
+
+    await Future.delayed(const Duration(seconds: 1));
+
+    _formKey.currentState?.reset();
     _namaController.clear();
-    _tanggalController.clear();
     _nominalController.clear();
+    _tanggalController.clear();
+
     setState(() {
       _kategori = null;
       _buktiFile = null;
+      isLoadingReset = false;
     });
   }
 
@@ -113,11 +130,50 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
         title: const Text(
           "Tambah Pemasukan lain",
           style: TextStyle(color: Colors.black),
+    return Theme(
+      data: Theme.of(context).copyWith(
+        colorScheme: const ColorScheme.light(primary: Color(0xFF2E7D32)),
+        inputDecorationTheme: const InputDecorationTheme(
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Color(0xFF2E7D32), width: 2),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Color(0xFF2E7D32)),
+          ),
+          border: OutlineInputBorder(
+            borderSide: BorderSide(color: Color(0xFF2E7D32)),
+          ),
+          hintStyle: TextStyle(
+            color: Color(0xFF7E8A97), // <--- warna abu modern, sama semua hint
+            fontSize: 14,
+          ),
+          labelStyle: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.w600,
+          ),
         ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
       ),
+      child: Scaffold(
+        extendBodyBehindAppBar: true, // <<--- Biar gradient sampai atas
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0.5,
+          leading: IconButton(
+            icon: const Icon(
+              Icons.arrow_back_ios_new,
+              color: Color(0xFF2E7D32),
+            ),
+            onPressed: () => context.go('/beranda/semua_menu'),
+          ),
+          title: const Text(
+            "Tambah Pemasukan Lain",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF2E7D32),
+            ),
+          ),
+        ),
 
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -249,6 +305,22 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
                                           ),
                                         ),
                                 ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          // SUBMIT
+                          ElevatedButton(
+                            onPressed: isLoadingSubmit ? null : _submitForm,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF2E7D32),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 26,
+                                vertical: 12,
                               ),
                             ],
                           ),
@@ -286,14 +358,87 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
                           ),
                         ],
                       ),
-                    ),
+                    ],
                   ),
                 ),
               ),
             ),
-          ],
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _buildDateField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Tanggal Pemasukan",
+          style: TextStyle(fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: _tanggalController,
+          readOnly: true,
+          onTap: _pickDate,
+          decoration: const InputDecoration(
+            hintText: "Pilih tanggal",
+            suffixIcon: Icon(Icons.calendar_today, color: Color(0xFF2E7D32)),
+          ),
+          validator: (v) =>
+              v == null || v.isEmpty ? "Tanggal wajib dipilih" : null,
+        ),
+      ],
+    );
+  }
+
+  // ---- Component Builder ----
+  Widget _buildTextField({
+    required String label,
+    required TextEditingController controller,
+    String? hint,
+    TextInputType keyboard = TextInputType.text,
+    String? validatorMsg,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: controller,
+          keyboardType: keyboard,
+          decoration: InputDecoration(hintText: hint ?? "Masukkan $label"),
+          validator: (v) => validatorMsg != null && (v == null || v.isEmpty)
+              ? validatorMsg
+              : null,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDropdown({
+    required String label,
+    required String? value,
+    required List<String> items,
+    required Function(String?) onChanged,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
+        const SizedBox(height: 8),
+        DropdownButtonFormField<String>(
+          value: value,
+          decoration: const InputDecoration(hintText: "Pilih salah satu"),
+          items: items
+              .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+              .toList(),
+          onChanged: onChanged,
+          validator: (v) => v == null ? "$label wajib dipilih" : null,
+        ),
+      ],
     );
   }
 }

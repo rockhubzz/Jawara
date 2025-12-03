@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../services/keluarga_service.dart';
 import '../../services/warga_service.dart';
+import 'package:go_router/go_router.dart';
 
 class WargaAddPage extends StatefulWidget {
   final int? wargaId; // null = create, not null = edit
@@ -172,6 +173,80 @@ class _WargaAddPageState extends State<WargaAddPage> {
           ],
         ),
       ),
+    );
+  }
+  // ==================== Helper ====================
+
+  Widget _buildTextField(
+    String label,
+    TextEditingController controller, {
+    String? hint,
+    TextInputType keyboard = TextInputType.text,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: controller,
+          keyboardType: keyboard,
+          decoration: InputDecoration(
+            hintText: hint,
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+          validator: (v) =>
+              v == null || v.isEmpty ? "$label tidak boleh kosong" : null,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDropdown(
+    String label,
+    String? value,
+    List<String> items,
+    Function(String?) onChanged,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 8),
+          DropdownButtonFormField<String>(
+            value: value,
+            decoration: InputDecoration(
+              hintText: "-- Pilih $label --",
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            items: items
+                .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                .toList(),
+            onChanged: (v) => setState(() => onChanged(v)),
+            validator: (v) => v == null ? "Pilih $label" : null,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _rowTwo(Widget left, Widget right) {
+    return Row(
+      children: [
+        Expanded(child: left),
+        const SizedBox(width: 16),
+        Expanded(child: right),
+      ],
     );
   }
 }
