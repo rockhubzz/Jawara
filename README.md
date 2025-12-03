@@ -1,32 +1,92 @@
-## Deskripsi Proyek
+# Instalasi
 
-JAWARA merupakan aplikasi pencatatan dan pengelolaan data desa berbasis digital yang dirancang untuk membantu pemerintah desa dalam memonitor dan mengelola berbagai informasi penting secara efisien melalui satu platform terpadu.
+**Requirements:**
 
-Aplikasi ini menampilkan berbagai dashboard interaktif seperti:
+<li> Flutter 3.35.2 atau lebih tinggi
+<li> Dart 3.9.0 atau lebih tinggi
+<li> ADB 1.0.41 atau lebih tinggi
+<li> Android Debugging aktif
 
-- Dashboard Kependudukan — menampilkan data warga berdasarkan usia, jenis kelamin, pekerjaan, dan status keluarga.
+<br>
 
-- Dashboard Keuangan Desa — memonitor pemasukan dan pengeluaran kas desa.
+**Langkah Instalasi:**
+<br>
 
-- Dashboard Kegiatan — menampilkan agenda kegiatan desa dan laporan pelaksanaannya.
+1. Clone repository
 
-- Manajemen Data Warga — fitur untuk menambah, mengubah, dan menghapus data penduduk secara mudah.
+```shell
+git clone https://github.com/rockhubzz/Jawara
+cd Jawara
+```
 
-Tampilan mobile-friendly JAWARA memudahkan perangkat desa untuk mengakses data kapan pun dan di mana pun, tanpa harus menggunakan komputer.
+2. Get Dependencies
 
----
+```shell
+flutter pub get
+```
 
-## Tujuan Proyek
+3. Run aplikasi di android fisik
+   <br>
+   a. Mode debug
+   <br> 1. Sambungkan perangkat android ke PC dengan kabel USB
+   <br> 2. Aktifkan USB Debugging pada android pada opsi pengembang
+   <br> 3. Jalankan perintah berikut:
 
-1. Digitalisasi administrasi desa agar pencatatan data lebih cepat, aman, dan efisien.
-2. Memudahkan perangkat desa dalam memantau kondisi kependudukan, keuangan, dan kegiatan secara real-time.
-3. Meningkatkan transparansi dan akuntabilitas dalam pengelolaan data dan anggaran desa.
-4. Menyediakan akses data yang terpusat dan mudah digunakan baik melalui tampilan web maupun mobile.
-5. Mendukung transformasi desa cerdas (smart village) dengan sistem informasi terpadu.
+   ```shell
+   adb devices
+   ```
 
----
+   Kemudian catat kode perangkat yang terdeteksi pada list
 
-## Teknologi yang Digunakan
-Frontend (Mobile)	: Flutter / Dart
+   ```shell
+   List of devices attached
+    10DE88061C000EC device
+   ```
 
-Version Control : Git & GitHub
+   Lalu jalankan perintah berikut dengan menambahkan kode perangkat sebelumnya:
+
+   ```shell
+    flutter run -d <kode perangkat>
+   ```
+
+   Contoh:
+
+   ```shell
+   flutter run -d 10DE88061C000EC
+   ```
+
+   <br> 4. Aplikasi siap digunakan pada perangkat android anda
+   <br>
+
+   b. Build APK
+   <br> 1. Jalankan perintah berikut
+
+   ```shell
+    flutter build apk
+   ```
+
+   <br> 2. Setelah proses building selesai, file .apk dapat ditemukan pada direktori berikut:
+
+   ```
+   Jawara/build/app/outputs/flutter-apk/<nama-file-apk>.apk
+   ```
+
+   <br> 3. Salin file .apk ke perangkat android lalu instal. Berikan izin instalasi dari sumber tidak diketahui jika diminta
+
+<br>
+
+# Demo
+
+**Screenshots:**
+<br> Dashboard Data Keuangan:
+![Dashboard Data Keuangan](assets/demos/dashboard_keuangan.jpg)
+<br> Dashboard Data Kegiatan:
+![Dashboard Data kegiatan](assets/demos/dashboard_kegiatan.jpg)
+<br> Dashboard Data Kependudukan:
+![Dashboard Data kependudukan](assets/demos/dashboard_kependudukan.jpg)
+
+**Demo Video:**
+
+<video src="assets/demos/demo_video.mp4" controls width="600">
+  Your browser does not support the video tag.
+</video>
