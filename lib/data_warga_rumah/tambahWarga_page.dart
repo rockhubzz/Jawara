@@ -1,398 +1,180 @@
 import 'package:flutter/material.dart';
+import '../../services/keluarga_service.dart';
+import '../../services/warga_service.dart';
 import 'package:go_router/go_router.dart';
 
-class TambahWargaPage extends StatefulWidget {
-  const TambahWargaPage({super.key});
+class WargaAddPage extends StatefulWidget {
+  final int? wargaId; // null = create, not null = edit
+
+  const WargaAddPage({super.key, this.wargaId});
 
   @override
-  State<TambahWargaPage> createState() => _TambahWargaPageState();
+  State<WargaAddPage> createState() => _WargaAddPageState();
 }
 
-class _TambahWargaPageState extends State<TambahWargaPage> {
-  final _formKey = GlobalKey<FormState>();
+class _WargaAddPageState extends State<WargaAddPage> {
+  final nama = TextEditingController();
+  final nik = TextEditingController();
+  String? jenisKelamin;
+  String? statusDomisili;
+  String? statusHidup;
+  int? keluargaId;
 
-  final _namaController = TextEditingController();
-  final _nikController = TextEditingController();
-  final _teleponController = TextEditingController();
-  final _tempatLahirController = TextEditingController();
-  final _tanggalLahirController = TextEditingController();
-  bool isLoadingSubmit = false;
-  bool isLoadingReset = false;
+  List<Map<String, dynamic>> keluargaList = [];
+  bool loading = true;
 
-  String? _keluarga;
-  String? _jenisKelamin;
-  String? _agama;
-  String? _golonganDarah;
-  String? _peranKeluarga;
-  String? _pendidikan;
-  String? _pekerjaan;
-  String? _status;
-
-  void _resetForm() async {
-    setState(() => isLoadingReset = true);
-
-    await Future.delayed(const Duration(seconds: 1));
-
-    _formKey.currentState?.reset();
-    _namaController.clear();
-    _nikController.clear();
-    _teleponController.clear();
-    _tempatLahirController.clear();
-    _tanggalLahirController.clear();
-    setState(() {
-      _keluarga = null;
-      _jenisKelamin = null;
-      _agama = null;
-      _golonganDarah = null;
-      _peranKeluarga = null;
-      _pendidikan = null;
-      _pekerjaan = null;
-      _status = null;
-    });
-
-    setState(() => isLoadingReset = false);
+  @override
+  void initState() {
+    super.initState();
+    initData();
   }
 
-  void _submitForm() async {
-    setState(() => isLoadingSubmit = true);
+  Future<void> initData() async {
+    await loadKeluarga();
 
-    await Future.delayed(const Duration(seconds: 2)); // simulasi loading
-
-    setState(() => isLoadingSubmit = false);
-
-    // lanjut validasi atau kirim ke backend nanti
-  }
-
-  Future<void> _pickDate() async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(1900),
-      lastDate: DateTime(2100),
-      helpText: "Pilih Tanggal Lahir",
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: Color(0xFF2E7D32), // Header background + warna utama
-              onPrimary: Colors.white, // Warna teks di header
-              onSurface: Colors.black, // Warna teks tanggal
-            ),
-            textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(
-                foregroundColor: Color(0xFF2E7D32), // Tombol OK & Batal
-              ),
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-
-    if (picked != null) {
-      setState(() {
-        _tanggalLahirController.text =
-            "${picked.day.toString().padLeft(2, '0')}-"
-            "${picked.month.toString().padLeft(2, '0')}-"
-            "${picked.year}";
-      });
+    if (widget.wargaId != null) {
+      await loadExistingWarga(widget.wargaId!);
     }
+
+    loading = false;
+    setState(() {});
+  }
+
+  Future<void> loadKeluarga() async {
+    keluargaList = await KeluargaService.getKeluarga();
+  }
+
+  Future<void> loadExistingWarga(int id) async {
+    final data = await WargaService.getById(id);
+
+    nama.text = data["nama"];
+    nik.text = data["nik"];
+    jenisKelamin = data["jenis_kelamin"];
+    statusDomisili = data["status_domisili"];
+    statusHidup = data["status_hidup"];
+    keluargaId = data["keluarga_id"];
+  }
+
+  Future<void> save() async {
+    final body = {
+      "nama": nama.text,
+      "nik": nik.text,
+      "keluarga_id": keluargaId.toString(),
+      "jenis_kelamin": jenisKelamin,
+      "status_domisili": statusDomisili,
+      "status_hidup": statusHidup,
+    };
+
+    bool ok = false;
+
+    if (widget.wargaId == null) {
+      // ADD
+      ok = await WargaService.create(body);
+    } else {
+      // UPDATE
+      ok = await WargaService.update(widget.wargaId!, body);
+    }
+
+    if (!mounted) return;
+
+    if (ok) {
+      Navigator.pop(context);
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Gagal menyimpan")));
+    }
+  }
+
+  Widget dropdown<T>(
+    String label,
+    T? value,
+    List<T> items,
+    void Function(T?) onChanged,
+  ) {
+    return DropdownButtonFormField<T>(
+      decoration: InputDecoration(labelText: label),
+      value: value,
+      items: items
+          .map((e) => DropdownMenuItem(value: e, child: Text(e.toString())))
+          .toList(),
+      onChanged: onChanged,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Theme(
-      data: Theme.of(context).copyWith(
-        colorScheme: const ColorScheme.light(
-          primary: Color(0xFF2E7D32), // warna border fokus
+    if (loading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
         ),
-        inputDecorationTheme: const InputDecorationTheme(
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Color(0xFF2E7D32), width: 2),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Color(0xFF2E7D32)),
-          ),
-          border: OutlineInputBorder(
-            borderSide: BorderSide(color: Color(0xFF2E7D32)),
-          ),
+
+        title: Text(
+          widget.wargaId == null
+              ? "Tambah Warga"
+              : "Edit Warga #${widget.wargaId}",
         ),
       ),
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-
-        // ================= APPBAR BARU ==================
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0.5,
-          leading: IconButton(
-            icon: const Icon(
-              Icons.arrow_back_ios_new,
-              color: Color(0xFF2E7D32),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: ListView(
+          children: [
+            TextField(
+              controller: nama,
+              decoration: const InputDecoration(labelText: "Nama"),
             ),
-            onPressed: () => context.go('/beranda/semua_menu'),
-          ),
-          title: const Text(
-            "Tambah Warga",
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF2E7D32),
+            TextField(
+              controller: nik,
+              decoration: const InputDecoration(labelText: "NIK"),
             ),
-          ),
-          centerTitle: false,
-        ),
 
-        body: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Color.fromARGB(255, 255, 235, 188),
-                Color.fromARGB(255, 181, 255, 183),
-              ],
+            dropdown("Jenis Kelamin", jenisKelamin, [
+              "Laki-laki",
+              "Perempuan",
+            ], (v) => setState(() => jenisKelamin = v)),
+
+            dropdown(
+              "Status Domisili",
+              statusDomisili,
+              ["Aktif", "Tidak Aktif"],
+              (v) => setState(() => statusDomisili = v),
             ),
-          ),
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Center(
-              child: Container(
-                constraints: const BoxConstraints(maxWidth: 500),
-                padding: const EdgeInsets.all(24),
 
-                // CARD FORM BERGAYA BARU
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.9),
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.white.withOpacity(0.3),
-                      blurRadius: 12,
-                      spreadRadius: 2,
-                      offset: const Offset(0, 4),
+            dropdown("Status Hidup", statusHidup, [
+              "Hidup",
+              "Wafat",
+            ], (v) => setState(() => statusHidup = v)),
+
+            DropdownButtonFormField<int>(
+              decoration: const InputDecoration(labelText: "Keluarga"),
+              value: keluargaId,
+              items: keluargaList
+                  .map(
+                    (e) => DropdownMenuItem<int>(
+                      value: e['id'] as int,
+                      child: Text(e['nama_keluarga']),
                     ),
-                  ],
-                ),
-
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "Isi detail di bawah untuk menambahkan data warga",
-                        style: TextStyle(fontSize: 13, color: Colors.black54),
-                      ),
-                      const SizedBox(height: 24),
-
-                      // === DROPDOWN KELUARGA ===
-                      _buildDropdown("Pilih Keluarga", _keluarga, [
-                        "Keluarga A",
-                        "Keluarga B",
-                        "Keluarga C",
-                      ], (v) => _keluarga = v),
-
-                      _buildTextField(
-                        "Nama",
-                        _namaController,
-                        hint: "Masukkan nama lengkap",
-                      ),
-                      const SizedBox(height: 16),
-
-                      _buildTextField(
-                        "NIK",
-                        _nikController,
-                        hint: "Masukkan NIK",
-                        keyboard: TextInputType.number,
-                      ),
-                      const SizedBox(height: 16),
-
-                      _buildTextField(
-                        "Nomor Telepon",
-                        _teleponController,
-                        hint: "08xxxx",
-                        keyboard: TextInputType.phone,
-                      ),
-                      const SizedBox(height: 16),
-
-                      _buildTextField(
-                        "Tempat Lahir",
-                        _tempatLahirController,
-                        hint: "Masukkan tempat lahir",
-                      ),
-                      const SizedBox(height: 16),
-
-                      // === TANGGAL LAHIR ===
-                      const Text(
-                        "Tanggal Lahir",
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextFormField(
-                        controller: _tanggalLahirController,
-                        readOnly: true,
-                        decoration: InputDecoration(
-                          hintText: "--/--/----",
-                          suffixIcon: IconButton(
-                            icon: const Icon(
-                              Icons.calendar_today,
-                              color: Color(0xFF2E7D32), // Ikon hijau
-                            ),
-                            onPressed: _pickDate,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: const BorderSide(
-                              color: Color(0xFF2E7D32),
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: const BorderSide(
-                              color: Color(0xFF2E7D32),
-                              width: 2,
-                            ),
-                          ),
-                        ),
-                        validator: (v) => v == null || v.isEmpty
-                            ? "Pilih tanggal lahir"
-                            : null,
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      _buildDropdown("Jenis Kelamin", _jenisKelamin, [
-                        "Laki-laki",
-                        "Perempuan",
-                      ], (v) => _jenisKelamin = v),
-
-                      _buildDropdown("Agama", _agama, [
-                        "Islam",
-                        "Kristen",
-                        "Katolik",
-                        "Hindu",
-                        "Budha",
-                      ], (v) => _agama = v),
-
-                      _buildDropdown("Golongan Darah", _golonganDarah, [
-                        "A",
-                        "B",
-                        "AB",
-                        "O",
-                      ], (v) => _golonganDarah = v),
-
-                      _buildDropdown("Peran Keluarga", _peranKeluarga, [
-                        "Ayah",
-                        "Ibu",
-                        "Anak",
-                      ], (v) => _peranKeluarga = v),
-
-                      _buildDropdown("Pendidikan Terakhir", _pendidikan, [
-                        "SD",
-                        "SMP",
-                        "SMA",
-                        "Diploma",
-                        "Sarjana",
-                      ], (v) => _pendidikan = v),
-
-                      _buildDropdown("Pekerjaan", _pekerjaan, [
-                        "Pelajar",
-                        "Karyawan",
-                        "Wiraswasta",
-                        "Lainnya",
-                      ], (v) => _pekerjaan = v),
-
-                      _buildDropdown("Status", _status, [
-                        "Menikah",
-                        "Belum Menikah",
-                      ], (v) => _status = v),
-
-                      const SizedBox(height: 24),
-
-                      // ================= BUTTON =================
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          // === SUBMIT BUTTON ===
-                          ElevatedButton(
-                            onPressed: isLoadingSubmit ? null : _submitForm,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF2E7D32),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 12,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            child: isLoadingSubmit
-                                ? const SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: Colors.white,
-                                    ),
-                                  )
-                                : const Text(
-                                    "Submit",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                          ),
-
-                          const SizedBox(width: 12),
-
-                          // === RESET BUTTON ===
-                          OutlinedButton(
-                            onPressed: isLoadingReset ? null : _resetForm,
-                            style: OutlinedButton.styleFrom(
-                              side: const BorderSide(color: Color(0xFF2E7D32)),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 12,
-                              ),
-                            ),
-                            child: isLoadingReset
-                                ? const SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: Color(0xFF2E7D32),
-                                    ),
-                                  )
-                                : const Text(
-                                    "Reset",
-                                    style: TextStyle(
-                                      color: Color(0xFF2E7D32),
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+                  )
+                  .toList(),
+              onChanged: (v) => setState(() => keluargaId = v),
             ),
-          ),
+
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: save,
+              child: Text(widget.wargaId == null ? "Simpan" : "Update"),
+            ),
+          ],
         ),
       ),
     );
   }
-
   // ==================== Helper ====================
 
   Widget _buildTextField(

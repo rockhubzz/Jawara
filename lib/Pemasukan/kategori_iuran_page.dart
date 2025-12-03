@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:jawara/widgets/appDrawer.dart';
+import 'package:jawara/services/kategori_iuran_service.dart';
+import 'package:go_router/go_router.dart';
 
 class KategoriIuranPage extends StatefulWidget {
   const KategoriIuranPage({super.key});
@@ -9,44 +11,57 @@ class KategoriIuranPage extends StatefulWidget {
 }
 
 class _KategoriIuranPageState extends State<KategoriIuranPage> {
-  final List<Map<String, String>> dataIuran = [
-    {
-      "no": "1",
-      "nama": "Iuran Bulanan",
-      "jenis": "Rutin",
-      "nominal": "Rp 5.000,00",
-    },
-    {
-      "no": "2",
-      "nama": "Iuran Harian",
-      "jenis": "Khusus",
-      "nominal": "Rp 2.000,00",
-    },
-    {
-      "no": "3",
-      "nama": "Iuran Kerja Bakti",
-      "jenis": "Khusus",
-      "nominal": "Rp 5.000,00",
-    },
-    {
-      "no": "4",
-      "nama": "Iuran Bersih Desa",
-      "jenis": "Khusus",
-      "nominal": "Rp 200.000,00",
-    },
-    {
-      "no": "5",
-      "nama": "Iuran Mingguan",
-      "jenis": "Khusus",
-      "nominal": "Rp 12.000,00",
-    },
-    {
-      "no": "6",
-      "nama": "Iuran Agustusan",
-      "jenis": "Khusus",
-      "nominal": "Rp 15.000,00",
-    },
-  ];
+  List<Map<String, dynamic>> dataIuran = [];
+  bool loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    loadData();
+  }
+
+  Future<void> loadData() async {
+    setState(() {
+      loading = true;
+    });
+    try {
+      final items = await KategoriIuranService.getAll();
+      setState(() {
+        dataIuran = items
+            .map(
+              (e) => {
+                'id': e['id'],
+                'no': (items.indexOf(e) + 1).toString(),
+                'nama': e['nama'],
+                'jenis': e['jenis'],
+                'nominal': formatRupiah(e['nominal']),
+              },
+            )
+            .toList();
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Gagal memuat data. Periksa server.")),
+      );
+    } finally {
+      setState(() {
+        loading = false;
+      });
+    }
+  }
+
+  String formatRupiah(num number) {
+    return number.toString().replaceAllMapped(
+      RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]}.',
+    );
+  }
+
+  int parseNominal(String value) {
+    // Hapus titik, koma, dan spasi
+    final cleaned = value.replaceAll(RegExp(r'[^0-9]'), '');
+    return int.tryParse(cleaned) ?? 0;
+  }
 
   void openTambahDialog() {
     final TextEditingController namaController = TextEditingController();
@@ -88,7 +103,7 @@ class _KategoriIuranPageState extends State<KategoriIuranPage> {
                   controller: nominalController,
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
-                    hintText: "Masukkan jumlah nominal",
+                    hintText: "Masukkan jumlah nominal (Rp.)",
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -129,22 +144,36 @@ class _KategoriIuranPageState extends State<KategoriIuranPage> {
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              onPressed: () {
-                // Validasi sederhana
+              onPressed: () async {
                 if (namaController.text.isNotEmpty &&
                     nominalController.text.isNotEmpty &&
                     selectedJenis != null) {
-                  // Tambah ke list (jika ingin real-time)
-                  setState(() {
-                    dataIuran.add({
-                      "no": (dataIuran.length + 1).toString(),
-                      "nama": namaController.text,
-                      "jenis": selectedJenis!,
-                      "nominal": "Rp ${nominalController.text},00",
-                    });
-                  });
+                  final payload = {
+                    "nama": namaController.text,
+                    "jenis": selectedJenis,
+                    "nominal": parseNominal(nominalController.text),
+                  };
 
-                  Navigator.pop(context);
+                  final res = await KategoriIuranService.create(payload);
+                  if (res["success"] == true) {
+                    // add to local list keeping layout same
+                    setState(() {
+                      final newItem = res["data"];
+                      dataIuran.insert(0, {
+                        "id": newItem['id'],
+                        "no": (dataIuran.length + 1).toString(),
+                        "nama": newItem['nama'],
+                        "jenis": newItem['jenis'],
+                        "nominal": formatRupiah(newItem['nominal']),
+                      });
+                    });
+                    Navigator.pop(context);
+                  } else {
+                    final msg = res["errors"]?.toString() ?? "Gagal membuat";
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text(msg)));
+                  }
                 }
               },
               child: const Text(
@@ -167,6 +196,11 @@ class _KategoriIuranPageState extends State<KategoriIuranPage> {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F9FC),
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => context.go('/beranda'),
+        ),
+
         title: const Text(
           "Kategori Iuran",
           style: TextStyle(color: Colors.black),
@@ -268,12 +302,168 @@ class _KategoriIuranPageState extends State<KategoriIuranPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text("Jenis: ${item['jenis']}"),
-                            Text("Nominal: ${item['nominal']}"),
+                            Text("Nominal: Rp.${item['nominal']}"),
                           ],
                         ),
                         trailing: PopupMenuButton<String>(
-                          onSelected: (value) {
-                            // Handle actions
+                          onSelected: (value) async {
+                            final id =
+                                int.tryParse(item['id'].toString()) ?? -1;
+                            if (value == 'Edit') {
+                              // open a similar dialog prefilled (you can reuse openTambahDialog but prefill)
+                              final TextEditingController namaController =
+                                  TextEditingController(text: item['nama']);
+                              final TextEditingController nominalController =
+                                  TextEditingController(
+                                    text: item['nominal']!.replaceAll(
+                                      RegExp(r'[^0-9]'),
+                                      '',
+                                    ),
+                                  );
+                              String selectedJenis = item['jenis']!;
+                              // show dialog like openTambahDialog but on save call update
+                              final ok = await showDialog<bool>(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    title: const Text("Edit Iuran"),
+                                    content: SingleChildScrollView(
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          TextField(
+                                            controller: namaController,
+                                            decoration: const InputDecoration(
+                                              labelText: "Nama",
+                                            ),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          TextField(
+                                            controller: nominalController,
+                                            keyboardType: TextInputType.number,
+                                            decoration: const InputDecoration(
+                                              labelText: "Nominal (Rp.)",
+                                            ),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          DropdownButtonFormField<String>(
+                                            value: selectedJenis,
+                                            items: ["Rutin", "Khusus"]
+                                                .map(
+                                                  (e) => DropdownMenuItem(
+                                                    value: e,
+                                                    child: Text(e),
+                                                  ),
+                                                )
+                                                .toList(),
+                                            onChanged: (v) =>
+                                                selectedJenis = v!,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.pop(context, false),
+                                        child: const Text("Batal"),
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: () async {
+                                          final payload = {
+                                            'nama': namaController.text,
+                                            'jenis': selectedJenis,
+                                            'nominal': parseNominal(
+                                              nominalController.text,
+                                            ),
+                                          };
+                                          final res =
+                                              await KategoriIuranService.update(
+                                                id,
+                                                payload,
+                                              );
+                                          if (res['success'] == true) {
+                                            // update local list
+                                            setState(() {
+                                              final idx = dataIuran.indexWhere(
+                                                (it) =>
+                                                    it['id'].toString() == id,
+                                              );
+                                              if (idx != -1) {
+                                                dataIuran[idx]['nama'] =
+                                                    payload['nama'];
+                                                dataIuran[idx]['jenis'] =
+                                                    payload['jenis'];
+                                                dataIuran[idx]['nominal'] =
+                                                    formatRupiah(
+                                                      payload['nominal'] as num,
+                                                    );
+                                              }
+                                            });
+                                            Navigator.pop(context, true);
+                                          } else {
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                  res['errors'].toString(),
+                                                ),
+                                              ),
+                                            );
+                                          }
+                                        },
+                                        child: const Text("Simpan"),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+
+                              if (ok == true) {
+                                // optional: feedback
+                              }
+                            } else if (value == 'Hapus') {
+                              final confirm = await showDialog<bool>(
+                                context: context,
+                                builder: (ctx) => AlertDialog(
+                                  title: const Text("Konfirmasi Hapus"),
+                                  content: Text(
+                                    "Yakin ingin menghapus ${item['nama']}?",
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(ctx, false),
+                                      child: const Text("Batal"),
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () => Navigator.pop(ctx, true),
+                                      child: const Text("Hapus"),
+                                    ),
+                                  ],
+                                ),
+                              );
+
+                              if (confirm == true) {
+                                final ok = await KategoriIuranService.delete(
+                                  id,
+                                );
+                                if (ok) {
+                                  setState(() {
+                                    dataIuran.removeWhere(
+                                      (it) => it['id'] == id,
+                                    );
+                                  });
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text("Gagal menghapus"),
+                                    ),
+                                  );
+                                }
+                              }
+                            }
                           },
                           itemBuilder: (BuildContext context) {
                             return ['Edit', 'Hapus'].map((String choice) {
