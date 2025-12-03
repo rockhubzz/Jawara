@@ -34,7 +34,7 @@ class HomePage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text(
-              "Selamat Siang,",
+              "Selamat Datang,",
               style: TextStyle(fontSize: 14, color: Colors.black54),
             ),
             Text(
