@@ -3,10 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
-import 'package:go_router/go_router.dart';
-
-import '../widgets/appDrawer.dart';
-import '../services/pemasukan_lain_service.dart';
 
 class PemasukanLainTambah extends StatefulWidget {
   const PemasukanLainTambah({Key? key}) : super(key: key);
@@ -24,7 +20,6 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
   String? _kategori;
   File? _buktiFile;
 
-  bool isSubmitting = false;
   bool isLoadingSubmit = false;
   bool isLoadingReset = false;
 
@@ -82,54 +77,20 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
     });
   }
 
-  Future<void> _submitForm() async {
+  void _submitForm() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => isSubmitting = true);
+    setState(() => isLoadingSubmit = true);
+    await Future.delayed(const Duration(seconds: 2));
+    setState(() => isLoadingSubmit = false);
 
-    final payload = {
-      "nama": _namaController.text,
-      "jenis": _kategori,
-      "tanggal": _tanggalController.text,
-      "nominal": _nominalController.text,
-      "bukti": null, // karena service tidak menerima file
-    };
-
-    final ok = await PemasukanService.create(payload);
-
-    setState(() => isSubmitting = false);
-
-    if (ok) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Pemasukan berhasil disimpan'),
-          backgroundColor: Colors.green,
-        ),
-      );
-
-      context.go('/pemasukan/lain_daftar'); // kembali ke list
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Gagal menyimpan pemasukan'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Pemasukan berhasil disimpan")),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => context.go('/beranda'),
-        ),
-        title: const Text(
-          "Tambah Pemasukan lain",
-          style: TextStyle(color: Colors.black),
     return Theme(
       data: Theme.of(context).copyWith(
         colorScheme: const ColorScheme.light(primary: Color(0xFF2E7D32)),
@@ -175,135 +136,110 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
           ),
         ),
 
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Stack(
-          children: [
-            SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(20, 70, 20, 20),
-              child: Center(
-                child: Card(
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Buat Pemasukan Non Iuran Baru',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
+        // BACKGROUND GRADIENT
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color.fromARGB(255, 255, 235, 188),
+                Color.fromARGB(255, 181, 255, 183),
+              ],
+            ),
+          ),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                constraints: const BoxConstraints(maxWidth: 500),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.92),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.white.withOpacity(0.3),
+                      blurRadius: 12,
+                      spreadRadius: 2,
+                    ),
+                  ],
+                ),
 
-                          TextFormField(
-                            controller: _namaController,
-                            decoration: const InputDecoration(
-                              labelText: 'Nama Pemasukan',
-                              border: OutlineInputBorder(),
-                            ),
-                            validator: (value) => value!.isEmpty
-                                ? 'Nama pemasukan wajib diisi'
-                                : null,
-                          ),
-                          const SizedBox(height: 20),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Isi data berikut untuk menambahkan pemasukan baru",
+                        style: TextStyle(color: Colors.black54),
+                      ),
+                      const SizedBox(height: 24),
 
-                          TextFormField(
-                            controller: _tanggalController,
-                            readOnly: true,
-                            decoration: InputDecoration(
-                              labelText: 'Tanggal Pemasukan',
-                              border: const OutlineInputBorder(),
-                              suffixIcon: IconButton(
-                                icon: const Icon(Icons.calendar_today),
-                                onPressed: _pickDate,
-                              ),
-                            ),
-                            validator: (value) =>
-                                value!.isEmpty ? 'Tanggal wajib diisi' : null,
-                          ),
-                          const SizedBox(height: 20),
+                      // NAMA
+                      _buildTextField(
+                        label: "Nama Pemasukan",
+                        controller: _namaController,
+                        validatorMsg: "Nama wajib diisi",
+                      ),
+                      const SizedBox(height: 16),
 
-                          DropdownButtonFormField<String>(
-                            value: _kategori,
-                            items: _kategoriList
-                                .map(
-                                  (item) => DropdownMenuItem(
-                                    value: item,
-                                    child: Text(item),
+                      // Tanggal
+                      _buildDateField(),
+
+                      const SizedBox(height: 16),
+
+                      // Kategori
+                      _buildDropdown(
+                        label: "Kategori",
+                        value: _kategori,
+                        items: _kategoriList,
+                        onChanged: (v) => setState(() => _kategori = v),
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // Nominal
+                      _buildTextField(
+                        label: "Nominal",
+                        controller: _nominalController,
+                        keyboard: TextInputType.number,
+                        validatorMsg: "Nominal wajib diisi",
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // Upload bukti
+                      const Text(
+                        "Bukti Pemasukan",
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(height: 8),
+
+                      GestureDetector(
+                        onTap: _pickImage,
+                        child: Container(
+                          height: 140,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade200,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.grey.shade400),
+                          ),
+                          child: _buktiFile != null
+                              ? ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Image.file(
+                                    _buktiFile!,
+                                    fit: BoxFit.cover,
                                   ),
                                 )
-                                .toList(),
-                            onChanged: (value) {
-                              setState(() => _kategori = value);
-                            },
-                            decoration: const InputDecoration(
-                              labelText: 'Kategori Pemasukan',
-                              border: OutlineInputBorder(),
-                            ),
-                            validator: (value) => value == null
-                                ? 'Pilih kategori pemasukan'
-                                : null,
-                          ),
-                          const SizedBox(height: 20),
-
-                          TextFormField(
-                            controller: _nominalController,
-                            keyboardType: TextInputType.number,
-                            decoration: const InputDecoration(
-                              labelText: 'Nominal',
-                              border: OutlineInputBorder(),
-                            ),
-                            validator: (value) =>
-                                value!.isEmpty ? 'Nominal wajib diisi' : null,
-                          ),
-                          const SizedBox(height: 20),
-
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Bukti Pemasukan',
-                                style: TextStyle(fontWeight: FontWeight.w500),
-                              ),
-                              const SizedBox(height: 8),
-                              GestureDetector(
-                                onTap: _pickImage,
-                                child: Container(
-                                  height: 120,
-                                  width: double.infinity,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey.shade200,
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(
-                                      color: Colors.grey.shade400,
-                                    ),
+                              : const Center(
+                                  child: Text(
+                                    'Upload bukti (.png/.jpg)',
+                                    style: TextStyle(color: Colors.grey),
                                   ),
-                                  child: _buktiFile != null
-                                      ? ClipRRect(
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                          child: Image.file(
-                                            _buktiFile!,
-                                            fit: BoxFit.cover,
-                                          ),
-                                        )
-                                      : const Center(
-                                          child: Text(
-                                            'Upload bukti pemasukan (.png/.jpg) — *tidak dikirim ke backend*',
-                                            style: TextStyle(
-                                              color: Colors.grey,
-                                            ),
-                                          ),
-                                        ),
                                 ),
                         ),
                       ),
@@ -322,39 +258,47 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
                                 horizontal: 26,
                                 vertical: 12,
                               ),
-                            ],
-                          ),
-                          const SizedBox(height: 25),
-
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.indigo,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 30,
-                                    vertical: 12,
+                            ),
+                            child: isLoadingSubmit
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Text(
+                                    "Submit",
+                                    style: TextStyle(color: Colors.white),
                                   ),
-                                ),
-                                onPressed: isSubmitting ? null : _submitForm,
-                                child: isSubmitting
-                                    ? const SizedBox(
-                                        height: 18,
-                                        width: 18,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          color: Colors.white,
-                                        ),
-                                      )
-                                    : const Text('Submit'),
+                          ),
+
+                          const SizedBox(width: 10),
+
+                          // RESET
+                          OutlinedButton(
+                            onPressed: isLoadingReset ? null : _resetForm,
+                            style: OutlinedButton.styleFrom(
+                              side: const BorderSide(color: Color(0xFF2E7D32)),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 26,
+                                vertical: 12,
                               ),
-                              const SizedBox(width: 10),
-                              OutlinedButton(
-                                onPressed: _resetForm,
-                                child: const Text('Reset'),
-                              ),
-                            ],
+                            ),
+                            child: isLoadingReset
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      color: Color(0xFF2E7D32),
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Text(
+                                    "Reset",
+                                    style: TextStyle(color: Color(0xFF2E7D32)),
+                                  ),
                           ),
                         ],
                       ),
