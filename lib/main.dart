@@ -1,36 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:jawara/KegiatandanBroadcast/KegiatanDaftar.dart';
-import 'package:jawara/KegiatandanBroadcast/KegiatanTambah.dart';
-import 'package:jawara/KegiatandanBroadcast/BroadcastDaftar.dart';
-import 'package:jawara/KegiatandanBroadcast/BroadcastTambah.dart';
+import 'package:jawara/kegiatan_dan_brodcast/kegiatan_daftar_page.dart';
+import 'package:jawara/kegiatan_dan_brodcast/kegiatan_tambah_page.dart';
+import 'package:jawara/kegiatan_dan_brodcast/broadcast_daftar_page.dart';
+import 'package:jawara/kegiatan_dan_brodcast/broadcast_tambah_page.dart';
 import 'package:jawara/data_warga_rumah/keluarga_page.dart';
-import 'package:jawara/Pemasukan/tagihan_page.dart';
-import 'package:jawara/Pemasukan/kategori_iuran_page.dart';
-import 'package:jawara/Pemasukan/tagih_iuran_page.dart';
+import 'package:jawara/pemasukan/tagihan_page.dart';
+import 'package:jawara/pemasukan/kategori_iuran_page.dart';
+import 'package:jawara/pemasukan/tagih_iuran_page.dart';
 import 'package:jawara/data_warga_rumah/daftar_rumah_page.dart';
 import 'package:jawara/data_warga_rumah/daftar_warga_page.dart';
 import 'package:jawara/data_warga_rumah/tambahWarga_page.dart';
+import 'package:jawara/pages/semua_menu_page.dart';
 import 'pages/login_page.dart';
-import 'Dashboard/Kegiatan.dart';
-import 'Dashboard/Kependudukan.dart';
-import 'Dashboard/Keuangan.dart';
-import 'Pengeluaran/DaftarPengeluaran.dart';
-import 'Pengeluaran/TambahPengeluaran.dart';
-import 'Laporan Keuangan/SemuaPengeluaran.dart';
-import 'Laporan Keuangan/SemuaPemasukan.dart';
-import 'Laporan Keuangan/CetakLaporan.dart';
-import 'Pemasukan/PemasukanLainDaftar.dart';
-import 'Pemasukan/PemasukanLainTambah.dart';
-import 'PesanWarga/InformasiAspirasi.dart';
-import 'PenerimaanWarga/PenerimaanWarga.dart';
-import 'MutasiKeluarga/Daftar.dart';
-import 'MutasiKeluarga/Tambah.dart';
-import 'Log Aktivitas/SemuaAktifitas.dart';
-import 'Manajemen Pengguna/DaftarPengguna.dart';
-import 'Manajemen Pengguna/TambahPengguna.dart';
-import 'Channel Transfer/DaftarChannel.dart';
-import 'Channel Transfer/TambahChannel.dart';
+import 'pages/home_page.dart';
+import 'dashboard/kegiatan_page.dart';
+import 'dashboard/kependudukan_page.dart';
+import 'dashboard/keuangan_page.dart';
+import 'pengeluaran/daftar_pengeluaran_page.dart';
+import 'pengeluaran/tambah_pengeluaran_page.dart';
+import 'laporan_keuangan/semua_pengeluaran_page.dart';
+import 'laporan_keuangan/semua_pemasukan_page.dart';
+import 'laporan_keuangan/cetak_laporan_page.dart';
+import 'pemasukan/pemasukan_lain_daftar_page.dart';
+import 'pemasukan/pemasukan_lain_tambah_page.dart';
+import 'pesan_warga/informasi_aspirasi_page.dart';
+import 'penerimaan_warga/penerimaan_warga_page.dart';
+import 'mutasi_keluarga/daftar_page.dart';
+import 'mutasi_keluarga/tambah_page.dart';
+import 'log_aktivitas/semua_aktivitas_page.dart';
+import 'manajemen_pengguna/daftar_pengguna_page.dart';
+import 'manajemen_pengguna/tambah_pengguna_page.dart';
+import 'channel_transfer/daftar_channel_page.dart';
+import 'channel_transfer/tambah_channel_page.dart';
 import 'services/auth_service.dart';
 import 'data_warga_rumah/rumah_form_page.dart';
 import 'data_warga_rumah/rumah_detail_page.dart';
@@ -59,10 +61,18 @@ class MyApp extends StatelessWidget {
         //present
         GoRoute(path: '/', builder: (context, state) => const LoginPage()),
         GoRoute(
+          path: '/beranda',
+          builder: (context, state) => HomePage(email: "admin1@mail.com"),
+        ),
+        GoRoute(
+          path: '/beranda/semua_menu',
+          builder: (context, state) => const SemuaMenuPage(),
+        ),
+        GoRoute(
           path: '/dashboard/kegiatan',
           builder: (context, state) {
             final loggedInUserEmail = state.extra as String?;
-            return HomePage(email: loggedInUserEmail ?? 'Unknown User');
+            return KegiatanPage(email: loggedInUserEmail ?? 'Unknown User');
           },
         ),
         GoRoute(
@@ -72,39 +82,39 @@ class MyApp extends StatelessWidget {
 
         GoRoute(
           path: '/dashboard/keuangan',
-          builder: (context, state) => const Keuangan(),
+          builder: (context, state) => const KeuanganPage(),
         ),
 
         GoRoute(
-          path: '/Pengeluaran/daftarPengeluaran',
+          path: '/pengeluaran/daftar',
           builder: (context, state) => const DaftarPengeluaranPage(),
         ),
 
         GoRoute(
-          path: '/Pengeluaran/tambahPengeluaran',
+          path: '/pengeluaran/tambah',
           builder: (context, state) => const TambahPengeluaran(),
         ),
 
         GoRoute(
-          path: '/laporanKeuangan/semuaPengeluaran',
+          path: '/laporan_keuangan/semua_pengeluaran',
           builder: (context, state) => const SemuaPengeluaran(),
         ),
         GoRoute(
-          path: '/laporanKeuangan/semuaPemasukan',
+          path: '/laporan_keuangan/semua_pemasukan',
           builder: (context, state) => const SemuaPemasukan(),
         ),
         GoRoute(
-          path: '/laporanKeuangan/cetakLaporan',
+          path: '/laporan_keuangan/cetak_laporan',
           builder: (context, state) => const CetakLaporan(),
         ),
 
         GoRoute(
-          path: '/Pemasukan/PemasukanLainTambah',
+          path: '/pemasukan/lain_tambah',
           builder: (context, state) => const PemasukanLainTambah(),
         ),
 
         GoRoute(
-          path: '/Pemasukan/PemasukanLainDaftar',
+          path: '/pemasukan/lain_daftar',
           builder: (context, state) => const PemasukanLainDaftar(),
         ),
         GoRoute(
@@ -124,16 +134,25 @@ class MyApp extends StatelessWidget {
           builder: (context, state) => const WargaListPage(),
         ),
         GoRoute(
-          path: '/Pemasukan/tagihIuran',
+          path: '/pemasukan/tagih_iuran',
           builder: (context, state) => const TagihIuranPage(),
         ),
         GoRoute(
-          path: '/Pemasukan/kategoriIuran',
+          path: '/pemasukan/kategori_iuran',
           builder: (context, state) => const KategoriIuranPage(),
         ),
         GoRoute(
-          path: '/Pemasukan/tagihan',
+          path: '/pemasukan/tagihan',
           builder: (context, state) => const TagihanPage(),
+        ),
+        GoRoute(
+          path: '/pengeluaran/daftar',
+          builder: (context, state) => const DaftarPengeluaranPage(),
+        ),
+
+        GoRoute(
+          path: '/pengeluaran/tambah',
+          builder: (context, state) => const TambahPengeluaran(),
         ),
         GoRoute(
           path: '/kegiatan/daftar',
@@ -144,11 +163,11 @@ class MyApp extends StatelessWidget {
           builder: (context, state) => const KegiatanTambahPage(),
         ),
         GoRoute(
-          path: '/kegiatan/daftarbroad',
+          path: '/kegiatan/daftar_broad',
           builder: (context, state) => const BroadcastDaftarPage(),
         ),
         GoRoute(
-          path: '/kegiatan/tambahbroad',
+          path: '/kegiatan/tambah_broad',
           builder: (context, state) => const BroadcastTambahPage(),
         ),
         GoRoute(
@@ -160,15 +179,15 @@ class MyApp extends StatelessWidget {
           builder: (context, state) => const PenerimaanWargaPage(),
         ),
         GoRoute(
-          path: '/mutasi/daftar',
+          path: '/mutasi_keluarga/daftar',
           builder: (context, state) => const DaftarPage(),
         ),
         GoRoute(
-          path: '/mutasi/tambah',
+          path: '/mutasi_keluarga/tambah',
           builder: (context, state) => const BuatMutasiKeluargaPage(),
         ),
         GoRoute(
-          path: '/log/daftar',
+          path: '/log_aktivitas/semua_aktivitas',
           builder: (context, state) => const RiwayatAktivitasPage(),
         ),
         GoRoute(
@@ -180,11 +199,11 @@ class MyApp extends StatelessWidget {
           builder: (context, state) => const TambahAkunPenggunaPage(),
         ),
         GoRoute(
-          path: '/channel/daftar',
+          path: '/channel_transfer/daftar',
           builder: (context, state) => const DaftarMetodePembayaranPage(),
         ),
         GoRoute(
-          path: '/channel/tambah',
+          path: '/channel_transfer/tambah',
           builder: (context, state) => const BuatTransferChannelPage(),
         ),
         GoRoute(
