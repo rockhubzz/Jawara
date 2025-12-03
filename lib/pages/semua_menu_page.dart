@@ -11,6 +11,15 @@ class SemuaMenuPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => context.go('/beranda'),
+        ),
+
+        title: const Text("Semua Menu"),
+        backgroundColor: Colors.grey[200],
+        centerTitle: true,
+      ),
           backgroundColor: Colors.white,
           elevation: 0.5,
           leading: IconButton(
@@ -77,25 +86,25 @@ class SemuaMenuPage extends StatelessWidget {
                     "Warga Daftar",
                     Icons.people,
                     Colors.green,
-                    onTap: () => context.go('data_warga_rumah/daftar_warga'),
+                    onTap: () => context.go('/data_warga_rumah/daftarWarga'),
                   ),
                   MenuItem(
                     "Warga Tambah",
                     Icons.person_add,
                     Colors.teal,
-                    onTap: () => context.go('/data_warga_rumah/tambah_warga'),
+                    onTap: () => context.go('/data_warga_rumah/tambahWarga'),
                   ),
                   MenuItem(
                     "Rumah Daftar",
                     Icons.house,
                     Colors.blue,
-                    onTap: () => context.go('/data_warga_rumah/daftar_rumah'),
+                    onTap: () => context.go('/data_warga_rumah/daftarRumah'),
                   ),
                   MenuItem(
                     "Rumah Tambah",
                     Icons.home_work,
                     Colors.indigo,
-                    onTap: () => context.go('/data_warga_rumah/tambah_rumah'),
+                    onTap: () => context.go('/data_warga_rumah/tambahRumah'),
                   ),
                   MenuItem(
                     "Keluarga",
