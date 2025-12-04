@@ -62,11 +62,7 @@ class MyApp extends StatelessWidget {
 
         //present
         GoRoute(path: '/', builder: (context, state) => const LoginPage()),
-        GoRoute(
-          path: '/beranda',
-          builder: (context, state) =>
-              HomePage(username: state.extra as String? ?? 'User'),
-        ),
+        GoRoute(path: '/beranda', builder: (context, state) => HomePage()),
         GoRoute(
           path: '/beranda/semua_menu',
           builder: (context, state) => const SemuaMenuPage(),
@@ -130,7 +126,7 @@ class MyApp extends StatelessWidget {
         ),
         GoRoute(
           path: '/data_warga_rumah/tambahWarga',
-          builder: (context, state) => const WargaAddPage(),
+          builder: (context, state) => const TambahWargaPage(),
         ),
         GoRoute(
           path: '/data_warga_rumah/tambahRumah',

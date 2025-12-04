@@ -7,7 +7,7 @@ class AuthService {
   static String? ip;
 
   static String? get baseUrl {
-    if (ip == null) return "http://192.168.75.96:8000/api"; // ip address api
+    if (ip == null) return "http://192.168.76.125:8000/api"; // ip address api
     return "http://$ip:8000/api";
   }
 
@@ -75,19 +75,24 @@ class AuthService {
   // GET TOKEN
   static Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('api_token');
+    return prefs.getString('token');
   }
 
   // GET CURRENT USER
   static Future<Map<String, dynamic>?> me() async {
     final token = await getToken();
-    if (token == null) return null;
-    if (baseUrl == null) return null;
+    if (token == null) {
+      print("NO TOKEN FOUND");
+      return null;
+    }
 
     final resp = await http.get(
       Uri.parse("${baseUrl!}/me"),
       headers: {'Authorization': 'Bearer $token'},
     );
+
+    print("ME RESPONSE: ${resp.body}");
+    print("STATUS: ${resp.statusCode}");
 
     if (resp.statusCode == 200) {
       return jsonDecode(resp.body);

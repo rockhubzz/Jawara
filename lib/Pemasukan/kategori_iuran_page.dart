@@ -198,7 +198,7 @@ class _KategoriIuranPageState extends State<KategoriIuranPage> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => context.go('/beranda'),
+          onPressed: () => context.go('/beranda/semua_menu'),
         ),
 
         title: const Text(
