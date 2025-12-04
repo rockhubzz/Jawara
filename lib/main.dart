@@ -170,8 +170,12 @@ class MyApp extends StatelessWidget {
           builder: (context, state) => const KegiatanDaftarPage(),
         ),
         GoRoute(
-          path: '/kegiatan/tambah',
-          builder: (context, state) => const KegiatanTambahPage(),
+          path: '/kegiatan/tambah/:id', // id bisa "new" atau angka
+          builder: (context, state) {
+            final idString = state.pathParameters['id'];
+            final id = int.tryParse(idString ?? '');
+            return KegiatanTambahPage(id: id);
+          },
         ),
         GoRoute(
           path: '/kegiatan/daftar_broad',
@@ -179,8 +183,17 @@ class MyApp extends StatelessWidget {
         ),
         GoRoute(
           path: '/kegiatan/tambah_broad',
-          builder: (context, state) => const BroadcastTambahPage(),
+          builder: (context, state) => const BroadcastFormPage(),
         ),
+        GoRoute(
+          path: '/broadcast/form/:id',
+          builder: (context, state) {
+            final idString = state.pathParameters['id'];
+            final id = int.tryParse(idString ?? '');
+            return BroadcastFormPage(id: id);
+          },
+        ),
+
         GoRoute(
           path: '/pesan/informasi',
           builder: (context, state) => const InformasiAspirasiPage(),

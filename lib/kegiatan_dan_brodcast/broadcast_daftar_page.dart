@@ -1,29 +1,105 @@
 import 'package:flutter/material.dart';
 import '../widgets/appDrawer.dart';
+import 'package:go_router/go_router.dart';
+import '../services/broadcast_service.dart'; // adjust import
 
-class BroadcastDaftarPage extends StatelessWidget {
+class BroadcastDaftarPage extends StatefulWidget {
   const BroadcastDaftarPage({super.key});
+
+  @override
+  State<BroadcastDaftarPage> createState() => _BroadcastDaftarPageState();
+}
+
+class _BroadcastDaftarPageState extends State<BroadcastDaftarPage> {
+  List<Map<String, dynamic>> _data = [];
+  bool _loading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+
+    try {
+      final res =
+          await BroadcastService.getAll(); // returns { success: true, data: [...] }
+      final List data = res['data'] as List;
+      _data = data.map((e) => Map<String, dynamic>.from(e)).toList();
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _confirmDelete(Map<String, dynamic> item) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Konfirmasi Hapus'),
+        content: Text('Yakin ingin menghapus "${item['title']}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Hapus'),
+          ),
+        ],
+      ),
+    );
+
+    if (ok == true) {
+      // call service
+      final success = await BroadcastService.delete(item['id'] as int);
+      if (!mounted) return;
+      if (success) {
+        setState(() => _data.removeWhere((d) => d['id'] == item['id']));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Kegiatan berhasil dihapus"),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Gagal menghapus"),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  void _openEdit(Map item) {
+    final id = item['id'].toString();
+    context.push('/broadcast/form/$id');
+  }
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final isMobile = screenWidth < 700; // breakpoint mobile
+    final isMobile = screenWidth < 700;
 
-    // Data broadcast
-    final data = [
-      {
-        "no": 1,
-        "pengirim": "Admin Jawara",
-        "judul": "Gotong Royong di Kampus Polinema",
-        "tanggal": "17 Oktober 2025"
-      },
-      {
-        "no": 2,
-        "pengirim": "Admin Jawara",
-        "judul": "Kerja Bakti Bersama Masyarakat Sekitar",
-        "tanggal": "14 Oktober 2025"
-      },
-    ];
+    final dataToShow = _data.map((item) {
+      return {
+        "no": item['id'] ?? 0,
+        "pengirim": item['sender'] ?? '—',
+        "judul": item['title'] ?? '—',
+        "tanggal": item['date'] ?? '',
+        "raw": item,
+      };
+    }).toList();
 
     return Scaffold(
       backgroundColor: const Color(0xFFF4F6F8),
@@ -32,16 +108,11 @@ class BroadcastDaftarPage extends StatelessWidget {
         elevation: 0.5,
         title: const Text(
           "Daftar Broadcast",
-          style: TextStyle(
-            color: Colors.black87,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
         ),
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(Icons.menu, color: Colors.black87),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-          ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => context.go('/beranda/semua_menu'),
         ),
       ),
       body: SingleChildScrollView(
@@ -77,14 +148,16 @@ class BroadcastDaftarPage extends StatelessWidget {
                       ),
                     ),
                     ElevatedButton.icon(
-                      onPressed: () {},
-                      icon: const Icon(Icons.filter_list, size: 18),
-                      label: const Text("Filter"),
+                      onPressed: _loadData,
+                      icon: const Icon(Icons.refresh, size: 18),
+                      label: const Text("Refresh"),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF6C63FF),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 10),
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -93,44 +166,17 @@ class BroadcastDaftarPage extends StatelessWidget {
                     ),
                   ],
                 ),
+
                 const SizedBox(height: 20),
 
-                // Table atau Card
-                if (!isMobile)
-                  _buildTableView(data)
+                if (_loading)
+                  const Center(child: CircularProgressIndicator())
+                else if (_error != null)
+                  Center(child: Text("Gagal memuat: $_error"))
+                else if (!isMobile)
+                  _buildTableView(dataToShow)
                 else
-                  _buildMobileCardView(data),
-
-                const SizedBox(height: 20),
-
-                // Pagination
-                Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.chevron_left),
-                        onPressed: () {},
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF6C63FF),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: const Text(
-                          "1",
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.chevron_right),
-                        onPressed: () {},
-                      ),
-                    ],
-                  ),
-                ),
+                  _buildMobileCardView(dataToShow),
               ],
             ),
           ),
@@ -145,10 +191,7 @@ class BroadcastDaftarPage extends StatelessWidget {
       child: ConstrainedBox(
         constraints: const BoxConstraints(minWidth: 700),
         child: Table(
-          border: TableBorder.all(
-            color: const Color(0xFFE0E0E0),
-            width: 1,
-          ),
+          border: TableBorder.all(color: const Color(0xFFE0E0E0), width: 1),
           columnWidths: const {
             0: FlexColumnWidth(0.6),
             1: FlexColumnWidth(1.4),
@@ -158,7 +201,6 @@ class BroadcastDaftarPage extends StatelessWidget {
           },
           defaultVerticalAlignment: TableCellVerticalAlignment.middle,
           children: [
-            // Header
             const TableRow(
               decoration: BoxDecoration(color: Color(0xFFF3F0FF)),
               children: [
@@ -169,12 +211,17 @@ class BroadcastDaftarPage extends StatelessWidget {
                 _HeaderCell("AKSI"),
               ],
             ),
-            ...data.map((item) => _dataRowTable(
-                  item["no"],
-                  item["pengirim"],
-                  item["judul"],
-                  item["tanggal"],
-                )),
+            ...data.map(
+              (item) => _dataRowTable(
+                item['no'] as int,
+                item['pengirim'] as String,
+                item['judul'] as String,
+                item['tanggal'] as String,
+                raw: item['raw'] as Map<String, dynamic>,
+                onEdit: _openEdit,
+                onDelete: _confirmDelete,
+              ),
+            ),
           ],
         ),
       ),
@@ -189,10 +236,13 @@ class BroadcastDaftarPage extends StatelessWidget {
               elevation: 1,
               margin: const EdgeInsets.symmetric(vertical: 6),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
+                borderRadius: BorderRadius.circular(10),
+              ),
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -223,16 +273,22 @@ class BroadcastDaftarPage extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.edit,
-                              color: Colors.amber, size: 20),
+                          icon: const Icon(
+                            Icons.edit,
+                            color: Colors.amber,
+                            size: 20,
+                          ),
                           tooltip: 'Edit',
-                          onPressed: () {},
+                          onPressed: () => _openEdit(item['raw']),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.delete,
-                              color: Colors.redAccent, size: 20),
+                          icon: const Icon(
+                            Icons.delete,
+                            color: Colors.redAccent,
+                            size: 20,
+                          ),
                           tooltip: 'Hapus',
-                          onPressed: () {},
+                          onPressed: () => _confirmDelete(item['raw']),
                         ),
                       ],
                     ),
@@ -246,7 +302,7 @@ class BroadcastDaftarPage extends StatelessWidget {
   }
 }
 
-// Reusable Table Cell Widgets
+// Reusable Table Cell Widgets (same as your previous)
 class _HeaderCell extends StatelessWidget {
   final String text;
   const _HeaderCell(this.text);
@@ -283,8 +339,16 @@ class _DataCell extends StatelessWidget {
   }
 }
 
-// Data row builder
-TableRow _dataRowTable(int no, String pengirim, String judul, String tanggal) {
+// Data row builder with callbacks
+TableRow _dataRowTable(
+  int no,
+  String pengirim,
+  String judul,
+  String tanggal, {
+  required Map<String, dynamic> raw,
+  required Function(Map<String, dynamic>) onEdit,
+  required Function(Map<String, dynamic>) onDelete,
+}) {
   return TableRow(
     children: [
       _DataCell(Text(no.toString())),
@@ -298,12 +362,12 @@ TableRow _dataRowTable(int no, String pengirim, String judul, String tanggal) {
             IconButton(
               icon: const Icon(Icons.edit, color: Colors.amber, size: 18),
               tooltip: 'Edit',
-              onPressed: () {},
+              onPressed: () => onEdit(raw),
             ),
             IconButton(
               icon: const Icon(Icons.delete, color: Colors.redAccent, size: 18),
               tooltip: 'Hapus',
-              onPressed: () {},
+              onPressed: () => onDelete(raw),
             ),
           ],
         ),
