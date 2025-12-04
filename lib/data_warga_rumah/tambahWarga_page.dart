@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
-import '../../services/keluarga_service.dart';
-import '../../services/warga_service.dart';
 import 'package:go_router/go_router.dart';
+import 'package:jawara/services/keluarga_service.dart';
+import 'package:jawara/services/warga_service.dart';
 
-class WargaAddPage extends StatefulWidget {
-  final int? wargaId; // null = create, not null = edit
+class TambahWargaPage extends StatefulWidget {
+  final int? wargaId;
 
-  const WargaAddPage({super.key, this.wargaId});
+  const TambahWargaPage({super.key, this.wargaId});
 
   @override
-  State<WargaAddPage> createState() => _WargaAddPageState();
+  State<TambahWargaPage> createState() => _TambahWargaPageState();
 }
 
-class _WargaAddPageState extends State<WargaAddPage> {
+class _TambahWargaPageState extends State<TambahWargaPage> {
+  final _formKey = GlobalKey<FormState>();
+  bool isLoadingReset = false;
+  bool isLoadingSubmit = false;
+
   final nama = TextEditingController();
   final nik = TextEditingController();
   String? jenisKelamin;
@@ -56,7 +60,7 @@ class _WargaAddPageState extends State<WargaAddPage> {
   }
 
   Future<void> save() async {
-    final body = {
+    final Map<String, dynamic> body = {
       "nama": nama.text,
       "nik": nik.text,
       "keluarga_id": keluargaId.toString(),
@@ -78,7 +82,7 @@ class _WargaAddPageState extends State<WargaAddPage> {
     if (!mounted) return;
 
     if (ok) {
-      Navigator.pop(context);
+      context.go('/data_warga_rumah/daftarWarga');
     } else {
       ScaffoldMessenger.of(
         context,
@@ -102,79 +106,243 @@ class _WargaAddPageState extends State<WargaAddPage> {
     );
   }
 
+  void _resetForm() async {
+    setState(() => isLoadingReset = true);
+
+    await Future.delayed(const Duration(seconds: 1));
+
+    _formKey.currentState?.reset();
+    nama.clear();
+    nik.clear();
+    setState(() {
+      jenisKelamin = null;
+      statusDomisili = null;
+      statusHidup = null;
+    });
+
+    setState(() => isLoadingReset = false);
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (loading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
-
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+    return Theme(
+      data: Theme.of(context).copyWith(
+        colorScheme: const ColorScheme.light(
+          primary: Color(0xFF2E7D32), // warna border fokus
         ),
-
-        title: Text(
-          widget.wargaId == null
-              ? "Tambah Warga"
-              : "Edit Warga #${widget.wargaId}",
+        inputDecorationTheme: const InputDecorationTheme(
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Color(0xFF2E7D32), width: 2),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Color(0xFF2E7D32)),
+          ),
+          border: OutlineInputBorder(
+            borderSide: BorderSide(color: Color(0xFF2E7D32)),
+          ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: ListView(
-          children: [
-            TextField(
-              controller: nama,
-              decoration: const InputDecoration(labelText: "Nama"),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+
+        // ================= APPBAR BARU ==================
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0.5,
+          leading: IconButton(
+            icon: const Icon(
+              Icons.arrow_back_ios_new,
+              color: Color(0xFF2E7D32),
             ),
-            TextField(
-              controller: nik,
-              decoration: const InputDecoration(labelText: "NIK"),
+            onPressed: () => context.go('/beranda/semua_menu'),
+          ),
+          title: const Text(
+            "Tambah Warga",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF2E7D32),
             ),
+          ),
+          centerTitle: false,
+        ),
 
-            dropdown("Jenis Kelamin", jenisKelamin, [
-              "Laki-laki",
-              "Perempuan",
-            ], (v) => setState(() => jenisKelamin = v)),
-
-            dropdown(
-              "Status Domisili",
-              statusDomisili,
-              ["Aktif", "Tidak Aktif"],
-              (v) => setState(() => statusDomisili = v),
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color.fromARGB(255, 255, 235, 188),
+                Color.fromARGB(255, 181, 255, 183),
+              ],
             ),
+          ),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Center(
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: 500),
+                padding: const EdgeInsets.all(24),
 
-            dropdown("Status Hidup", statusHidup, [
-              "Hidup",
-              "Wafat",
-            ], (v) => setState(() => statusHidup = v)),
-
-            DropdownButtonFormField<int>(
-              decoration: const InputDecoration(labelText: "Keluarga"),
-              value: keluargaId,
-              items: keluargaList
-                  .map(
-                    (e) => DropdownMenuItem<int>(
-                      value: e['id'] as int,
-                      child: Text(e['nama_keluarga']),
+                // CARD FORM BERGAYA BARU
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.9),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.white.withOpacity(0.3),
+                      blurRadius: 12,
+                      spreadRadius: 2,
+                      offset: const Offset(0, 4),
                     ),
-                  )
-                  .toList(),
-              onChanged: (v) => setState(() => keluargaId = v),
-            ),
+                  ],
+                ),
 
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: save,
-              child: Text(widget.wargaId == null ? "Simpan" : "Update"),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Isi detail di bawah untuk menambahkan data warga",
+                        style: TextStyle(fontSize: 13, color: Colors.black54),
+                      ),
+                      const SizedBox(height: 24),
+
+                      // === DROPDOWN KELUARGA ===
+                      DropdownButtonFormField<int>(
+                        decoration: const InputDecoration(
+                          labelText: "Keluarga",
+                        ),
+                        initialValue: keluargaId,
+                        items: keluargaList
+                            .map(
+                              (e) => DropdownMenuItem<int>(
+                                value: e['id'] as int,
+                                child: Text(e['nama_keluarga']),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (v) => setState(() => keluargaId = v),
+                      ),
+
+                      _buildTextField(
+                        "Nama",
+                        nama,
+                        hint: "Masukkan nama lengkap",
+                      ),
+                      const SizedBox(height: 16),
+
+                      _buildTextField(
+                        "NIK",
+                        nik,
+                        hint: "Masukkan NIK",
+                        keyboard: TextInputType.number,
+                      ),
+                      const SizedBox(height: 16),
+
+                      const SizedBox(height: 16),
+
+                      const SizedBox(height: 16),
+
+                      // === TANGGAL LAHIR ===
+                      _buildDropdown("Jenis Kelamin", jenisKelamin, [
+                        "Laki-laki",
+                        "Perempuan",
+                      ], (v) => jenisKelamin = v),
+
+                      _buildDropdown("Status Domisili", statusDomisili, [
+                        "Aktif",
+                        "Tidak Aktif",
+                      ], (v) => statusDomisili = v),
+
+                      _buildDropdown("Status Hidup", statusHidup, [
+                        "Hidup",
+                        "Wafat",
+                      ], (v) => statusHidup = v),
+                      const SizedBox(height: 24),
+
+                      // ================= BUTTON =================
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          // === SUBMIT BUTTON ===
+                          ElevatedButton(
+                            onPressed: save,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF2E7D32),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 12,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            child: isLoadingSubmit
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : const Text(
+                                    "Submit",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                          ),
+
+                          const SizedBox(width: 12),
+
+                          // === RESET BUTTON ===
+                          OutlinedButton(
+                            onPressed: isLoadingReset ? null : _resetForm,
+                            style: OutlinedButton.styleFrom(
+                              side: const BorderSide(color: Color(0xFF2E7D32)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 12,
+                              ),
+                            ),
+                            child: isLoadingReset
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Color(0xFF2E7D32),
+                                    ),
+                                  )
+                                : const Text(
+                                    "Reset",
+                                    style: TextStyle(
+                                      color: Color(0xFF2E7D32),
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
-          ],
+          ),
         ),
       ),
     );
   }
+
   // ==================== Helper ====================
 
   Widget _buildTextField(

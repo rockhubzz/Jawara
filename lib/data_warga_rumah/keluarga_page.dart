@@ -43,7 +43,7 @@ class _DataKeluargaPageState extends State<DataKeluargaPage> {
   void _openDetail(Map<String, dynamic> item) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => KeluargaDetailPage(data: item)),
+      MaterialPageRoute(builder: (_) => KeluargaDetailPage(id: item['id'])),
     );
   }
 
@@ -192,7 +192,7 @@ class _DataKeluargaPageState extends State<DataKeluargaPage> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => context.go('/beranda'),
+          onPressed: () => context.go('/beranda/semua_menu'),
         ),
 
         title: const Text(

@@ -1,16 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:jawara/widgets/appDrawer.dart';
+import '/services/auth_service.dart';
 
-class HomePage extends StatelessWidget {
-  final String username;
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
 
-  const HomePage({super.key, required this.username});
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  String? username;
+
+  @override
+  void initState() {
+    super.initState();
+    loadUser();
+  }
+
+  Future<void> loadUser() async {
+    final user = await AuthService.me();
+    if (user != null) {
+      setState(() {
+        username = user['name']; // get username
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return AppDrawer(
-      username: username,
+      username: "$username",
       currentIndex: 0,
       body: _buildBody(context), // langsung panggil body
     );
@@ -38,7 +59,7 @@ class HomePage extends StatelessWidget {
               style: TextStyle(fontSize: 14, color: Colors.black54),
             ),
             Text(
-              username,
+              "$username",
               style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,

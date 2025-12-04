@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:go_router/go_router.dart';
 import '../widgets/appDrawer.dart';
-              
+
 class KependudukanPage extends StatelessWidget {
   const KependudukanPage({super.key});
 
@@ -16,7 +16,7 @@ class KependudukanPage extends StatelessWidget {
         elevation: 0.5,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => context.go('/beranda'),
+          onPressed: () => context.go('/beranda/semua_menu'),
         ),
         title: const Text(
           "Data Kependudukan",
