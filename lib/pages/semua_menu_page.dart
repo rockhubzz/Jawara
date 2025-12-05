@@ -185,7 +185,7 @@ class SemuaMenuPage extends StatelessWidget {
                     "Kegiatan Tambah",
                     Icons.event_available,
                     Colors.green,
-                    onTap: () => context.go('/kegiatan/tambah'),
+                    onTap: () => context.go('/kegiatan/tambah/new'),
                   ),
                   MenuItem(
                     "Broadcast Daftar",
