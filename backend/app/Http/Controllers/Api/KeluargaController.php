@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Keluarga;
+use App\Models\Warga;
 use Illuminate\Http\Request;
 
 class KeluargaController extends Controller
@@ -18,12 +19,13 @@ class KeluargaController extends Controller
     public function show($id)
     {
         $data = Keluarga::find($id);
+        $anggota = Warga::where('keluarga_id', $id)->get();
 
         if (!$data) {
             return response()->json(['message' => 'Data tidak ditemukan'], 404);
         }
 
-        return response()->json($data, 200);
+        return response()->json(['data' => $data, 'anggota' => $anggota], 200);
     }
 
     // POST create new data

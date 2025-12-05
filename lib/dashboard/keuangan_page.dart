@@ -24,7 +24,7 @@ class KeuanganPage extends StatelessWidget {
         elevation: 0.5,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => context.go('/beranda'),
+          onPressed: () => context.go('/beranda/semua_menu'),
         ),
         title: const Text(
           "Data Keuangan",
@@ -597,24 +597,24 @@ Widget _chartCardBar({
         ),
       ],
       // small button untuk keuangan (digunakan sebagai contoh, bisa dihapus)
-              // navigator dipanggil setelah drawer ditutup agar tidak error
-              // TextButton.icon(
-              //   onPressed: () {
-              //     // tutup drawer dulu (jika ada), lalu navigasi
-              //     // Navigator.pop(context);
-              //     WidgetsBinding.instance.addPostFrameCallback((_) {
-              //       context.go('/keuangan');
-              //     });
-              //   },
-              //   icon: const Icon(Icons.account_balance_wallet, size: 18),
-              //   label: const Text('Keuangan'),
-              //   style: TextButton.styleFrom(
-              //     padding: const EdgeInsets.symmetric(
-              //       horizontal: 12,
-              //       vertical: 8,
-              //     ),
-              //   ),
-              // ),
+      // navigator dipanggil setelah drawer ditutup agar tidak error
+      // TextButton.icon(
+      //   onPressed: () {
+      //     // tutup drawer dulu (jika ada), lalu navigasi
+      //     // Navigator.pop(context);
+      //     WidgetsBinding.instance.addPostFrameCallback((_) {
+      //       context.go('/keuangan');
+      //     });
+      //   },
+      //   icon: const Icon(Icons.account_balance_wallet, size: 18),
+      //   label: const Text('Keuangan'),
+      //   style: TextButton.styleFrom(
+      //     padding: const EdgeInsets.symmetric(
+      //       horizontal: 12,
+      //       vertical: 8,
+      //     ),
+      //   ),
+      // ),
     ),
   );
 }

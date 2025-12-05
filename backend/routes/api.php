@@ -74,3 +74,13 @@ Route::post('/pemasukan', [PemasukanLainController::class, 'store']);
 Route::get('/pemasukan/{id}', [PemasukanLainController::class, 'show']);
 Route::put('/pemasukan/{id}', [PemasukanLainController::class, 'update']);
 Route::delete('/pemasukan/{id}', [PemasukanLainController::class, 'destroy']);
+
+use App\Http\Controllers\Api\KegiatanController;
+
+Route::apiResource('kegiatan', KegiatanController::class);
+
+use App\Http\Controllers\Api\BroadcastController;
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('broadcasts', BroadcastController::class);
+});

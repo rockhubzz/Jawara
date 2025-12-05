@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import '/services/pemasukan_lain_service.dart';
 
 class PemasukanLainTambah extends StatefulWidget {
   const PemasukanLainTambah({Key? key}) : super(key: key);
@@ -22,6 +23,7 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
 
   bool isLoadingSubmit = false;
   bool isLoadingReset = false;
+  bool isSubmitting = false;
 
   final List<String> _kategoriList = ['Donasi', 'Sponsor', 'Event', 'Lainnya'];
 

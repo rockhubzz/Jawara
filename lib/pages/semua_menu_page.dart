@@ -11,25 +11,22 @@ class SemuaMenuPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0.5,
-          leading: IconButton(
-            icon: const Icon(
-              Icons.arrow_back_ios_new,
-              color: Color(0xFF2E7D32),
-            ),
-            onPressed: () => context.go('/beranda'),
-          ),
-          title: const Text(
-            "Semua Menu",
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF2E7D32),
-            ),
-          ),
-          centerTitle: false,
+        backgroundColor: Colors.white,
+        elevation: 0.5,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF2E7D32)),
+          onPressed: () => context.go('/beranda'),
         ),
+        title: const Text(
+          "Semua Menu",
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF2E7D32),
+          ),
+        ),
+        centerTitle: false,
+      ),
 
       body: Container(
         decoration: const BoxDecoration(
@@ -188,7 +185,7 @@ class SemuaMenuPage extends StatelessWidget {
                     "Kegiatan Tambah",
                     Icons.event_available,
                     Colors.green,
-                    onTap: () => context.go('/kegiatan/tambah'),
+                    onTap: () => context.go('/kegiatan/tambah/new'),
                   ),
                   MenuItem(
                     "Broadcast Daftar",

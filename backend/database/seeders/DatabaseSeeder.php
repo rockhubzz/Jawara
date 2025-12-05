@@ -22,6 +22,8 @@ class DatabaseSeeder extends Seeder
         RumahSeeder::class,
         KategoriIuranSeeder::class,
         TagihanIuranSeeder::class,
+        KegiatanSeeder::class,
+        BroadcastSeeder::class,
     ]);
     }
 }
