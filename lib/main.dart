@@ -207,8 +207,17 @@ class MyApp extends StatelessWidget {
           builder: (context, state) => const DaftarPage(),
         ),
         GoRoute(
-          path: '/mutasi_keluarga/tambah',
-          builder: (context, state) => const BuatMutasiKeluargaPage(),
+          path: '/mutasi',
+          builder: (context, state) => const DaftarPage(),
+        ),
+        GoRoute(
+          path: '/mutasi/tambah', // supports optional ?id=123
+          builder: (context, state) {
+            final idStr = state.uri.queryParameters['id'];
+            return BuatMutasiKeluargaPage(
+              id: idStr != null ? int.tryParse(idStr) : null,
+            );
+          },
         ),
         GoRoute(
           path: '/log_aktivitas/semua_aktivitas',

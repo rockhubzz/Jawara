@@ -84,3 +84,12 @@ use App\Http\Controllers\Api\BroadcastController;
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('broadcasts', BroadcastController::class);
 });
+
+use App\Http\Controllers\Api\SemuaPemasukanController;
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('smPemasukan', SemuaPemasukanController::class);
+});
+
+use App\Http\Controllers\Api\MutasiKeluargaController;
+
+Route::apiResource('mutasi-keluarga', MutasiKeluargaController::class);

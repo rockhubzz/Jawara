@@ -253,7 +253,7 @@ class SemuaMenuPage extends StatelessWidget {
                     "Tambah Mutasi",
                     Icons.add_box,
                     Colors.teal,
-                    onTap: () => context.go('/mutasi_keluarga/tambah'),
+                    onTap: () => context.go('/mutasi/tambah'),
                   ),
                 ]),
 
