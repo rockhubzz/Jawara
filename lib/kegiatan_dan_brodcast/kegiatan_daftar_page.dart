@@ -1,126 +1,58 @@
 import 'package:flutter/material.dart';
-import '../widgets/appDrawer.dart';
+import 'package:go_router/go_router.dart';
+import 'package:jawara/widgets/appDrawer.dart';
+import 'package:jawara/services/kegiatan_service.dart';
 
-class KegiatanDaftarPage extends StatelessWidget {
+class KegiatanDaftarPage extends StatefulWidget {
   const KegiatanDaftarPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isMobile = screenWidth < 700; // breakpoint untuk mobile layout
+  State<KegiatanDaftarPage> createState() => _KegiatanDaftarPageState();
+}
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF4F6F8),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0.5,
-        title: const Text(
-          "Daftar Kegiatan",
-          style: TextStyle(
-            color: Colors.black87,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(Icons.menu, color: Colors.black87),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-          ),
-        ),
-      ),
-      
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Center(
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 1200),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(14),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.12),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      "Daftar Kegiatan",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF6C63FF),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 10),
-                      ),
-                      onPressed: () {},
-                      icon: const Icon(Icons.add, color: Colors.white, size: 18),
-                      label: const Text(
-                        "Tambah Kegiatan",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
+class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
+  List<Map<String, dynamic>> data = [];
+  bool loading = true;
 
-                const SizedBox(height: 16),
+  @override
+  void initState() {
+    super.initState();
+    loadData();
+  }
 
-                if (!isMobile)
-                  _buildTableView()
-                else
-                  _buildMobileCardView(),
-
-                const SizedBox(height: 16),
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.chevron_left),
-                      onPressed: () {},
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF6C63FF),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: const Text(
-                        "1",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.chevron_right),
-                      onPressed: () {},
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
+  Future<void> loadData() async {
+    setState(() => loading = true);
+    try {
+      final items = await KegiatanService.getAll();
+      // ensure each item has string fields used by UI
+      setState(() {
+        data = items.asMap().entries.map((e) {
+          final idx = e.key;
+          final row = e.value;
+          return {
+            'no': (idx + 1).toString(),
+            'id': row['id'],
+            'nama': row['nama'] ?? '',
+            'kategori': row['kategori'] ?? '',
+            'pj': row['penanggung_jawab'] ?? '',
+            'tanggal': row['tanggal'] ?? '',
+          };
+        }).toList();
+      });
+    } catch (err) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Gagal memuat data: $err')));
+    } finally {
+      setState(() => loading = false);
+    }
   }
 
   Widget _buildTableView() {
+    if (loading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: ConstrainedBox(
@@ -140,9 +72,16 @@ class KegiatanDaftarPage extends StatelessWidget {
           },
           children: [
             _buildHeaderRow(),
-            _buildDataRow(1, "Pelatihan Flutter", "Workshop",
-                "Budi Santoso", "2025-10-20"),
-            _buildDataRow(2, "Rapat Dosen", "Rapat", "Dr. Rini", "2025-10-22"),
+            ...data.map(
+              (d) => _buildDataRow(
+                d['no'],
+                d['nama'],
+                d['kategori'],
+                d['pj'],
+                d['tanggal'],
+                d['id'],
+              ),
+            ),
           ],
         ),
       ),
@@ -150,22 +89,7 @@ class KegiatanDaftarPage extends StatelessWidget {
   }
 
   Widget _buildMobileCardView() {
-    final data = [
-      {
-        "no": 1,
-        "nama": "Pelatihan Flutter",
-        "kategori": "Workshop",
-        "pj": "Budi Santoso",
-        "tanggal": "2025-10-20"
-      },
-      {
-        "no": 2,
-        "nama": "Rapat Dosen",
-        "kategori": "Rapat",
-        "pj": "Dr. Rini",
-        "tanggal": "2025-10-22"
-      },
-    ];
+    if (loading) return const Center(child: CircularProgressIndicator());
 
     return Column(
       children: data
@@ -177,8 +101,10 @@ class KegiatanDaftarPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -216,16 +142,23 @@ class KegiatanDaftarPage extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         IconButton(
-                          icon:
-                              const Icon(Icons.edit, color: Colors.amber, size: 20),
+                          icon: const Icon(
+                            Icons.edit,
+                            color: Colors.amber,
+                            size: 20,
+                          ),
                           tooltip: 'Edit',
-                          onPressed: () {},
+                          onPressed: () =>
+                              context.go('/kegiatan/tambah/${item['id']}'),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.delete,
-                              color: Colors.redAccent, size: 20),
+                          icon: const Icon(
+                            Icons.delete,
+                            color: Colors.redAccent,
+                            size: 20,
+                          ),
                           tooltip: 'Hapus',
-                          onPressed: () {},
+                          onPressed: () => _confirmDelete(item),
                         ),
                       ],
                     ),
@@ -253,10 +186,16 @@ class KegiatanDaftarPage extends StatelessWidget {
   }
 
   TableRow _buildDataRow(
-      int no, String nama, String kategori, String pj, String tanggal) {
+    String no,
+    String nama,
+    String kategori,
+    String pj,
+    String tanggal,
+    dynamic id,
+  ) {
     return TableRow(
       children: [
-        _DataCell(Text(no.toString())),
+        _DataCell(Text(no)),
         _DataCell(Text(nama)),
         _DataCell(Text(kategori)),
         _DataCell(Text(pj)),
@@ -268,18 +207,200 @@ class KegiatanDaftarPage extends StatelessWidget {
               IconButton(
                 icon: const Icon(Icons.edit, color: Colors.amber, size: 18),
                 tooltip: 'Edit',
-                onPressed: () {},
+                onPressed: () => _openEdit({
+                  'id': id,
+                  'nama': nama,
+                  'kategori': kategori,
+                  'pj': pj,
+                  'tanggal': tanggal,
+                }),
               ),
               IconButton(
-                icon: const Icon(Icons.delete,
-                    color: Colors.redAccent, size: 18),
+                icon: const Icon(
+                  Icons.delete,
+                  color: Colors.redAccent,
+                  size: 18,
+                ),
                 tooltip: 'Hapus',
-                onPressed: () {},
+                onPressed: () => _confirmDelete({'id': id, 'nama': nama}),
               ),
             ],
           ),
         ),
       ],
+    );
+  }
+
+  void _openEdit(Map<String, dynamic> item) {
+    // open your edit page or dialog.
+    // Example: context.go('/kegiatan/edit/${item['id']}');
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Open edit (hook here)')));
+  }
+
+  void _confirmDelete(dynamic item) {
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          title: const Text("Hapus Kegiatan"),
+          content: Text("Yakin ingin menghapus kegiatan '${item['nama']}'?"),
+          actions: [
+            TextButton(
+              child: const Text("Batal"),
+              onPressed: () => Navigator.pop(ctx),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              child: const Text("Hapus"),
+              onPressed: () async {
+                Navigator.pop(ctx); // tutup dialog
+
+                final parentContext =
+                    context; // simpan context sebelum pop halaman
+
+                final res = await KegiatanService.delete(item['id']);
+
+                ScaffoldMessenger.of(parentContext).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      res == true
+                          ? "Kegiatan berhasil dihapus"
+                          : "Gagal menghapus kegiatan",
+                    ),
+                    backgroundColor: res == true ? Colors.green : Colors.red,
+                  ),
+                );
+
+                // Panggil ulang list
+                if (res == true) {
+                  setState(() {});
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 700;
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFF4F6F8),
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => context.go('/beranda/semua_menu'),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0.5,
+        title: const Text(
+          "Daftar Kegiatan",
+          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
+        ),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Center(
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 1200),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.12),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // header + add button kept same
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      "Daftar Kegiatan",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF6C63FF),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 10,
+                        ),
+                      ),
+                      onPressed: () {
+                        context.go('/kegiatan/tambah/new');
+                      },
+                      icon: const Icon(
+                        Icons.add,
+                        color: Colors.white,
+                        size: 18,
+                      ),
+                      label: const Text(
+                        "Tambah Kegiatan",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 16),
+
+                if (!isMobile) _buildTableView() else _buildMobileCardView(),
+
+                const SizedBox(height: 16),
+
+                // pagination placeholder kept same
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.chevron_left),
+                      onPressed: () {},
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF6C63FF),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: const Text(
+                        "1",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.chevron_right),
+                      onPressed: () {},
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

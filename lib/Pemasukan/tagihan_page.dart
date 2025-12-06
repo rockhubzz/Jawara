@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:jawara/widgets/appDrawer.dart';
+import 'package:jawara/services/tagihan_service.dart';
+import 'package:go_router/go_router.dart';
 
 class TagihanPage extends StatefulWidget {
   const TagihanPage({super.key});
@@ -9,38 +11,22 @@ class TagihanPage extends StatefulWidget {
 }
 
 class _TagihanPageState extends State<TagihanPage> {
-  final List<Map<String, String>> dataIuran = [
-    {
-      "no": "1",
-      "nama_keluarga": "Keluarga Habibie Ed Dien",
-      "status_keluarga": "Aktif",
-      "iuran": "Mingguan",
-      "kode_tagihan": "IR175458A501",
-      "nominal": "Rp 10,00",
-      "periode": "8 Oktober 2025",
-      "status_bayar": "Belum Dibayar",
-    },
-    {
-      "no": "2",
-      "nama_keluarga": "Keluarga Mara Nunez",
-      "status_keluarga": "Aktif",
-      "iuran": "Agustusan",
-      "kode_tagihan": "IR224406BC02",
-      "nominal": "Rp 15,00",
-      "periode": "10 Oktober 2025",
-      "status_bayar": "Belum Dibayar",
-    },
-    {
-      "no": "3",
-      "nama_keluarga": "Keluarga Habibie Ed Dien",
-      "status_keluarga": "Aktif",
-      "iuran": "Mingguan",
-      "kode_tagihan": "IR185702KX01",
-      "nominal": "Rp 10,00",
-      "periode": "15 Oktober 2025",
-      "status_bayar": "Belum Dibayar",
-    },
-  ];
+  List<dynamic> dataIuran = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    loadTagihan();
+  }
+
+  void loadTagihan() async {
+    final res = await TagihanService.getAll();
+    setState(() {
+      dataIuran = res;
+      isLoading = false;
+    });
+  }
 
   void openFilterDialog() {
     // Aksi untuk membuka dialog filter
@@ -78,7 +64,7 @@ class _TagihanPageState extends State<TagihanPage> {
     );
   }
 
-  Widget _buildCard(Map<String, String> item) {
+  Widget _buildCard(Map<String, dynamic> item, int number) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
       elevation: 1,
@@ -96,7 +82,7 @@ class _TagihanPageState extends State<TagihanPage> {
                   radius: 16,
                   backgroundColor: Colors.grey.shade100,
                   child: Text(
-                    item['no'] ?? '',
+                    number.toString(),
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -108,7 +94,7 @@ class _TagihanPageState extends State<TagihanPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        item['nama_keluarga'] ?? '',
+                        item['keluarga']?['nama_keluarga'] ?? '',
                         style: const TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 14,
@@ -119,20 +105,31 @@ class _TagihanPageState extends State<TagihanPage> {
                         spacing: 8,
                         runSpacing: 6,
                         children: [
-                          _smallInfoChip("Iuran: ${item['iuran'] ?? '-'}"),
-                          _smallInfoChip("Kode: ${item['kode_tagihan'] ?? '-'}"),
-                          _smallInfoChip("Nominal: ${item['nominal'] ?? '-'}"),
+                          _smallInfoChip(
+                            "Iuran: ${item['kategori_iuran']?['nama'] ?? '-'}",
+                          ),
+                          _smallInfoChip(
+                            "Nominal: ${item['kategori_iuran']?['nominal'] ?? '-'}",
+                          ),
                         ],
                       ),
                     ],
                   ),
                 ),
 
-                _buildBadge(
-                  item['status_keluarga'] ?? '',
-                  bg: Colors.green.shade50,
-                  textColor: Colors.green.shade800,
-                ),
+                if ((item['keluarga']?['status'] ?? '').toLowerCase() ==
+                    'aktif')
+                  _buildBadge(
+                    item['keluarga']?['status'] ?? '',
+                    bg: Colors.green.shade50,
+                    textColor: Colors.green.shade800,
+                  )
+                else
+                  _buildBadge(
+                    item['keluarga']?['status'] ?? '',
+                    bg: Colors.red.shade50,
+                    textColor: Colors.red.shade800,
+                  ),
 
                 const SizedBox(width: 8),
 
@@ -157,21 +154,19 @@ class _TagihanPageState extends State<TagihanPage> {
                 const Icon(Icons.calendar_today, size: 14, color: Colors.grey),
                 const SizedBox(width: 6),
                 Text(
-                  item['periode'] ?? '',
+                  item['tanggal_tagihan'] ?? '',
                   style: const TextStyle(fontSize: 13, color: Colors.black87),
                 ),
                 const Spacer(),
-                if ((item['status_bayar'] ?? '')
-                    .toLowerCase()
-                    .contains('belum'))
+                if ((item['status'] ?? '').toLowerCase().contains('belum'))
                   _buildBadge(
-                    item['status_bayar'] ?? '',
+                    'Belum Bayar',
                     bg: Colors.yellow.shade100,
                     textColor: Colors.brown.shade700,
                   )
                 else
                   _buildBadge(
-                    item['status_bayar'] ?? '',
+                    'Lunas',
                     bg: Colors.green.shade50,
                     textColor: Colors.green.shade800,
                   ),
@@ -188,6 +183,11 @@ class _TagihanPageState extends State<TagihanPage> {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F9FC),
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => context.go('/beranda/semua_menu'),
+        ),
+
         title: const Text("Tagihan", style: TextStyle(color: Colors.black)),
         backgroundColor: Colors.white,
         elevation: 0,
@@ -251,7 +251,7 @@ class _TagihanPageState extends State<TagihanPage> {
               padding: const EdgeInsets.only(bottom: 20),
               itemCount: dataIuran.length,
               itemBuilder: (context, index) =>
-                  _buildCard(dataIuran[index]),
+                  _buildCard(dataIuran[index], index + 1),
             ),
           ),
         ],

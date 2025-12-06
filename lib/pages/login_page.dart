@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import '../services/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -14,31 +18,66 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
 
   bool _isPasswordVisible = false;
-  bool _rememberMe = false;
+  // bool _rememberMe = false;
   bool _isLoading = false;
 
   Future<void> _login() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() => _isLoading = true);
-      await Future.delayed(const Duration(seconds: 2));
+    if (!_formKey.currentState!.validate()) return;
+
+    // GET dynamic URL **here**
+    final base = AuthService.baseUrl;
+
+    if (base == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Gagal menemukan server Laravel di LAN")),
+      );
+      return;
+    }
+
+    final apiUrl = "$base/login";
+
+    setState(() => _isLoading = true);
+
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "email": _emailController.text,
+          "password": _passwordController.text,
+        }),
+      );
+
       setState(() => _isLoading = false);
 
-      if (_emailController.text == 'admin1@mail.com' &&
-          _passwordController.text == 'passwrod') {
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        final token = data["token"];
+        final user = data["user"];
+
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString("token", token);
+        await prefs.setString("email", user["email"]);
+        await prefs.setInt("user_id", user["id"]);
+
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('Login successful!')));
+        ).showSnackBar(const SnackBar(content: Text("Login berhasil!")));
 
-        var loggedInUserEmail = _emailController.text;
-        context.go('/beranda', extra: loggedInUserEmail);
+        context.go('/beranda', extra: user["name"]);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Invalid email or password')),
+          const SnackBar(content: Text("Email atau password salah")),
         );
       }
+    } catch (e) {
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Error: $e")));
     }
   }
-
   //if (_emailController.text == 'admin1@mail.com' &&
   //       _passwordController.text == 'passwrod') {
   //     context.go('/dashboard/kegiatan', extra: loggedInUserEmail);

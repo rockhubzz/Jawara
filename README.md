@@ -27,6 +27,7 @@ Tampilan mobile-friendly JAWARA memudahkan perangkat desa untuk mengakses data k
 ---
 
 ## Teknologi yang Digunakan
-Frontend (Mobile)	: Flutter / Dart
+
+Frontend (Mobile) : Flutter / Dart
 
 Version Control : Git & GitHub

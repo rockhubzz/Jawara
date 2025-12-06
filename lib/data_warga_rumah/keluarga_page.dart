@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:jawara/widgets/appDrawer.dart';
+import 'package:jawara/services/keluarga_service.dart';
+import 'keluarga_formpage.dart';
+import 'keluarga_detail_page.dart';
+import 'package:go_router/go_router.dart';
 
 class DataKeluargaPage extends StatefulWidget {
   const DataKeluargaPage({super.key});
@@ -9,50 +13,81 @@ class DataKeluargaPage extends StatefulWidget {
 }
 
 class _DataKeluargaPageState extends State<DataKeluargaPage> {
-  final List<Map<String, String>> dataKeluarga = [
-    {
-      'no': '1',
-      'nama_keluarga': 'Keluarga Andika Pratama',
-      'kepala_keluarga': 'Andika Pratama',
-      'alamat': 'Jl. Mawar No. 12, Kelurahan Sukun, Malang',
-      'status_kepemilikan': 'Pemilik',
-      'status': 'Aktif',
-    },
-    {
-      'no': '2',
-      'nama_keluarga': 'Keluarga Rizky Ananda',
-      'kepala_keluarga': 'Rizky Ananda',
-      'alamat': 'Jl. Melati No. 8, Kelurahan Lowokwaru, Malang',
-      'status_kepemilikan': 'Penyewa',
-      'status': 'Aktif',
-    },
-    {
-      'no': '3',
-      'nama_keluarga': 'Keluarga Dewi Lestari',
-      'kepala_keluarga': 'Dewi Lestari',
-      'alamat': 'Jl. Anggrek No. 3, Kelurahan Blimbing, Malang',
-      'status_kepemilikan': 'Pemilik',
-      'status': 'Aktif',
-    },
-    {
-      'no': '4',
-      'nama_keluarga': 'Keluarga Rudi Hartono',
-      'kepala_keluarga': 'Rudi Hartono',
-      'alamat': 'Jl. Cendana No. 21, Kelurahan Tlogomas, Malang',
-      'status_kepemilikan': 'Penyewa',
-      'status': 'Nonaktif',
-    },
-    {
-      'no': '5',
-      'nama_keluarga': 'Keluarga Siti Maesaroh',
-      'kepala_keluarga': 'Siti Maesaroh',
-      'alamat': 'Jl. Kenanga No. 5, Kelurahan Dinoyo, Malang',
-      'status_kepemilikan': 'Pemilik',
-      'status': 'Aktif',
-    },
-  ];
+  List<Map<String, dynamic>> dataKeluarga = [];
+  bool isLoading = true;
+  bool isError = false;
+
+  @override
+  void initState() {
+    super.initState();
+    loadData();
+  }
+
+  Future<void> loadData() async {
+    try {
+      final result = await KeluargaService.getKeluarga();
+      setState(() {
+        dataKeluarga = result;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isError = true;
+        isLoading = false;
+      });
+    }
+  }
 
   void openFilterDialog() {}
+
+  void _openDetail(Map<String, dynamic> item) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => KeluargaDetailPage(id: item['id'])),
+    );
+  }
+
+  void _openEdit(Map<String, dynamic> item) async {
+    final updated = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => KeluargaFormPage(data: item)),
+    );
+
+    if (updated == true) {
+      loadData();
+    }
+  }
+
+  void _deleteItem(int id) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Hapus Data"),
+        content: const Text("Yakin ingin menghapus data ini?"),
+        actions: [
+          TextButton(
+            child: const Text("Batal"),
+            onPressed: () => Navigator.pop(context, false),
+          ),
+          ElevatedButton(
+            child: const Text("Hapus"),
+            onPressed: () => Navigator.pop(context, true),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      final success = await KeluargaService.deleteKeluarga(id);
+      if (success) {
+        loadData();
+      } else {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text("Gagal menghapus data")));
+      }
+    }
+  }
 
   Widget _buildBadge(String text) {
     bool aktif = text.toLowerCase() == 'aktif';
@@ -73,7 +108,7 @@ class _DataKeluargaPageState extends State<DataKeluargaPage> {
     );
   }
 
-  Widget _buildCard(Map<String, String> item) {
+  Widget _buildCard(Map<String, dynamic> item, int index) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       elevation: 1,
@@ -84,7 +119,6 @@ class _DataKeluargaPageState extends State<DataKeluargaPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Baris atas: nomor dan nama keluarga
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -92,7 +126,7 @@ class _DataKeluargaPageState extends State<DataKeluargaPage> {
                   radius: 16,
                   backgroundColor: Colors.grey.shade100,
                   child: Text(
-                    item['no'] ?? '',
+                    "${index + 1}",
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
@@ -100,6 +134,7 @@ class _DataKeluargaPageState extends State<DataKeluargaPage> {
                   ),
                 ),
                 const SizedBox(width: 12),
+
                 Expanded(
                   child: Text(
                     item['nama_keluarga'] ?? '',
@@ -109,8 +144,13 @@ class _DataKeluargaPageState extends State<DataKeluargaPage> {
                     ),
                   ),
                 ),
+
                 PopupMenuButton<String>(
-                  onSelected: (value) {},
+                  onSelected: (value) {
+                    if (value == 'detail') _openDetail(item);
+                    if (value == 'edit') _openEdit(item);
+                    if (value == 'hapus') _deleteItem(item['id']);
+                  },
                   itemBuilder: (context) => const [
                     PopupMenuItem(value: 'detail', child: Text('Detail')),
                     PopupMenuItem(value: 'edit', child: Text('Edit')),
@@ -121,26 +161,18 @@ class _DataKeluargaPageState extends State<DataKeluargaPage> {
             ),
 
             const SizedBox(height: 10),
-            // Informasi utama
+
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  "Kepala: ${item['kepala_keluarga'] ?? '-'}",
-                  style: const TextStyle(fontSize: 13),
-                ),
-                Text(
-                  "Kepemilikan: ${item['status_kepemilikan'] ?? '-'}",
-                  style: const TextStyle(fontSize: 13),
-                ),
+                Text("Kepala: ${item['kepala_keluarga']}"),
+                Text("Kepemilikan: ${item['kepemilikan']}"),
               ],
             ),
 
             const SizedBox(height: 6),
-            Text(
-              "Alamat: ${item['alamat'] ?? '-'}",
-              style: const TextStyle(fontSize: 13),
-            ),
+
+            Text("Alamat: ${item['alamat']}"),
 
             const SizedBox(height: 8),
             Align(
@@ -158,6 +190,11 @@ class _DataKeluargaPageState extends State<DataKeluargaPage> {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F9FC),
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => context.go('/beranda/semua_menu'),
+        ),
+
         title: const Text(
           "Data Keluarga",
           style: TextStyle(color: Colors.black),
@@ -166,47 +203,31 @@ class _DataKeluargaPageState extends State<DataKeluargaPage> {
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
       ),
-      body: Column(
-        children: [
-          // Tombol aksi atas (Filter di sebelah kiri)
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start, // kiri
-              children: [
-                ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF6C63FF),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 10,
-                    ),
-                  ),
-                  onPressed: openFilterDialog,
-                  icon: const Icon(Icons.filter_list, color: Colors.white),
-                  label: const Text(
-                    'Filter',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ],
-            ),
-          ),
 
-          // Daftar keluarga
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.only(bottom: 20),
-              itemCount: dataKeluarga.length,
-              itemBuilder: (context, index) => _buildCard(dataKeluarga[index]),
-            ),
-          ),
-        ],
+      // drawer: AppDrawer(email: 'admin1@mail.com'),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: const Color(0xFF6C63FF),
+        child: const Icon(Icons.add, color: Colors.white),
+        onPressed: () async {
+          final added = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const KeluargaFormPage()),
+          );
+
+          if (added == true) loadData();
+        },
       ),
+
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : isError
+          ? const Center(child: Text("Gagal memuat data. Periksa server."))
+          : ListView.builder(
+              padding: const EdgeInsets.only(bottom: 90),
+              itemCount: dataKeluarga.length,
+              itemBuilder: (context, index) =>
+                  _buildCard(dataKeluarga[index], index),
+            ),
     );
   }
 }

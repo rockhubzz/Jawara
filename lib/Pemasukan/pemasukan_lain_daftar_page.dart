@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/appDrawer.dart';
+import '../services/pemasukan_lain_service.dart';
+import 'package:go_router/go_router.dart';
 
 class PemasukanLainDaftar extends StatefulWidget {
   const PemasukanLainDaftar({Key? key}) : super(key: key);
@@ -11,36 +13,69 @@ class PemasukanLainDaftar extends StatefulWidget {
 class _PemasukanLainDaftarState extends State<PemasukanLainDaftar> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  final List<Map<String, String>> pemasukanList = [
-    {
-      "no": "1",
-      "nama": "Sungcheol",
-      "jenis": "Uang Sumbangan",
-      "tanggal": "19 Oktober 2025",
-      "nominal": "Rp 1.000.000,00",
-    },
-    {
-      "no": "2",
-      "nama": "Haechan",
-      "jenis": "Danus Warga",
-      "tanggal": "19 Oktober 2025",
-      "nominal": "Rp 500.000,00",
-    },
-    {
-      "no": "3",
-      "nama": "Yeri",
-      "jenis": "Iuran Warga",
-      "tanggal": "17 Oktober 2025",
-      "nominal": "Rp 6.000.000,00",
-    },
-  ];
-
+  List<dynamic> pemasukanList = [];
   int currentPage = 1;
+  int lastPage = 1;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    loadData(currentPage);
+  }
+
+  Future<void> loadData(int page) async {
+    setState(() => isLoading = true);
+
+    try {
+      final res = await PemasukanService.getAll(page);
+
+      setState(() {
+        pemasukanList = res['data']['data'];
+        currentPage = res['data']['current_page'];
+        lastPage = res['data']['last_page'];
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() => isLoading = false);
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Gagal memuat data: $e")));
+    }
+  }
+
+  String formatRupiah(num number) {
+    return number.toString().replaceAllMapped(
+      RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]}.',
+    );
+  }
+
+  int parseNominal(String value) {
+    // Hapus titik, koma, dan spasi
+    final cleaned = value.replaceAll(RegExp(r'[^0-9]'), '');
+    return int.tryParse(cleaned) ?? 0;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
+      // key: _scaffoldKey,
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => context.go('/beranda/semua_menu'),
+        ),
+
+        title: const Text(
+          "Daftar Pemasukan Lain",
+          style: TextStyle(color: Colors.black),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.black),
+      ),
       backgroundColor: const Color(0xFFF5F7FA),
 
       body: Stack(
@@ -113,14 +148,55 @@ class _PemasukanLainDaftarState extends State<PemasukanLainDaftar> {
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
-                                        "No: ${item['no']}",
+                                        "No: ${item['id']}",
                                         style: const TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 14,
                                         ),
                                       ),
                                       PopupMenuButton<String>(
-                                        onSelected: (value) {},
+                                        onSelected: (value) {
+                                          if (value == 'edit') {
+                                            context.push(
+                                              '/pemasukan-lain/edit',
+                                              extra: item,
+                                            );
+                                          } else if (value == 'hapus') {
+                                            showDialog(
+                                              context: context,
+                                              builder: (context) => AlertDialog(
+                                                title: const Text("Hapus Data"),
+                                                content: const Text(
+                                                  "Yakin ingin menghapus data ini?",
+                                                ),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () =>
+                                                        Navigator.pop(context),
+                                                    child: const Text("Batal"),
+                                                  ),
+                                                  ElevatedButton(
+                                                    style:
+                                                        ElevatedButton.styleFrom(
+                                                          backgroundColor:
+                                                              Colors.red,
+                                                        ),
+                                                    onPressed: () async {
+                                                      Navigator.pop(context);
+                                                      final success =
+                                                          await PemasukanService.delete(
+                                                            item['id'],
+                                                          );
+                                                      if (success)
+                                                        loadData(currentPage);
+                                                    },
+                                                    child: const Text("Hapus"),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          }
+                                        },
                                         itemBuilder: (context) => [
                                           const PopupMenuItem(
                                             value: 'edit',
@@ -150,7 +226,7 @@ class _PemasukanLainDaftarState extends State<PemasukanLainDaftar> {
                                     style: const TextStyle(fontSize: 15),
                                   ),
                                   Text(
-                                    "Nominal: ${item['nominal']}",
+                                    "Nominal: Rp. ${formatRupiah(item['nominal'])}",
                                     style: const TextStyle(
                                       fontSize: 15,
                                       color: Colors.black87,
