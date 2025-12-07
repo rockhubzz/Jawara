@@ -38,8 +38,6 @@ class _DataKeluargaPageState extends State<DataKeluargaPage> {
     }
   }
 
-  void openFilterDialog() {}
-
   void _openDetail(Map<String, dynamic> item) {
     Navigator.push(
       context,
@@ -59,34 +57,68 @@ class _DataKeluargaPageState extends State<DataKeluargaPage> {
   }
 
   void _deleteItem(int id) async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text("Hapus Data"),
-        content: const Text("Yakin ingin menghapus data ini?"),
-        actions: [
-          TextButton(
-            child: const Text("Batal"),
-            onPressed: () => Navigator.pop(context, false),
-          ),
-          ElevatedButton(
-            child: const Text("Hapus"),
-            onPressed: () => Navigator.pop(context, true),
-          ),
-        ],
-      ),
-    );
+    const Color lightGreen = Color(0xFFE0F2F1);
+    const Color primaryGreen = Color(0xFF2E7D32);
 
-    if (confirm == true) {
-      final success = await KeluargaService.deleteKeluarga(id);
-      if (success) {
-        loadData();
-      } else {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text("Gagal menghapus data")));
-      }
-    }
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          backgroundColor: lightGreen,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: const Text(
+            "Hapus Keluarga",
+            style: TextStyle(fontWeight: FontWeight.bold, color: primaryGreen),
+          ),
+          content: const Text(
+            "Yakin ingin menghapus data ini?",
+            style: TextStyle(color: Colors.black87, fontSize: 14),
+          ),
+          actionsPadding: const EdgeInsets.only(bottom: 10, right: 10),
+          actions: [
+            TextButton(
+              style: TextButton.styleFrom(foregroundColor: primaryGreen),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text(
+                "Batal",
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              ),
+            ),
+            Container(
+              decoration: BoxDecoration(
+                color: primaryGreen,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: TextButton(
+                onPressed: () async {
+                  Navigator.of(context).pop();
+                  final success = await KeluargaService.deleteKeluarga(id);
+                  if (success) {
+                    loadData(); // pastikan ini method reload data
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Gagal menghapus data")),
+                    );
+                  }
+                },
+                child: const Text(
+                  "Hapus",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Widget _buildBadge(String text) {
@@ -109,75 +141,50 @@ class _DataKeluargaPageState extends State<DataKeluargaPage> {
   }
 
   Widget _buildCard(Map<String, dynamic> item, int index) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      elevation: 1,
-      color: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [
+          BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 4)),
+        ],
+      ),
+      child: ListTile(
+        title: Text(
+          item['nama_keluarga'] ?? '',
+          style: const TextStyle(fontWeight: FontWeight.w600),
+        ),
+        subtitle: Text(
+          "Kepala: ${item['kepala_keluarga']}\nAlamat: ${item['alamat']}",
+        ),
+        onTap: () => _openDetail(item),
+        isThreeLine: true,
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CircleAvatar(
-                  radius: 16,
-                  backgroundColor: Colors.grey.shade100,
-                  child: Text(
-                    "${index + 1}",
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-
-                Expanded(
-                  child: Text(
-                    item['nama_keluarga'] ?? '',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 15,
-                    ),
-                  ),
-                ),
-
-                PopupMenuButton<String>(
-                  onSelected: (value) {
-                    if (value == 'detail') _openDetail(item);
-                    if (value == 'edit') _openEdit(item);
-                    if (value == 'hapus') _deleteItem(item['id']);
-                  },
-                  itemBuilder: (context) => const [
-                    PopupMenuItem(value: 'detail', child: Text('Detail')),
-                    PopupMenuItem(value: 'edit', child: Text('Edit')),
-                    PopupMenuItem(value: 'hapus', child: Text('Hapus')),
-                  ],
-                ),
-              ],
+            // ICON EDIT
+            Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.orange, width: 1.5),
+              ),
+              child: IconButton(
+                icon: const Icon(Icons.edit, color: Colors.orange),
+                onPressed: () => _openEdit(item),
+              ),
             ),
-
-            const SizedBox(height: 10),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text("Kepala: ${item['kepala_keluarga']}"),
-                Text("Kepemilikan: ${item['kepemilikan']}"),
-              ],
-            ),
-
-            const SizedBox(height: 6),
-
-            Text("Alamat: ${item['alamat']}"),
-
-            const SizedBox(height: 8),
-            Align(
-              alignment: Alignment.centerRight,
-              child: _buildBadge(item['status'] ?? 'Aktif'),
+            const SizedBox(width: 8),
+            // ICON DELETE
+            Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.red, width: 1.5),
+              ),
+              child: IconButton(
+                icon: const Icon(Icons.delete, color: Colors.red),
+                onPressed: () => _deleteItem(item['id']),
+              ),
             ),
           ],
         ),
@@ -188,46 +195,85 @@ class _DataKeluargaPageState extends State<DataKeluargaPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FC),
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF2E7D32)),
           onPressed: () => context.go('/beranda/semua_menu'),
         ),
-
         title: const Text(
           "Data Keluarga",
-          style: TextStyle(color: Colors.black),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF2E7D32),
+          ),
         ),
         backgroundColor: Colors.white,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
+        elevation: 0.5,
       ),
-
-      // drawer: AppDrawer(email: 'admin1@mail.com'),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color(0xFF6C63FF),
-        child: const Icon(Icons.add, color: Colors.white),
-        onPressed: () async {
-          final added = await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const KeluargaFormPage()),
-          );
-
-          if (added == true) loadData();
-        },
-      ),
-
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : isError
-          ? const Center(child: Text("Gagal memuat data. Periksa server."))
-          : ListView.builder(
-              padding: const EdgeInsets.only(bottom: 90),
-              itemCount: dataKeluarga.length,
-              itemBuilder: (context, index) =>
-                  _buildCard(dataKeluarga[index], index),
+      floatingActionButton: Container(
+        width: 60,
+        height: 60,
+        decoration: BoxDecoration(
+          color: Colors.white, // background putih
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: const Color(0xFF2E7D32), width: 2),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 6,
+              offset: Offset(0, 3),
             ),
+          ],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(8),
+            onTap: () async {
+              final added = await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const KeluargaFormPage()),
+              );
+              if (added == true) loadData();
+            },
+            child: const Center(
+              child: Icon(Icons.add, color: Color(0xFF2E7D32), size: 30),
+            ),
+          ),
+        ),
+      ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color.fromARGB(255, 255, 235, 188),
+              Color.fromARGB(255, 181, 255, 183),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : isError
+            ? const Center(child: Text("Gagal memuat data. Periksa server."))
+            : SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 500),
+                    child: Column(
+                      children: dataKeluarga
+                          .asMap()
+                          .entries
+                          .map((entry) => _buildCard(entry.value, entry.key))
+                          .toList(),
+                    ),
+                  ),
+                ),
+              ),
+      ),
     );
   }
 }
