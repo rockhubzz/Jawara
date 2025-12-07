@@ -11,7 +11,13 @@ class WargaDetailPage extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(width: 120, child: Text("$label")),
+          SizedBox(
+            width: 130,
+            child: Text(
+              "$label",
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+          ),
           Expanded(
             child: Text(
               value,
@@ -25,39 +31,103 @@ class WargaDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const Color primaryGreen = Color(0xFF2E7D32);
+
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: const Text(
           "Detail Warga",
-          style: TextStyle(color: Colors.black),
+          style: TextStyle(fontWeight: FontWeight.bold, color: primaryGreen),
         ),
         backgroundColor: Colors.white,
-        iconTheme: const IconThemeData(color: Colors.black),
+        elevation: 0.5,
+        iconTheme: const IconThemeData(color: primaryGreen),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Card(
-          elevation: 2,
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _row("NIK", warga['nik'] ?? ''),
-                _row("Nama", warga['nama'] ?? ''),
-                _row("Jenis Kelamin", warga['jenis_kelamin'] ?? ''),
-                _row("Alamat", warga['keluarga']?['alamat'] ?? ''),
-                _row("Keluarga", warga['keluarga']?['nama_keluarga'] ?? "-"),
-                _row("Status", warga['status_domisili'] ?? ''),
-                const SizedBox(height: 20),
-
-                Center(
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    child: const Text("OK"),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color.fromARGB(255, 255, 235, 188),
+              Color.fromARGB(255, 181, 255, 183),
+            ],
+          ),
+        ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 500),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // CARD DETAIL WARGA
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    margin: const EdgeInsets.only(bottom: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 8,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Informasi Warga",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        _row("NIK", warga['nik'] ?? "-"),
+                        _row("Nama", warga['nama'] ?? "-"),
+                        _row("Jenis Kelamin", warga['jenis_kelamin'] ?? "-"),
+                        _row("Alamat", warga['keluarga']?['alamat'] ?? "-"),
+                        _row(
+                          "Keluarga",
+                          warga['keluarga']?['nama_keluarga'] ?? "-",
+                        ),
+                        _row("Status", warga['status_domisili'] ?? "-"),
+                        const SizedBox(height: 20),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: ElevatedButton(
+                            onPressed: () => Navigator.pop(context),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: primaryGreen,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 30,
+                                vertical: 12,
+                              ),
+                            ),
+                            child: const Text(
+                              "OK",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
