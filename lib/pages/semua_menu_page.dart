@@ -253,7 +253,7 @@ class SemuaMenuPage extends StatelessWidget {
                     "Tambah Mutasi",
                     Icons.add_box,
                     Colors.teal,
-                    onTap: () => context.go('/mutasi_keluarga/tambah'),
+                    onTap: () => context.go('/mutasi/tambah'),
                   ),
                 ]),
 
@@ -295,8 +295,7 @@ class SemuaMenuPage extends StatelessWidget {
                     "Semua Pengeluaran",
                     Icons.money_off_csred,
                     Colors.orange,
-                    onTap: () =>
-                        context.go('/laporan_keuangan/semua_pengeluaran'),
+                    onTap: () => context.go('/pengeluaran/daftar'),
                   ),
                   MenuItem(
                     "Cetak Laporan",

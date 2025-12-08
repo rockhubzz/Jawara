@@ -1,46 +1,111 @@
 import 'package:flutter/material.dart';
 import '../widgets/appDrawer.dart';
+import 'package:go_router/go_router.dart';
+import '../services/mutasi_service.dart';
 
-class DaftarPage extends StatelessWidget {
+class DaftarPage extends StatefulWidget {
   const DaftarPage({super.key});
+
+  @override
+  State<DaftarPage> createState() => _DaftarPageState();
+}
+
+class _DaftarPageState extends State<DaftarPage> {
+  int currentPage = 1;
+  int lastPage = 1;
+  bool isLoading = true;
+  List<dynamic> data = [];
+
+  @override
+  void initState() {
+    super.initState();
+    loadData();
+  }
+
+  Future<void> loadData({int page = 1}) async {
+    setState(() => isLoading = true);
+    try {
+      final res = await MutasiService.getAll(page: page);
+      setState(() {
+        data = (res['data'] as List)
+            .map((e) => e as Map<String, dynamic>)
+            .toList();
+        currentPage = res['current_page'] ?? page;
+        lastPage = res['last_page'] ?? page;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Gagal memuat data: $e')));
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
+
+  Future<void> _confirmDelete(Map<String, dynamic> item) async {
+    final id = item['id'];
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Konfirmasi'),
+        content: const Text('Hapus data mutasi ini?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Hapus'),
+          ),
+        ],
+      ),
+    );
+
+    if (ok == true) {
+      final deleted = await MutasiService.delete(id as int);
+      if (deleted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Mutasi berhasil dihapus"),
+            backgroundColor: Colors.green,
+          ),
+        );
+        loadData(page: currentPage);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Gagal menghapus"),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  void _openEdit(Map<String, dynamic> item) {
+    // navigate to the tambah page in edit mode, pass id in query param
+    context.go('/mutasi/tambah?id=${item['id']}');
+  }
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 700;
 
-    final data = [
-      {
-        "no": 1,
-        "tanggal": "17 Oktober 2025",
-        "keluarga": "Keluarga Budi Santoso",
-        "jenisMutasi": "Pindah Masuk",
-      },
-      {
-        "no": 2,
-        "tanggal": "14 Oktober 2025",
-        "keluarga": "Keluarga Siti Aminah",
-        "jenisMutasi": "Pindah Keluar",
-      },
-    ];
-
     return Scaffold(
       backgroundColor: const Color(0xFFF4F6F8),
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => context.go('/beranda/semua_menu'),
+        ),
+
         backgroundColor: Colors.white,
         elevation: 0.5,
         title: const Text(
           "Mutasi Keluarga",
-          style: TextStyle(
-            color: Colors.black87,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(Icons.menu, color: Colors.black87),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-          ),
+          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
         ),
       ),
       body: SafeArea(
@@ -78,14 +143,16 @@ class DaftarPage extends StatelessWidget {
                           ),
                         ),
                         ElevatedButton.icon(
-                          onPressed: () {},
-                          icon: const Icon(Icons.filter_list),
-                          label: const Text("Filter"),
+                          onPressed: () => context.go('/mutasi/tambah'),
+                          icon: const Icon(Icons.add),
+                          label: const Text("Tambah"),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF6C63FF),
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 10),
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
@@ -95,42 +162,45 @@ class DaftarPage extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 20),
-
-                    // Table atau Card
-                    if (!isMobile)
+                    if (isLoading)
+                      const Center(child: CircularProgressIndicator())
+                    else if (!isMobile)
                       _buildTableView(data)
                     else
                       _buildMobileCardView(data),
-
                     const SizedBox(height: 20),
 
-                    // Pagination
-                    Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.chevron_left),
-                            onPressed: () {},
+                    // Pagination controls
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.chevron_left),
+                          onPressed: currentPage > 1
+                              ? () => loadData(page: currentPage - 1)
+                              : null,
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
                           ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF6C63FF),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: const Text(
-                              "1",
-                              style: TextStyle(color: Colors.white),
-                            ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF6C63FF),
+                            borderRadius: BorderRadius.circular(6),
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.chevron_right),
-                            onPressed: () {},
+                          child: Text(
+                            currentPage.toString(),
+                            style: const TextStyle(color: Colors.white),
                           ),
-                        ],
-                      ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.chevron_right),
+                          onPressed: currentPage < lastPage
+                              ? () => loadData(page: currentPage + 1)
+                              : null,
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -142,16 +212,13 @@ class DaftarPage extends StatelessWidget {
     );
   }
 
-  Widget _buildTableView(List<Map<String, dynamic>> data) {
+  Widget _buildTableView(List<dynamic> data) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: ConstrainedBox(
         constraints: const BoxConstraints(minWidth: 700),
         child: Table(
-          border: TableBorder.all(
-            color: const Color(0xFFE0E0E0),
-            width: 1,
-          ),
+          border: TableBorder.all(color: const Color(0xFFE0E0E0), width: 1),
           columnWidths: const {
             0: FlexColumnWidth(0.5),
             1: FlexColumnWidth(1.5),
@@ -171,93 +238,122 @@ class DaftarPage extends StatelessWidget {
                 _HeaderCell("AKSI"),
               ],
             ),
-            ...data.map((item) => _dataRowTable(
-                  item["no"],
-                  item["tanggal"],
-                  item["keluarga"],
-                  item["jenisMutasi"],
-                )),
+            ...List.generate(data.length, (i) {
+              final item = data[i] as Map<String, dynamic>;
+              final no = ((currentPage - 1) * 10) + i + 1;
+              final tanggal = item['tanggal'] ?? '';
+              final keluargaName = item['keluarga'] != null
+                  ? (item['keluarga']['nama_keluarga'] ?? '-')
+                  : '-';
+              final jenis = item['jenis_mutasi'] ?? '-';
+              return _dataRowTable(
+                no,
+                tanggal,
+                keluargaName,
+                jenis,
+                onEdit: () => _openEdit(item),
+                onDelete: () => _confirmDelete(item),
+              );
+            }),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildMobileCardView(List<Map<String, dynamic>> data) {
+  Widget _buildMobileCardView(List<dynamic> data) {
     return Column(
-      children: data
-          .map(
-            (item) => Card(
-              elevation: 1,
-              margin: const EdgeInsets.symmetric(vertical: 6),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+      children: data.map((raw) {
+        final item = raw as Map<String, dynamic>;
+        final jenis = item['jenis_mutasi'] ?? '-';
+        final tanggal = item['tanggal'] ?? '-';
+        final keluarga = item['keluarga'] != null
+            ? (item['keluarga']['nama_keluarga'] ?? '-')
+            : '-';
+        return Card(
+          elevation: 1,
+          margin: const EdgeInsets.symmetric(vertical: 6),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  keluarga,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    const Icon(Icons.calendar_today, size: 16),
+                    const SizedBox(width: 4),
+                    Text(tanggal),
+                  ],
+                ),
+                Row(
                   children: [
                     Text(
-                      "${item["keluarga"]}",
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                      jenis,
+                      style: TextStyle(
+                        color: jenis == "Pindah Masuk"
+                            ? Colors.green
+                            : Colors.redAccent,
+                        fontWeight: FontWeight.w600,
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const Icon(Icons.calendar_today, size: 16),
-                        const SizedBox(width: 4),
-                        Text("${item["tanggal"]}"),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Text(
-                          "${item["jenisMutasi"]}",
-                          style: TextStyle(
-                            color: item["jenisMutasi"] == "Pindah Masuk"
-                                ? Colors.green
-                                : Colors.redAccent,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        IconButton(
-                          icon:
-                              const Icon(Icons.visibility, color: Colors.blue, size: 20),
-                          tooltip: 'Lihat Detail',
-                          onPressed: () {},
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete,
-                              color: Colors.redAccent, size: 20),
-                          tooltip: 'Hapus',
-                          onPressed: () {},
-                        ),
-                      ],
                     ),
                   ],
                 ),
-              ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      icon: const Icon(
+                        Icons.visibility,
+                        color: Colors.blue,
+                        size: 20,
+                      ),
+                      tooltip: 'Lihat Detail',
+                      onPressed: () {},
+                    ),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.edit,
+                        color: Colors.amber,
+                        size: 20,
+                      ),
+                      tooltip: 'Edit',
+                      onPressed: () => _openEdit(item),
+                    ),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.delete,
+                        color: Colors.redAccent,
+                        size: 20,
+                      ),
+                      tooltip: 'Hapus',
+                      onPressed: () => _confirmDelete(item),
+                    ),
+                  ],
+                ),
+              ],
             ),
-          )
-          .toList(),
+          ),
+        );
+      }).toList(),
     );
   }
 }
 
-// Reusable Table Cell Widgets
+// helper widgets reused (same as previously)
 class _HeaderCell extends StatelessWidget {
   final String text;
   const _HeaderCell(this.text);
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -276,7 +372,6 @@ class _HeaderCell extends StatelessWidget {
 class _DataCell extends StatelessWidget {
   final Widget child;
   const _DataCell(this.child);
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -290,8 +385,14 @@ class _DataCell extends StatelessWidget {
   }
 }
 
-// Data row builder
-TableRow _dataRowTable(int no, String tanggal, String keluarga, String jenisMutasi) {
+TableRow _dataRowTable(
+  int no,
+  String tanggal,
+  String keluarga,
+  String jenisMutasi, {
+  required VoidCallback onEdit,
+  required VoidCallback onDelete,
+}) {
   return TableRow(
     children: [
       _DataCell(Text(no.toString())),
@@ -318,9 +419,14 @@ TableRow _dataRowTable(int no, String tanggal, String keluarga, String jenisMuta
               onPressed: () {},
             ),
             IconButton(
+              icon: const Icon(Icons.edit, color: Colors.amber, size: 18),
+              tooltip: 'Edit',
+              onPressed: onEdit,
+            ),
+            IconButton(
               icon: const Icon(Icons.delete, color: Colors.redAccent, size: 18),
               tooltip: 'Hapus',
-              onPressed: () {},
+              onPressed: onDelete,
             ),
           ],
         ),

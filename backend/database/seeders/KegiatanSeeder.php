@@ -12,6 +12,7 @@ class KegiatanSeeder extends Seeder
         Kegiatan::create([
             'nama' => 'Pelatihan Flutter',
             'kategori' => 'Workshop',
+            'biaya' => 1000000,
             'penanggung_jawab' => 'Budi Santoso',
             'tanggal' => now()->addDays(10)->format('Y-m-d'),
             'lokasi' => 'Aula RW 05',

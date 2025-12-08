@@ -20,6 +20,7 @@ class _KegiatanTambahPageState extends State<KegiatanTambahPage> {
   final tanggalC = TextEditingController();
   final lokasiC = TextEditingController();
   final pjC = TextEditingController();
+  final biayaC = TextEditingController();
 
   bool loading = false;
   bool isEdit = false;
@@ -45,6 +46,7 @@ class _KegiatanTambahPageState extends State<KegiatanTambahPage> {
     tanggalC.text = d['tanggal'] ?? "";
     lokasiC.text = d['lokasi'] ?? "";
     pjC.text = d['penanggung_jawab'] ?? "";
+    biayaC.text = d['biaya'].toString();
   }
 
   Future<void> submit() async {
@@ -58,6 +60,7 @@ class _KegiatanTambahPageState extends State<KegiatanTambahPage> {
       "tanggal": tanggalC.text,
       "lokasi": lokasiC.text,
       "penanggung_jawab": pjC.text,
+      "biaya": biayaC.text,
     };
 
     late final response;
@@ -218,6 +221,17 @@ class _KegiatanTambahPageState extends State<KegiatanTambahPage> {
                                 hint: "Masukkan nama penanggung jawab...",
                                 icon: Icons.person_outline,
                                 controller: pjC,
+                              ),
+                            ),
+                            SizedBox(
+                              width: isMobile
+                                  ? double.infinity
+                                  : (width / 2) - 16,
+                              child: _InputField(
+                                label: "Jumlah Biaya",
+                                hint: "Masukkan jumlah biaya yang diperlukan",
+                                icon: Icons.money_outlined,
+                                controller: biayaC,
                               ),
                             ),
                           ],
