@@ -166,7 +166,7 @@ class _SemuaPemasukanState extends State<SemuaPemasukan> {
             top: 20,
             left: 16,
             child: IconButton(
-              icon: const Icon(Icons.menu, size: 28, color: Colors.black87),
+              icon: const Icon(Icons.arrow_back, color: Colors.black),
               onPressed: () => context.go('/beranda/semua_menu'),
             ),
           ),

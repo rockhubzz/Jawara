@@ -79,16 +79,40 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
     });
   }
 
-  void _submitForm() async {
+  Future<void> _submitForm() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => isLoadingSubmit = true);
-    await Future.delayed(const Duration(seconds: 2));
-    setState(() => isLoadingSubmit = false);
+    setState(() => isSubmitting = true);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Pemasukan berhasil disimpan")),
-    );
+    final payload = {
+      "nama": _namaController.text,
+      "jenis": _kategori,
+      "tanggal": _tanggalController.text,
+      "nominal": _nominalController.text,
+      "bukti": null, // karena service tidak menerima file
+    };
+
+    final ok = await PemasukanService.create(payload);
+
+    setState(() => isSubmitting = false);
+
+    if (ok) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Pemasukan berhasil disimpan'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      context.go('/pemasukan/lain_daftar'); // kembali ke list
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Gagal menyimpan pemasukan'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
