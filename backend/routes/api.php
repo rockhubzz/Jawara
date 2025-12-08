@@ -93,3 +93,10 @@ Route::middleware('auth:sanctum')->group(function () {
 use App\Http\Controllers\Api\MutasiKeluargaController;
 
 Route::apiResource('mutasi-keluarga', MutasiKeluargaController::class);
+
+use App\Http\Controllers\Api\DashboardController;
+
+Route::get('/glance/saldo', [DashboardController::class, 'getSaldo']);
+Route::get('/glance/keluarga', [DashboardController::class, 'getKeluarga']);
+Route::get('/glance/kegiatan', [DashboardController::class, 'getKegiatan']);
+Route::get('/glance/rekap-keuangan', [DashboardController::class, 'rekapBulanan']);

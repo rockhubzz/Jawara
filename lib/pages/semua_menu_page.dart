@@ -295,8 +295,7 @@ class SemuaMenuPage extends StatelessWidget {
                     "Semua Pengeluaran",
                     Icons.money_off_csred,
                     Colors.orange,
-                    onTap: () =>
-                        context.go('/laporan_keuangan/semua_pengeluaran'),
+                    onTap: () => context.go('/pengeluaran/daftar'),
                   ),
                   MenuItem(
                     "Cetak Laporan",
