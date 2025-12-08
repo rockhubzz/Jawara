@@ -167,80 +167,80 @@ class _KeuanganPageState extends State<KeuanganPage> {
           const SizedBox(height: 25),
 
           // ================= PIE CHART =================
-          GridView.count(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisCount: MediaQuery.of(context).size.width > 700 ? 2 : 1,
-            crossAxisSpacing: 20,
-            mainAxisSpacing: 20,
-            childAspectRatio: 1.4,
-            children: [
-              _chartCard(
-                title: "Pemasukan Berdasarkan Kategori",
-                icon: Icons.trending_up_rounded,
-                color: const Color(0xFFDCE8FA),
-                sections: [
-                  PieChartSectionData(
-                    value: 99,
-                    color: Colors.blueAccent,
-                    title: "100%",
-                    titleStyle: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  PieChartSectionData(
-                    value: 1,
-                    color: Colors.orangeAccent,
-                    title: "0%",
-                    titleStyle: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-                legends: const [
-                  {
-                    "label": "Dana Bantuan Pemerintah",
-                    "color": Colors.blueAccent,
-                  },
-                  {"label": "Pendapatan Lainnya", "color": Colors.orangeAccent},
-                ],
-              ),
-              _chartCard(
-                title: "Pengeluaran Berdasarkan Kategori",
-                icon: Icons.trending_down_rounded,
-                color: const Color(0xFFDFF6DD),
-                sections: [
-                  PieChartSectionData(
-                    value: 99,
-                    color: Colors.pinkAccent,
-                    title: "100%",
-                    titleStyle: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  PieChartSectionData(
-                    value: 1,
-                    color: Colors.amberAccent,
-                    title: "0%",
-                    titleStyle: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-                legends: const [
-                  {
-                    "label": "Pemeliharaan Fasilitas",
-                    "color": Colors.pinkAccent,
-                  },
-                  {"label": "Operasional RT/RW", "color": Colors.amberAccent},
-                ],
-              ),
-            ],
-          ),
+          // GridView.count(
+          //   shrinkWrap: true,
+          //   physics: const NeverScrollableScrollPhysics(),
+          //   crossAxisCount: MediaQuery.of(context).size.width > 700 ? 2 : 1,
+          //   crossAxisSpacing: 20,
+          //   mainAxisSpacing: 20,
+          //   childAspectRatio: 1.4,
+          //   children: [
+          //     _chartCard(
+          //       title: "Pemasukan Berdasarkan Kategori",
+          //       icon: Icons.trending_up_rounded,
+          //       color: const Color(0xFFDCE8FA),
+          //       sections: [
+          //         PieChartSectionData(
+          //           value: 99,
+          //           color: Colors.blueAccent,
+          //           title: "100%",
+          //           titleStyle: const TextStyle(
+          //             color: Colors.white,
+          //             fontWeight: FontWeight.bold,
+          //           ),
+          //         ),
+          //         PieChartSectionData(
+          //           value: 1,
+          //           color: Colors.orangeAccent,
+          //           title: "0%",
+          //           titleStyle: const TextStyle(
+          //             color: Colors.white,
+          //             fontWeight: FontWeight.bold,
+          //           ),
+          //         ),
+          //       ],
+          //       legends: const [
+          //         {
+          //           "label": "Dana Bantuan Pemerintah",
+          //           "color": Colors.blueAccent,
+          //         },
+          //         {"label": "Pendapatan Lainnya", "color": Colors.orangeAccent},
+          //       ],
+          //     ),
+          //     _chartCard(
+          //       title: "Pengeluaran Berdasarkan Kategori",
+          //       icon: Icons.trending_down_rounded,
+          //       color: const Color(0xFFDFF6DD),
+          //       sections: [
+          //         PieChartSectionData(
+          //           value: 99,
+          //           color: Colors.pinkAccent,
+          //           title: "100%",
+          //           titleStyle: const TextStyle(
+          //             color: Colors.white,
+          //             fontWeight: FontWeight.bold,
+          //           ),
+          //         ),
+          //         PieChartSectionData(
+          //           value: 1,
+          //           color: Colors.amberAccent,
+          //           title: "0%",
+          //           titleStyle: const TextStyle(
+          //             color: Colors.white,
+          //             fontWeight: FontWeight.bold,
+          //           ),
+          //         ),
+          //       ],
+          //       legends: const [
+          //         {
+          //           "label": "Pemeliharaan Fasilitas",
+          //           "color": Colors.pinkAccent,
+          //         },
+          //         {"label": "Operasional RT/RW", "color": Colors.amberAccent},
+          //       ],
+          //     ),
+          //   ],
+          // ),
         ],
       ),
     );

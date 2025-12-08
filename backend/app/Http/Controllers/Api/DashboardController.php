@@ -113,4 +113,92 @@ class DashboardController extends Controller
         ]);
     }
 
+    public function getKependudukan()
+    {
+        // 1. Total keluarga
+        $totalKeluarga = DB::table('keluarga')->count('id');
+
+        // 2. Total warga
+        $totalWarga = DB::table('warga')->count('id');
+
+        // 3. Jumlah warga berdasarkan status domisili
+        $domisili = DB::table('warga')
+            ->select('status_domisili', DB::raw('COUNT(id) as total'))
+            ->groupBy('status_domisili')
+            ->get();
+
+        // 4. Jumlah warga berdasarkan jenis kelamin
+        $jenisKelamin = DB::table('warga')
+            ->select('jenis_kelamin', DB::raw('COUNT(id) as total'))
+            ->groupBy('jenis_kelamin')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'total_keluarga' => $totalKeluarga,
+                'total_warga' => $totalWarga,
+                'domisili' => $domisili,
+                'jenis_kelamin' => $jenisKelamin,
+            ]
+        ]);
+    }
+
+    public function KegiatanStats()
+    {
+        $sebelumHariIni = DB::table('kegiatan')
+            ->where('tanggal', '<', DB::raw('CURDATE()'))
+            ->count('id');
+
+        $setelahHariIni = DB::table('kegiatan')
+            ->where('tanggal', '>', DB::raw('CURDATE()'))
+            ->count('id');
+
+        $hariIni = DB::table('kegiatan')
+            ->whereDate('tanggal', '=', DB::raw('CURDATE()'))
+            ->count('id');
+
+        $total = DB::table('kegiatan')->count('id');
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'sebelum_hari_ini' => $sebelumHariIni,
+                'hari_ini' => $hariIni,
+                'setelah_hari_ini' => $setelahHariIni,
+                'total' => $total
+            ]
+        ]);
+    }
+
+    public function countByKategori()
+    {
+        $data = DB::table('kegiatan')
+            ->select('kategori', DB::raw('COUNT(id) as total'))
+            ->groupBy('kategori')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $data
+        ]);
+    }
+
+    public function countKegiatanPerBulan()
+    {
+        $data = DB::table('kegiatan')
+            ->select(
+                DB::raw('MONTH(tanggal) as bulan'),
+                DB::raw('COUNT(id) as total')
+            )
+            ->groupBy(DB::raw('MONTH(tanggal)'))
+            ->orderBy('bulan', 'asc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $data
+        ]);
+    }
+
 }
