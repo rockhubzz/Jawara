@@ -73,6 +73,11 @@ class _TambahChannelPageState extends State<TambahChannelPage> {
     return Scaffold(
       backgroundColor: const Color(0xFFF4F6F8),
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => context.go('/beranda/semua_menu'),
+        ),
+
         backgroundColor: Colors.white,
         title: const Text('Tambah Channel'),
       ),

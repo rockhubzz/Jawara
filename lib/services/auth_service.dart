@@ -8,17 +8,7 @@ class AuthService {
   static String? ip;
 
   static String? get baseUrl {
-    if (ip == null)
-<<<<<<< HEAD
-      //return "http://192.168.70.175:8000/api"; // ip address api (punya roki)
-      if (ip == null) return "http://127.0.0.1:8000/api"; // ip address api (kalo run di chrome)
-=======
-      // return "http://192.168.67.115:8000/api"; // ip address api (punya roki)
-      if (ip == null)
-        return "http://127.0.0.1:8000/api"; // ip address api (kalo run di chrome)
->>>>>>> 50800dc1a9686f26038177d8a63462cb22a29e18
-    //if (ip == null) return "http://10.158.65.225:8000/api"; // ip address api (punya bella)
-    return "http://$ip:8000/api";
+    return "https://jawara-backend-production-ae19.up.railway.app/api"; // ip address api railway
   }
 
   static Future<bool> init() async {
