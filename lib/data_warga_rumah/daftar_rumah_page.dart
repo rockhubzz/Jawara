@@ -86,6 +86,7 @@
 //   }
 // }
 import 'package:flutter/material.dart';
+import 'package:jawara/data_warga_rumah/tambahRumah_page.dart';
 import 'package:jawara/services/rumah_service.dart';
 import 'rumah_form_page.dart';
 import 'rumah_detail_page.dart';
@@ -163,7 +164,7 @@ class _RumahListPageState extends State<RumahListPage> {
             borderRadius: BorderRadius.circular(8),
             onTap: () => Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => const RumahFormPage()),
+              MaterialPageRoute(builder: (_) => const TambahRumahPage()),
             ).then((_) => fetchData()),
             child: const Center(
               child: Icon(Icons.add, color: primaryGreen, size: 30),

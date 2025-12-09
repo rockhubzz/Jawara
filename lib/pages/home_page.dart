@@ -52,11 +52,15 @@ class _HomePageState extends State<HomePage> {
   Future<void> _loadSaldo() async {
     try {
       final result = await DashboardService.getSaldo();
+      if (!mounted) return;
+
       setState(() {
         saldo = result;
         loadingSaldo = false;
       });
     } catch (e) {
+      if (!mounted) return;
+
       setState(() => loadingSaldo = false);
     }
   }
@@ -64,11 +68,13 @@ class _HomePageState extends State<HomePage> {
   Future<void> _loadKeluarga() async {
     try {
       final result = await DashboardService.getKeluarga();
+      if (!mounted) return;
       setState(() {
         keluarga = result;
         loadingKeluarga = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() => loadingKeluarga = false);
     }
   }
@@ -76,11 +82,15 @@ class _HomePageState extends State<HomePage> {
   Future<void> _loadKegiatan() async {
     try {
       final result = await DashboardService.getKegiatan();
+
+      if (!mounted) return;
+
       setState(() {
         kegiatan = result;
         loadingKegiatan = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() => loadingKegiatan = false);
     }
   }
