@@ -25,98 +25,153 @@ class _KeluargaDetailPageState extends State<KeluargaDetailPage> {
     final res = await KeluargaService.getKeluargaById(widget.id);
 
     setState(() {
-      data = res?['data'];
-      anggota = res?['anggota'];
+      data = res?['data'] ?? {};
+      anggota = res?['anggota'] ?? [];
       loading = false;
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    const Color primaryGreen = Color(0xFF2E7D32);
+
     return Scaffold(
-      appBar: AppBar(title: const Text("Detail Keluarga")),
-
-      body: loading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // ==================== DATA KELUARGA ====================
-                  const Text(
-                    "Informasi Keluarga",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-
-                  Text("Nama Keluarga: ${data['nama_keluarga'] ?? '-'}"),
-                  Text("Kepala Keluarga: ${data['kepala_keluarga'] ?? '-'}"),
-                  Text("Alamat: ${data['alamat'] ?? '-'}"),
-                  Text("Kepemilikan: ${data['kepemilikan'] ?? '-'}"),
-                  Text("Status: ${data['status'] ?? '-'}"),
-
-                  const SizedBox(height: 24),
-
-                  // ==================== ANGGOTA KELUARGA ====================
-                  const Text(
-                    "Anggota Keluarga",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 12),
-
-                  anggota.isEmpty
-                      ? const Text(
-                          "Belum ada anggota keluarga.",
-                          style: TextStyle(color: Colors.grey),
-                        )
-                      : ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: anggota.length,
-                          itemBuilder: (context, index) {
-                            final item = anggota[index];
-
-                            return Container(
-                              margin: const EdgeInsets.only(bottom: 12),
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(10),
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: Colors.black12,
-                                    blurRadius: 4,
-                                    offset: Offset(0, 2),
-                                  ),
-                                ],
+      backgroundColor: Colors.transparent,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0.5,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: primaryGreen),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          "Detail Keluarga",
+          style: TextStyle(fontWeight: FontWeight.bold, color: primaryGreen),
+        ),
+      ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color.fromARGB(255, 255, 235, 188),
+              Color.fromARGB(255, 181, 255, 183),
+            ],
+          ),
+        ),
+        child: loading
+            ? const Center(child: CircularProgressIndicator())
+            : SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 500),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // ==================== DATA KELUARGA ====================
+                        Container(
+                          padding: const EdgeInsets.all(20),
+                          margin: const EdgeInsets.only(bottom: 20),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Colors.black12,
+                                blurRadius: 8,
+                                offset: Offset(0, 4),
                               ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    item["nama"] ?? "-",
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text("NIK: ${item['nik'] ?? '-'}"),
-                                  Text(
-                                    "Jenis Kelamin: ${item['jenis_kelamin'] ?? '-'}",
-                                  ),
-                                  Text(
-                                    "Status Domisili: ${item['status_domisili'] ?? '-'}",
-                                  ),
-                                ],
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                "Informasi Keluarga",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            );
-                          },
+                              const SizedBox(height: 12),
+                              Text(
+                                "Nama Keluarga: ${data['nama_keluarga'] ?? '-'}",
+                              ),
+                              Text(
+                                "Kepala Keluarga: ${data['kepala_keluarga'] ?? '-'}",
+                              ),
+                              Text("Alamat: ${data['alamat'] ?? '-'}"),
+                              Text(
+                                "Kepemilikan: ${data['kepemilikan'] ?? '-'}",
+                              ),
+                              Text("Status: ${data['status'] ?? '-'}"),
+                            ],
+                          ),
                         ),
-                ],
+
+                        // ==================== ANGGOTA KELUARGA ====================
+                        const Text(
+                          "Anggota Keluarga",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+
+                        anggota.isEmpty
+                            ? const Text(
+                                "Belum ada anggota keluarga.",
+                                style: TextStyle(color: Colors.grey),
+                              )
+                            : Column(
+                                children: anggota.map((item) {
+                                  return Container(
+                                    margin: const EdgeInsets.only(bottom: 12),
+                                    padding: const EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(16),
+                                      boxShadow: const [
+                                        BoxShadow(
+                                          color: Colors.black12,
+                                          blurRadius: 8,
+                                          offset: Offset(0, 4),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          item["nama"] ?? "-",
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 6),
+                                        Text("NIK: ${item['nik'] ?? '-'}"),
+                                        Text(
+                                          "Jenis Kelamin: ${item['jenis_kelamin'] ?? '-'}",
+                                        ),
+                                        Text(
+                                          "Status Domisili: ${item['status_domisili'] ?? '-'}",
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
-            ),
+      ),
     );
   }
 }
