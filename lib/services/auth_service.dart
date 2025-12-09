@@ -8,8 +8,8 @@ class AuthService {
 
   static String? get baseUrl {
     if (ip == null)
-      return "http://192.168.137.1:8000/api"; // ip address api (punya roki)
-    // if (ip == null) return "http://127.0.0.1:8000/api"; // ip address api (kalo run di chrome)
+      // return "http://192.168.137.1:8000/api"; // ip address api (punya roki)
+    if (ip == null) return "http://127.0.0.1:8000/api"; // ip address api (kalo run di chrome)
     //if (ip == null) return "http://10.158.65.225:8000/api"; // ip address api (punya bella)
     return "http://$ip:8000/api";
   }

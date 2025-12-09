@@ -155,7 +155,7 @@ class _KegiatanPageState extends State<KegiatanPage> {
         elevation: 0.5, // sedikit shadow biar elegant
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF2E7D32)),
-          onPressed: () => context.go('/beranda/semua_menu'),
+          onPressed: () => context.go('/beranda'),
         ),
         title: const Text(
           "Data Kegiatan",
