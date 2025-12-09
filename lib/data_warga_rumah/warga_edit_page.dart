@@ -179,7 +179,7 @@ class _WargaEditPageState extends State<WargaEditPage> {
               Icons.arrow_back_ios_new,
               color: Color(0xFF2E7D32),
             ),
-            onPressed: () => context.go('/data_warga_rumah/daftarWarga'),
+            onPressed: () => Navigator.pop(context),
           ),
           title: const Text(
             "Edit Warga",

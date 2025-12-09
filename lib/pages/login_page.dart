@@ -174,8 +174,8 @@ class _LoginPageState extends State<LoginPage> {
                               children: [
                                 Image.asset(
                                   "assets/images/logo_jawara.png",
-                                  width: 150,
-                                  height: 150,
+                                  width: 100,
+                                  height: 100,
                                   fit: BoxFit.contain,
                                 ),
 
@@ -571,12 +571,15 @@ class _LoginPageState extends State<LoginPage> {
                               onPressed: _isLoading ? null : _login,
                               style: ElevatedButton.styleFrom(
                                 padding: EdgeInsets.zero,
+                                backgroundColor: Colors
+                                    .transparent, // biar gradient terlihat
+                                shadowColor: Colors.transparent,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10),
                                   side: const BorderSide(
                                     color: Colors.green,
                                     width: 2,
-                                  ), // border tombol
+                                  ),
                                 ),
                               ),
                               child: Ink(
@@ -601,13 +604,11 @@ class _LoginPageState extends State<LoginPage> {
                                       : const Text(
                                           "MASUK",
                                           style: TextStyle(
-                                            color: Colors
-                                                .white, // teks lebih kontras
+                                            color: Colors.white,
                                             fontWeight: FontWeight.bold,
                                             fontSize: 16,
                                             shadows: [
                                               Shadow(
-                                                // biar teks lebih menonjol
                                                 offset: Offset(0, 1),
                                                 blurRadius: 2,
                                                 color: Colors.black26,
@@ -619,6 +620,62 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                             ),
                           ),
+
+                          // SizedBox(
+                          //   width: double.infinity,
+                          //   height: 45,
+                          //   child: ElevatedButton(
+                          //     onPressed: _isLoading ? null : _login,
+                          //     style: ElevatedButton.styleFrom(
+                          //       padding: EdgeInsets.zero,
+                          //       shape: RoundedRectangleBorder(
+                          //         borderRadius: BorderRadius.circular(10),
+                          //         side: const BorderSide(
+                          //           color: Colors.green,
+                          //           width: 2,
+                          //         ), // border tombol
+                          //       ),
+                          //     ),
+                          //     child: Ink(
+                          //       decoration: BoxDecoration(
+                          //         gradient: const LinearGradient(
+                          //           begin: Alignment.topLeft,
+                          //           end: Alignment.bottomRight,
+                          //           colors: [
+                          //             Color.fromARGB(255, 255, 235, 188),
+                          //             Color.fromARGB(255, 181, 255, 183),
+                          //           ],
+                          //         ),
+                          //         borderRadius: BorderRadius.circular(10),
+                          //       ),
+                          //       child: Container(
+                          //         alignment: Alignment.center,
+                          //         child: _isLoading
+                          //             ? const CircularProgressIndicator(
+                          //                 color: Colors.white,
+                          //                 strokeWidth: 2,
+                          //               )
+                          //             : const Text(
+                          //                 "MASUK",
+                          //                 style: TextStyle(
+                          //                   color: Colors
+                          //                       .white, // teks lebih kontras
+                          //                   fontWeight: FontWeight.bold,
+                          //                   fontSize: 16,
+                          //                   shadows: [
+                          //                     Shadow(
+                          //                       // biar teks lebih menonjol
+                          //                       offset: Offset(0, 1),
+                          //                       blurRadius: 2,
+                          //                       color: Colors.black26,
+                          //                     ),
+                          //                   ],
+                          //                 ),
+                          //               ),
+                          //       ),
+                          //     ),
+                          //   ),
+                          // ),
 
                           // SizedBox(
                           //   width: double.infinity,
