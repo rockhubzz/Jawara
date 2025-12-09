@@ -3,13 +3,14 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'network_discovery.dart';
 
+
 class AuthService {
   static String? ip;
 
   static String? get baseUrl {
     if (ip == null)
-      return "http://192.168.70.175:8000/api"; // ip address api (punya roki)
-    // if (ip == null) return "http://127.0.0.1:8000/api"; // ip address api (kalo run di chrome)
+      //return "http://192.168.70.175:8000/api"; // ip address api (punya roki)
+      if (ip == null) return "http://127.0.0.1:8000/api"; // ip address api (kalo run di chrome)
     //if (ip == null) return "http://10.158.65.225:8000/api"; // ip address api (punya bella)
     return "http://$ip:8000/api";
   }

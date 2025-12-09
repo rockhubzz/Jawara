@@ -179,7 +179,7 @@ class MyApp extends StatelessWidget {
         ),
         GoRoute(
           path: '/kegiatan/daftar_broad',
-          builder: (context, state) => const BroadcastDaftarPage(),
+          builder: (context, state) => BroadcastDaftarPage(),
         ),
         GoRoute(
           path: '/kegiatan/tambah_broad',
