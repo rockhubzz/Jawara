@@ -51,11 +51,19 @@ class _PemasukanLainDaftarState extends State<PemasukanLainDaftar> {
 
   @override
   Widget build(BuildContext context) {
+    final from =
+        GoRouterState.of(context).uri.queryParameters['from'] ?? 'semua';
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Color(0xFF2E7D32)),
-          onPressed: () => context.go('/beranda/semua_menu'),
+          onPressed: () {
+            if (from == 'pemasukan_menu') {
+              context.go('/beranda/pemasukan_menu');
+            } else {
+              context.go('/beranda/semua_menu');
+            }
+          },
         ),
 
         title: const Text(
