@@ -17,6 +17,9 @@ class _DaftarMetodePembayaranPageState
   String? cleanUrl;
   List<Map<String, dynamic>> metodePembayaran = [];
 
+  final Color primaryGreen = const Color(0xFF2E7D32);
+  final Color softGreenBg = const Color(0xFFE8F5E9);
+
   @override
   void initState() {
     String? baseUrl = AuthService.baseUrl;
@@ -49,11 +52,13 @@ class _DaftarMetodePembayaranPageState
     }
   }
 
+  // Bottom Sheet (Edit / Hapus)
   void _showActionMenu(BuildContext ctx, Map<String, dynamic> item) {
     showModalBottomSheet(
       context: ctx,
+      backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (_) {
         return SafeArea(
@@ -61,7 +66,7 @@ class _DaftarMetodePembayaranPageState
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: const Icon(Icons.edit),
+                leading: Icon(Icons.edit, color: primaryGreen),
                 title: const Text('Edit'),
                 onTap: () {
                   Navigator.pop(ctx);
@@ -83,25 +88,29 @@ class _DaftarMetodePembayaranPageState
     );
   }
 
+  // Alert delete popup
   void _confirmDelete(int id) {
     showDialog(
       context: context,
       builder: (_) {
         return AlertDialog(
-          title: const Text("Hapus Data"),
+          title: Text(
+            "Hapus Data",
+            style: TextStyle(fontWeight: FontWeight.bold, color: primaryGreen),
+          ),
           content: const Text("Yakin ingin menghapus channel ini?"),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text("Batal"),
+              child: Text("Batal", style: TextStyle(color: primaryGreen)),
             ),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              style: ElevatedButton.styleFrom(backgroundColor: primaryGreen),
               onPressed: () {
                 Navigator.pop(context);
                 _delete(id);
               },
-              child: const Text("Hapus"),
+              child: const Text("Hapus", style: TextStyle(color: Colors.white)),
             ),
           ],
         );
@@ -112,19 +121,19 @@ class _DaftarMetodePembayaranPageState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: softGreenBg,
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(Icons.arrow_back, color: primaryGreen),
           onPressed: () => context.go('/beranda/semua_menu'),
         ),
         backgroundColor: Colors.white,
-        elevation: 0,
-        title: const Text(
+        elevation: 1,
+        title: Text(
           'Daftar Metode Pembayaran',
-          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
+          style: TextStyle(color: primaryGreen, fontWeight: FontWeight.w600),
         ),
-        iconTheme: const IconThemeData(color: Colors.black87),
+        iconTheme: IconThemeData(color: primaryGreen),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -141,7 +150,7 @@ class _DaftarMetodePembayaranPageState
                       borderRadius: BorderRadius.circular(16),
                     ),
                     color: Colors.white,
-                    elevation: 2,
+                    elevation: 3,
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Row(
@@ -149,11 +158,11 @@ class _DaftarMetodePembayaranPageState
                         children: [
                           CircleAvatar(
                             radius: 18,
-                            backgroundColor: const Color(0xFFE0E7FF),
+                            backgroundColor: primaryGreen.withOpacity(0.15),
                             child: Text(
                               (index + 1).toString(),
-                              style: const TextStyle(
-                                color: Color(0xFF3730A3),
+                              style: TextStyle(
+                                color: primaryGreen,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -166,9 +175,10 @@ class _DaftarMetodePembayaranPageState
                               children: [
                                 Text(
                                   item['nama'] ?? '-',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontWeight: FontWeight.w600,
                                     fontSize: 16,
+                                    color: Colors.black87,
                                   ),
                                   overflow: TextOverflow.ellipsis,
                                 ),
@@ -203,14 +213,12 @@ class _DaftarMetodePembayaranPageState
                               height: 50,
                               width: 50,
                               decoration: BoxDecoration(
-                                color: const Color(0xFFF1F5F9),
+                                color: Colors.white,
                                 borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                  color: const Color(0xFFE2E8F0),
-                                ),
+                                border: Border.all(color: Colors.grey.shade300),
                               ),
                               alignment: Alignment.center,
-                              child: const Text(
+                              child: Text(
                                 '-',
                                 style: TextStyle(color: Colors.black54),
                               ),
@@ -218,8 +226,7 @@ class _DaftarMetodePembayaranPageState
 
                           IconButton(
                             onPressed: () => _showActionMenu(context, item),
-                            icon: const Icon(Icons.more_horiz),
-                            color: Colors.black54,
+                            icon: Icon(Icons.more_horiz, color: primaryGreen),
                           ),
                         ],
                       ),
@@ -228,10 +235,11 @@ class _DaftarMetodePembayaranPageState
                 },
               ),
       ),
+
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.go('/channel_transfer/tambah'),
-        backgroundColor: const Color(0xFF5B43F1),
-        child: const Icon(Icons.add),
+        backgroundColor: primaryGreen,
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }
@@ -240,12 +248,12 @@ class _DaftarMetodePembayaranPageState
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: const Color(0xFFF1F5F9),
+        color: primaryGreen.withOpacity(0.12),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
         "$label: $value",
-        style: const TextStyle(fontSize: 13, color: Colors.black87),
+        style: TextStyle(fontSize: 13, color: primaryGreen),
         overflow: TextOverflow.ellipsis,
       ),
     );
