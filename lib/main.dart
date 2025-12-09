@@ -203,10 +203,10 @@ class MyApp extends StatelessWidget {
           path: '/penerimaan/warga',
           builder: (context, state) => const PenerimaanWargaPage(),
         ),
-        GoRoute(
-          path: '/mutasi_keluarga/daftar',
-          builder: (context, state) => const DaftarPage(),
-        ),
+        // GoRoute(
+        //   path: '/mutasi_keluarga/daftar',
+        //   builder: (context, state) => const DaftarPage(),
+        // ),
         GoRoute(
           path: '/mutasi',
           builder: (context, state) => const DaftarPage(),

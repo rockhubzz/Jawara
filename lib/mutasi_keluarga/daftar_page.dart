@@ -90,6 +90,8 @@ class _DaftarPageState extends State<DaftarPage> {
 
   @override
   Widget build(BuildContext context) {
+    final from =
+        GoRouterState.of(context).uri.queryParameters['from'] ?? 'semua';
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 700;
 
@@ -98,7 +100,13 @@ class _DaftarPageState extends State<DaftarPage> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => context.go('/beranda/semua_menu'),
+          onPressed: () {
+            if (from == 'beranda') {
+              context.go('/beranda');
+            } else {
+              context.go('/beranda/semua_menu');
+            }
+          },
         ),
 
         backgroundColor: Colors.white,
