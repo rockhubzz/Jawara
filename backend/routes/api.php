@@ -104,3 +104,7 @@ Route::get('/glance/rekap-penduduk', [DashboardController::class, 'getKependuduk
 Route::get('/glance/kegiatan', [DashboardController::class, 'KegiatanStats']);
 Route::get('/glance/kegiatan/countByKategori', [DashboardController::class, 'countByKategori']);
 Route::get('/glance/kegiatan/countKegiatanPerBulan', [DashboardController::class, 'countKegiatanPerBulan']);
+
+use App\Http\Controllers\Api\ChannelTransferController;
+
+Route::apiResource('channel-transfer', ChannelTransferController::class);

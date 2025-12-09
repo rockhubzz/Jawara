@@ -119,28 +119,28 @@ class _SemuaMenuPageState extends State<SemuaMenuPage> {
           ),
         ],
       ),
-      MenuSection(
-        title: "PESAN & ASPIRASI WARGA",
-        items: [
-          MenuItem(
-            "Informasi Aspirasi",
-            Icons.forum,
-            Colors.blue,
-            onTap: () => context.go('/pesan/informasi'),
-          ),
-        ],
-      ),
-      MenuSection(
-        title: "PENERIMAAN WARGA BARU",
-        items: [
-          MenuItem(
-            "Penerimaan Warga",
-            Icons.how_to_reg,
-            Colors.green,
-            onTap: () => context.go('/penerimaan/warga'),
-          ),
-        ],
-      ),
+      // MenuSection(
+      //   title: "PESAN & ASPIRASI WARGA",
+      //   items: [
+      //     MenuItem(
+      //       "Informasi Aspirasi",
+      //       Icons.forum,
+      //       Colors.blue,
+      //       onTap: () => context.go('/pesan/informasi'),
+      //     ),
+      //   ],
+      // ),
+      // MenuSection(
+      //   title: "PENERIMAAN WARGA BARU",
+      //   items: [
+      //     MenuItem(
+      //       "Penerimaan Warga",
+      //       Icons.how_to_reg,
+      //       Colors.green,
+      //       onTap: () => context.go('/penerimaan/warga'),
+      //     ),
+      //   ],
+      // ),
       MenuSection(
         title: "MUTASI KELUARGA",
         items: [
@@ -158,17 +158,17 @@ class _SemuaMenuPageState extends State<SemuaMenuPage> {
           ),
         ],
       ),
-      MenuSection(
-        title: "LOG AKTIVITAS",
-        items: [
-          MenuItem(
-            "Semua Aktivitas",
-            Icons.list_alt,
-            Colors.blue,
-            onTap: () => context.go('/log_aktivitas/semua_aktivitas'),
-          ),
-        ],
-      ),
+      // MenuSection(
+      //   title: "LOG AKTIVITAS",
+      //   items: [
+      //     MenuItem(
+      //       "Semua Aktivitas",
+      //       Icons.list_alt,
+      //       Colors.blue,
+      //       onTap: () => context.go('/log_aktivitas/semua_aktivitas'),
+      //     ),
+      //   ],
+      // ),
       MenuSection(
         title: "LAPORAN KEUANGAN",
         items: [

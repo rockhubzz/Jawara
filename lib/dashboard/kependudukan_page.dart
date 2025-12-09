@@ -54,7 +54,7 @@ class _KependudukanPageState extends State<KependudukanPage> {
         elevation: 0.5,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => context.go('/beranda/semua_menu'),
+          onPressed: () => context.go('/beranda'),
         ),
         title: const Text(
           "Data Kependudukan",

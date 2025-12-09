@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:jawara/data_warga_rumah/daftar_rumah_page.dart';
 import 'package:jawara/data_warga_rumah/tambahWarga_page.dart';
 import 'package:jawara/services/rumah_service.dart';
 
@@ -75,7 +76,10 @@ class _TambahRumahPageState extends State<TambahRumahPage> {
     if (!mounted) return;
 
     if (ok) {
-      context.go('/data_warga_rumah/daftarRumah');
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const RumahListPage()),
+      );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
