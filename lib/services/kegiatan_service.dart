@@ -117,4 +117,61 @@ class KegiatanService {
 
     return true;
   }
+
+  static Future<Map<String, dynamic>> getGlance() async {
+    final token = await _getToken();
+
+    final resp = await http.get(
+      Uri.parse('$baseUrl/glance/kegiatan'),
+      headers: {
+        'Accept': 'application/json',
+        if (token != null) 'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (resp.statusCode == 200) {
+      final data = json.decode(resp.body);
+      return data; // return seluruh map
+    } else {
+      throw Exception('Gagal mengambil data: ${resp.statusCode}');
+    }
+  }
+
+  static Future<List<dynamic>> countByKategori() async {
+    final token = await _getToken();
+
+    final resp = await http.get(
+      Uri.parse('$baseUrl/glance/kegiatan/countByKategori'),
+      headers: {
+        'Accept': 'application/json',
+        if (token != null) 'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (resp.statusCode == 200) {
+      final jsonData = json.decode(resp.body);
+      return jsonData['data'];
+    } else {
+      throw Exception('Gagal memuat data kategori');
+    }
+  }
+
+  static Future<List<dynamic>> countKegiatanPerBulan() async {
+    final token = await _getToken();
+
+    final resp = await http.get(
+      Uri.parse('$baseUrl/glance/kegiatan/countKegiatanPerBulan'),
+      headers: {
+        'Accept': 'application/json',
+        if (token != null) 'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (resp.statusCode == 200) {
+      final jsonData = json.decode(resp.body);
+      return jsonData['data'];
+    } else {
+      throw Exception('Gagal memuat data kategori');
+    }
+  }
 }

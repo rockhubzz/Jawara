@@ -24,6 +24,7 @@ class KegiatanController extends Controller
             'nama' => 'required|string|max:255',
             'kategori' => 'nullable|string|max:100',
             'penanggung_jawab' => 'nullable|string|max:150',
+            'biaya' => 'nullable|integer',
             'tanggal' => 'nullable|date',
             'lokasi' => 'nullable|string',
         ]);
@@ -47,6 +48,7 @@ class KegiatanController extends Controller
             'nama' => 'required|string|max:255',
             'kategori' => 'nullable|string|max:100',
             'penanggung_jawab' => 'nullable|string|max:150',
+            'biaya' => 'nullable|integer',
             'tanggal' => 'nullable|date',
             'lokasi' => 'nullable|string',
         ]);
