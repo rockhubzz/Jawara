@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:jawara/data_warga_rumah/daftar_warga_page.dart';
 import 'package:jawara/services/keluarga_service.dart';
 import 'package:jawara/services/warga_service.dart';
 
@@ -82,7 +83,10 @@ class _TambahWargaPageState extends State<TambahWargaPage> {
     if (!mounted) return;
 
     if (ok) {
-      context.go('/data_warga_rumah/daftarWarga');
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const WargaListPage()),
+      );
     } else {
       ScaffoldMessenger.of(
         context,
@@ -239,7 +243,7 @@ class _TambahWargaPageState extends State<TambahWargaPage> {
                         validator: (v) => v == null ? "Pilih Keluarga" : null,
                       ),
                       const SizedBox(height: 16),
-                  
+
                       _buildTextField(
                         "Nama",
                         nama,
