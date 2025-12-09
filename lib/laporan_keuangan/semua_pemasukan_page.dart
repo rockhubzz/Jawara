@@ -15,7 +15,6 @@ class _SemuaPemasukanState extends State<SemuaPemasukan> {
 
   List<Map<String, dynamic>> pemasukanList = [];
   bool loading = true;
-  int currentPage = 1;
 
   @override
   void initState() {
@@ -30,10 +29,8 @@ class _SemuaPemasukanState extends State<SemuaPemasukan> {
     List lain = res["pemasukan_lain"] ?? [];
 
     final List<Map<String, dynamic>> combined = [];
-
     int index = 1;
 
-    // Parse Tagihan Iuran (pemasukan otomatis)
     for (var item in tagihan) {
       combined.add({
         "no": index.toString(),
@@ -45,7 +42,6 @@ class _SemuaPemasukanState extends State<SemuaPemasukan> {
       index++;
     }
 
-    // Parse Pemasukan Lain (manual)
     for (var item in lain) {
       combined.add({
         "no": index.toString(),
@@ -67,36 +63,41 @@ class _SemuaPemasukanState extends State<SemuaPemasukan> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: const Color(0xFFF5F7FA),
+      backgroundColor: const Color(0xFFF4F6F8),
 
       body: Stack(
         children: [
-          // ================= LOADING =================
-          if (loading) const Center(child: CircularProgressIndicator()),
+          if (loading)
+            const Center(
+              child: CircularProgressIndicator(color: Color(0xFF2E7D32)),
+            ),
 
           if (!loading)
             Padding(
               padding: const EdgeInsets.only(
-                top: 80,
+                top: 90,
                 left: 16,
                 right: 16,
                 bottom: 16,
               ),
               child: Card(
-                elevation: 3,
+                elevation: 4,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(18),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(18.0),
 
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // ================= HEADER =================
                       const Center(
                         child: Text(
                           "Laporan Pemasukan",
                           style: TextStyle(
-                            fontSize: 20,
+                            color: Color(0xFF2E7D32),
+                            fontSize: 22,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -104,52 +105,97 @@ class _SemuaPemasukanState extends State<SemuaPemasukan> {
 
                       const SizedBox(height: 16),
 
-                      // LIST PEMASUKAN
+                      // ================= LIST =================
                       Expanded(
                         child: ListView.builder(
                           itemCount: pemasukanList.length,
                           itemBuilder: (context, index) {
                             final item = pemasukanList[index];
-                            return Card(
-                              elevation: 2,
-                              margin: const EdgeInsets.symmetric(vertical: 8),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
 
-                              child: Padding(
-                                padding: const EdgeInsets.all(12.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                            return Container(
+                              margin: const EdgeInsets.symmetric(vertical: 6),
 
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          "No: ${item['no']}",
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14,
-                                          ),
+                              child: Card(
+                                elevation: 2,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      // ICON LINGKARAN
+                                      Container(
+                                        width: 45,
+                                        height: 45,
+                                        decoration: BoxDecoration(
+                                          color: const Color(
+                                            0xFF2E7D32,
+                                          ).withOpacity(0.15),
+                                          shape: BoxShape.circle,
                                         ),
-                                        const Icon(Icons.more_horiz),
-                                      ],
-                                    ),
-
-                                    const SizedBox(height: 6),
-
-                                    Text("Nama: ${item['nama']}"),
-                                    Text("Jenis: ${item['jenis']}"),
-                                    Text("Tanggal: ${item['tanggal']}"),
-                                    Text(
-                                      "Nominal: ${item['nominal']}",
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w600,
+                                        child: const Icon(
+                                          Icons.attach_money,
+                                          color: Color(0xFF2E7D32),
+                                          size: 26,
+                                        ),
                                       ),
-                                    ),
-                                  ],
+
+                                      const SizedBox(width: 14),
+
+                                      // DATA UTAMA
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              item["nama"] ?? "-",
+                                              style: const TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+
+                                            const SizedBox(height: 4),
+
+                                            Text(
+                                              "Jenis: ${item["jenis"]}",
+                                              style: const TextStyle(
+                                                color: Colors.black87,
+                                                fontSize: 14,
+                                              ),
+                                            ),
+
+                                            Text(
+                                              "Tanggal: ${item["tanggal"]}",
+                                              style: const TextStyle(
+                                                color: Colors.black87,
+                                                fontSize: 14,
+                                              ),
+                                            ),
+
+                                            const SizedBox(height: 4),
+
+                                            Text(
+                                              item["nominal"],
+                                              style: const TextStyle(
+                                                color: Color(0xFF2E7D32),
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+
+                                      // TITIK TIGA
+                                      const Icon(Icons.more_vert),
+                                    ],
+                                  ),
                                 ),
                               ),
                             );
@@ -162,11 +208,12 @@ class _SemuaPemasukanState extends State<SemuaPemasukan> {
               ),
             ),
 
+          // BACK BUTTON
           Positioned(
-            top: 20,
+            top: 22,
             left: 16,
             child: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.black),
+              icon: const Icon(Icons.arrow_back, color: Colors.black, size: 28),
               onPressed: () => context.go('/beranda/semua_menu'),
             ),
           ),

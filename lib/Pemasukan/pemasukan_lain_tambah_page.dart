@@ -38,9 +38,6 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(primary: Color(0xFF2E7D32)),
-            textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(foregroundColor: Color(0xFF2E7D32)),
-            ),
           ),
           child: child!,
         );
@@ -66,7 +63,6 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
     setState(() => isLoadingReset = true);
 
     await Future.delayed(const Duration(seconds: 1));
-
     _formKey.currentState?.reset();
     _namaController.clear();
     _nominalController.clear();
@@ -89,7 +85,7 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
       "jenis": _kategori,
       "tanggal": _tanggalController.text,
       "nominal": _nominalController.text,
-      "bukti": null, // karena service tidak menerima file
+      "bukti": null,
     };
 
     final ok = await PemasukanService.create(payload);
@@ -104,7 +100,7 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
         ),
       );
 
-      context.go('/pemasukan/lain_daftar'); // kembali ke list
+      context.go('/pemasukan/lain_daftar');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -130,21 +126,19 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
           border: OutlineInputBorder(
             borderSide: BorderSide(color: Color(0xFF2E7D32)),
           ),
-          hintStyle: TextStyle(
-            color: Color(0xFF7E8A97), // <--- warna abu modern, sama semua hint
-            fontSize: 14,
-          ),
+          hintStyle: TextStyle(color: Color(0xFF7E8A97), fontSize: 14),
           labelStyle: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.w600,
           ),
         ),
       ),
+
       child: Scaffold(
-        extendBodyBehindAppBar: true, // <<--- Biar gradient sampai atas
+        extendBodyBehindAppBar: true,
         appBar: AppBar(
           backgroundColor: Colors.white,
-          elevation: 0.5,
+          elevation: 1,
           leading: IconButton(
             icon: const Icon(
               Icons.arrow_back_ios_new,
@@ -155,39 +149,38 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
           title: const Text(
             "Tambah Pemasukan Lain",
             style: TextStyle(
-              fontSize: 20,
               fontWeight: FontWeight.bold,
               color: Color(0xFF2E7D32),
             ),
           ),
         ),
 
-        // BACKGROUND GRADIENT
         body: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
+              colors: [
+                Color.fromARGB(255, 255, 244, 214),
+                Color.fromARGB(255, 199, 255, 201),
+              ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [
-                Color.fromARGB(255, 255, 235, 188),
-                Color.fromARGB(255, 181, 255, 183),
-              ],
             ),
           ),
+
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
             child: Center(
               child: Container(
                 padding: const EdgeInsets.all(24),
-                constraints: const BoxConstraints(maxWidth: 500),
+                constraints: const BoxConstraints(maxWidth: 520),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.92),
-                  borderRadius: BorderRadius.circular(16),
+                  color: Colors.white.withOpacity(0.95),
+                  borderRadius: BorderRadius.circular(18),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.white.withOpacity(0.3),
+                      color: Colors.black.withOpacity(0.08),
                       blurRadius: 12,
-                      spreadRadius: 2,
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
@@ -195,14 +188,7 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
                 child: Form(
                   key: _formKey,
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        "Isi data berikut untuk menambahkan pemasukan baru",
-                        style: TextStyle(color: Colors.black54),
-                      ),
-                      const SizedBox(height: 24),
-
                       // NAMA
                       _buildTextField(
                         label: "Nama Pemasukan",
@@ -211,47 +197,47 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
                       ),
                       const SizedBox(height: 16),
 
-                      // Tanggal
                       _buildDateField(),
-
                       const SizedBox(height: 16),
 
-                      // Kategori
+                      // KATEGORI
                       _buildDropdown(
                         label: "Kategori",
                         value: _kategori,
                         items: _kategoriList,
                         onChanged: (v) => setState(() => _kategori = v),
                       ),
-
                       const SizedBox(height: 16),
 
-                      // Nominal
                       _buildTextField(
                         label: "Nominal",
                         controller: _nominalController,
                         keyboard: TextInputType.number,
                         validatorMsg: "Nominal wajib diisi",
                       ),
-
                       const SizedBox(height: 16),
 
                       // Upload bukti
-                      const Text(
-                        "Bukti Pemasukan",
-                        style: TextStyle(fontWeight: FontWeight.w600),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          "Bukti (Opsional)",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey.shade800,
+                          ),
+                        ),
                       ),
                       const SizedBox(height: 8),
 
                       GestureDetector(
                         onTap: _pickImage,
                         child: Container(
-                          height: 140,
-                          width: double.infinity,
+                          height: 150,
                           decoration: BoxDecoration(
-                            color: Colors.grey.shade200,
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.grey.shade400),
+                            border: Border.all(color: Color(0xFF2E7D32)),
+                            color: Colors.green.shade50,
                           ),
                           child: _buktiFile != null
                               ? ClipRRect(
@@ -263,8 +249,11 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
                                 )
                               : const Center(
                                   child: Text(
-                                    'Upload bukti (.png/.jpg)',
-                                    style: TextStyle(color: Colors.grey),
+                                    "Upload Bukti (jpg/png)",
+                                    style: TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 14,
+                                    ),
                                   ),
                                 ),
                         ),
@@ -275,51 +264,40 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          // SUBMIT
                           ElevatedButton(
-                            onPressed: isLoadingSubmit ? null : _submitForm,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF2E7D32),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 26,
+                              backgroundColor: Color(0xFF2E7D32),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 28,
                                 vertical: 12,
                               ),
                             ),
-                            child: isLoadingSubmit
-                                ? const SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      color: Colors.white,
-                                      strokeWidth: 2,
-                                    ),
+                            onPressed: isSubmitting ? null : _submitForm,
+                            child: isSubmitting
+                                ? CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
                                   )
                                 : const Text(
                                     "Submit",
                                     style: TextStyle(color: Colors.white),
                                   ),
                           ),
+                          const SizedBox(width: 12),
 
-                          const SizedBox(width: 10),
-
-                          // RESET
                           OutlinedButton(
-                            onPressed: isLoadingReset ? null : _resetForm,
                             style: OutlinedButton.styleFrom(
-                              side: const BorderSide(color: Color(0xFF2E7D32)),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 26,
+                              side: BorderSide(color: Color(0xFF2E7D32)),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 28,
                                 vertical: 12,
                               ),
                             ),
+                            onPressed: isLoadingReset ? null : _resetForm,
                             child: isLoadingReset
-                                ? const SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      color: Color(0xFF2E7D32),
-                                      strokeWidth: 2,
-                                    ),
+                                ? CircularProgressIndicator(
+                                    color: Color(0xFF2E7D32),
+                                    strokeWidth: 2,
                                   )
                                 : const Text(
                                     "Reset",
@@ -348,6 +326,7 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
           style: TextStyle(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 8),
+
         TextFormField(
           controller: _tanggalController,
           readOnly: true,
@@ -363,7 +342,6 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
     );
   }
 
-  // ---- Component Builder ----
   Widget _buildTextField({
     required String label,
     required TextEditingController controller,
@@ -376,13 +354,17 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
       children: [
         Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
         const SizedBox(height: 8),
+
         TextFormField(
           controller: controller,
           keyboardType: keyboard,
           decoration: InputDecoration(hintText: hint ?? "Masukkan $label"),
-          validator: (v) => validatorMsg != null && (v == null || v.isEmpty)
-              ? validatorMsg
-              : null,
+          validator: (v) {
+            if (validatorMsg != null && (v == null || v.isEmpty)) {
+              return validatorMsg;
+            }
+            return null;
+          },
         ),
       ],
     );
@@ -399,6 +381,7 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
       children: [
         Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
         const SizedBox(height: 8),
+
         DropdownButtonFormField<String>(
           value: value,
           decoration: const InputDecoration(hintText: "Pilih salah satu"),

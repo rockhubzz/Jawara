@@ -21,16 +21,13 @@ class _TambahChannelPageState extends State<TambahChannelPage> {
 
   String? selectedType;
   File? selectedImage;
-
   bool loading = false;
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
     final file = await picker.pickImage(source: ImageSource.gallery);
     if (file != null) {
-      setState(() {
-        selectedImage = File(file.path);
-      });
+      setState(() => selectedImage = File(file.path));
     }
   }
 
@@ -58,7 +55,10 @@ class _TambahChannelPageState extends State<TambahChannelPage> {
 
     if (resp['success'] == true) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Channel berhasil ditambahkan')),
+        const SnackBar(
+          content: Text('Channel berhasil ditambahkan'),
+          backgroundColor: Color(0xFF2E7D32),
+        ),
       );
       context.go('/channel_transfer/daftar');
     } else {
@@ -73,33 +73,33 @@ class _TambahChannelPageState extends State<TambahChannelPage> {
     return Scaffold(
       backgroundColor: const Color(0xFFF4F6F8),
       appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 1,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => context.go('/beranda/semua_menu'),
         ),
-
-        backgroundColor: Colors.white,
-        title: const Text('Tambah Channel'),
+        title: const Text(
+          'Tambah Channel',
+          style: TextStyle(color: Colors.black),
+        ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(22),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _label('Nama Channel'),
-              TextFormField(
-                controller: _namaController,
-                validator: (v) => v!.isEmpty ? 'Wajib diisi' : null,
-                decoration: const InputDecoration(border: OutlineInputBorder()),
-              ),
+              _label("Nama Channel"),
+              _input(_namaController),
 
               const SizedBox(height: 16),
 
-              _label('Tipe'),
+              _label("Tipe"),
               DropdownButtonFormField<String>(
                 value: selectedType,
+                decoration: _inputDecoration(),
                 validator: (v) => v == null ? 'Pilih tipe' : null,
                 items: const [
                   DropdownMenuItem(value: 'bank', child: Text('Bank')),
@@ -108,66 +108,74 @@ class _TambahChannelPageState extends State<TambahChannelPage> {
                   DropdownMenuItem(value: 'other', child: Text('Other')),
                 ],
                 onChanged: (v) => setState(() => selectedType = v),
-                decoration: const InputDecoration(border: OutlineInputBorder()),
               ),
 
               const SizedBox(height: 16),
 
-              _label('Nomor Rekening / Akun'),
-              TextFormField(
-                controller: _nomorController,
-                decoration: const InputDecoration(border: OutlineInputBorder()),
-              ),
+              _label("Nomor Rekening / Akun"),
+              _input(_nomorController),
 
               const SizedBox(height: 16),
 
-              _label('Nama Pemilik (A/N)'),
-              TextFormField(
-                controller: _anController,
-                decoration: const InputDecoration(border: OutlineInputBorder()),
-              ),
+              _label("Nama Pemilik (A/N)"),
+              _input(_anController),
 
               const SizedBox(height: 16),
 
-              _label('Thumbnail (jpg/png)'),
+              _label("Thumbnail (jpg/png)"),
               GestureDetector(
                 onTap: _pickImage,
                 child: Container(
-                  height: 110,
+                  height: 120,
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF7F7F7),
-                    borderRadius: BorderRadius.circular(8),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: Colors.grey.shade300),
                   ),
                   alignment: Alignment.center,
                   child: selectedImage == null
-                      ? const Text("Pilih Gambar")
-                      : Image.file(selectedImage!, fit: BoxFit.cover),
+                      ? const Text("Klik untuk memilih gambar")
+                      : ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.file(
+                            selectedImage!,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                          ),
+                        ),
                 ),
               ),
 
               const SizedBox(height: 16),
 
-              _label('Notes'),
+              _label("Notes"),
               TextFormField(
                 controller: _notesController,
                 maxLines: 3,
-                decoration: const InputDecoration(border: OutlineInputBorder()),
+                decoration: _inputDecoration(),
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 26),
 
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  ElevatedButton(
-                    onPressed: loading ? null : _submit,
-                    child: loading
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text('Simpan'),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: loading ? null : _submit,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF2E7D32),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                ],
+                  child: loading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text(
+                          "Simpan",
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        ),
+                ),
               ),
             ],
           ),
@@ -176,10 +184,39 @@ class _TambahChannelPageState extends State<TambahChannelPage> {
     );
   }
 
+  // -------------------- UI HELPERS --------------------
+
   Widget _label(String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
-      child: Text(text, style: const TextStyle(fontWeight: FontWeight.w600)),
+      child: Text(
+        text,
+        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+      ),
+    );
+  }
+
+  Widget _input(TextEditingController c) {
+    return TextFormField(
+      controller: c,
+      validator: (v) => v!.isEmpty ? 'Wajib diisi' : null,
+      decoration: _inputDecoration(),
+    );
+  }
+
+  InputDecoration _inputDecoration() {
+    return InputDecoration(
+      filled: true,
+      fillColor: Colors.white,
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Colors.grey.shade300),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Color(0xFF2E7D32), width: 1.4),
+      ),
     );
   }
 }

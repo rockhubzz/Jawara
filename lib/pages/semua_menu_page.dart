@@ -148,13 +148,14 @@ class _SemuaMenuPageState extends State<SemuaMenuPage> {
             "Daftar Mutasi",
             Icons.list_alt,
             Colors.orange,
-            onTap: () => context.go('/mutasi_keluarga/daftar'),
+            onTap: () => context.go('/mutasi?from=semua'),
           ),
+
           MenuItem(
             "Tambah Mutasi",
             Icons.add_box,
             Colors.teal,
-            onTap: () => context.go('/mutasi_keluarga/tambah'),
+            onTap: () => context.go('/mutasi/tambah'),
           ),
         ],
       ),
