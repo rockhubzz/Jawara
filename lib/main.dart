@@ -30,7 +30,6 @@ import 'pemasukan/pemasukan_lain_edit.dart';
 import 'pesan_warga/informasi_aspirasi_page.dart';
 import 'penerimaan_warga/penerimaan_warga_page.dart';
 import 'mutasi_keluarga/daftar_page.dart';
-import 'mutasi_keluarga/tambah_page.dart';
 import 'log_aktivitas/semua_aktivitas_page.dart';
 import 'manajemen_pengguna/daftar_pengguna_page.dart';
 import 'manajemen_pengguna/tambah_pengguna_page.dart';
@@ -210,15 +209,6 @@ class MyApp extends StatelessWidget {
         GoRoute(
           path: '/mutasi',
           builder: (context, state) => const DaftarPage(),
-        ),
-        GoRoute(
-          path: '/mutasi/tambah', // supports optional ?id=123
-          builder: (context, state) {
-            final idStr = state.uri.queryParameters['id'];
-            return BuatMutasiKeluargaPage(
-              id: idStr != null ? int.tryParse(idStr) : null,
-            );
-          },
         ),
         GoRoute(
           path: '/channel/edit/:id',
