@@ -12,7 +12,6 @@ class Warga extends Model
         'nama',
         'nik',
         'keluarga_id',
-        'alamat',
         'jenis_kelamin',
         'status_domisili',
         'status_hidup',
