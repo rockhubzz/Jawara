@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../widgets/appDrawer.dart';
 
 class InformasiAspirasiPage extends StatelessWidget {
@@ -15,14 +16,14 @@ class InformasiAspirasiPage extends StatelessWidget {
         "pengirim": "Admin Jawara",
         "judul": "Gotong Royong di Kampus Polinema",
         "status": "Terkirim",
-        "tanggal": "17 Oktober 2025"
+        "tanggal": "17 Oktober 2025",
       },
       {
         "no": 2,
         "pengirim": "Admin Jawara",
         "judul": "Kerja Bakti Bersama Masyarakat Sekitar",
         "status": "Dijadwalkan",
-        "tanggal": "14 Oktober 2025"
+        "tanggal": "14 Oktober 2025",
       },
     ];
 
@@ -33,16 +34,11 @@ class InformasiAspirasiPage extends StatelessWidget {
         elevation: 0.5,
         title: const Text(
           "Informasi Aspirasi",
-          style: TextStyle(
-            color: Colors.black87,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
         ),
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(Icons.menu, color: Colors.black87),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-          ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => context.go('/beranda/semua_menu'),
         ),
       ),
       body: SafeArea(
@@ -87,7 +83,9 @@ class InformasiAspirasiPage extends StatelessWidget {
                             backgroundColor: const Color(0xFF6C63FF),
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 10),
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
@@ -117,7 +115,9 @@ class InformasiAspirasiPage extends StatelessWidget {
                           ),
                           Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 6),
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
                             decoration: BoxDecoration(
                               color: const Color(0xFF6C63FF),
                               borderRadius: BorderRadius.circular(6),
@@ -150,10 +150,7 @@ class InformasiAspirasiPage extends StatelessWidget {
       child: ConstrainedBox(
         constraints: const BoxConstraints(minWidth: 800),
         child: Table(
-          border: TableBorder.all(
-            color: const Color(0xFFE0E0E0),
-            width: 1,
-          ),
+          border: TableBorder.all(color: const Color(0xFFE0E0E0), width: 1),
           columnWidths: const {
             0: FlexColumnWidth(0.6),
             1: FlexColumnWidth(1.4),
@@ -175,13 +172,15 @@ class InformasiAspirasiPage extends StatelessWidget {
                 _HeaderCell("AKSI"),
               ],
             ),
-            ...data.map((item) => _dataRowTable(
-                  item["no"],
-                  item["pengirim"],
-                  item["judul"],
-                  item["status"],
-                  item["tanggal"],
-                )),
+            ...data.map(
+              (item) => _dataRowTable(
+                item["no"],
+                item["pengirim"],
+                item["judul"],
+                item["status"],
+                item["tanggal"],
+              ),
+            ),
           ],
         ),
       ),
@@ -196,10 +195,13 @@ class InformasiAspirasiPage extends StatelessWidget {
               elevation: 1,
               margin: const EdgeInsets.symmetric(vertical: 6),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
+                borderRadius: BorderRadius.circular(10),
+              ),
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -222,7 +224,9 @@ class InformasiAspirasiPage extends StatelessWidget {
                       children: [
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             color: item["status"] == "Terkirim"
                                 ? Colors.green.withOpacity(0.15)
@@ -251,14 +255,20 @@ class InformasiAspirasiPage extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         IconButton(
-                          icon:
-                              const Icon(Icons.edit, color: Colors.amber, size: 20),
+                          icon: const Icon(
+                            Icons.edit,
+                            color: Colors.amber,
+                            size: 20,
+                          ),
                           tooltip: 'Edit',
                           onPressed: () {},
                         ),
                         IconButton(
-                          icon: const Icon(Icons.delete,
-                              color: Colors.redAccent, size: 20),
+                          icon: const Icon(
+                            Icons.delete,
+                            color: Colors.redAccent,
+                            size: 20,
+                          ),
                           tooltip: 'Hapus',
                           onPressed: () {},
                         ),
@@ -313,7 +323,12 @@ class _DataCell extends StatelessWidget {
 
 // Data row builder
 TableRow _dataRowTable(
-    int no, String pengirim, String judul, String status, String tanggal) {
+  int no,
+  String pengirim,
+  String judul,
+  String status,
+  String tanggal,
+) {
   return TableRow(
     children: [
       _DataCell(Text(no.toString())),
@@ -331,8 +346,9 @@ TableRow _dataRowTable(
           child: Text(
             status,
             style: TextStyle(
-              color:
-                  status == "Terkirim" ? Colors.green[700] : Colors.orange[700],
+              color: status == "Terkirim"
+                  ? Colors.green[700]
+                  : Colors.orange[700],
               fontWeight: FontWeight.w600,
               fontSize: 13,
             ),

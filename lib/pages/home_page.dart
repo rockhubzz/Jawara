@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:jawara/widgets/appDrawer.dart';
 import '/services/auth_service.dart';
+import '/services/dashboard_service.dart';
+import 'package:intl/intl.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -12,11 +14,20 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   String? username;
+  int saldo = 0;
+  int keluarga = 0;
+  int kegiatan = 0;
+  bool loadingKegiatan = true;
+  bool loadingKeluarga = true;
+  bool loadingSaldo = true;
 
   @override
   void initState() {
     super.initState();
     loadUser();
+    _loadSaldo();
+    _loadKeluarga();
+    _loadKegiatan();
   }
 
   Future<void> loadUser() async {
@@ -25,6 +36,62 @@ class _HomePageState extends State<HomePage> {
       setState(() {
         username = user['name']; // get username
       });
+    }
+  }
+
+  String formatRupiah(dynamic value) {
+    final number = int.tryParse(value.toString()) ?? 0;
+    final formatter = NumberFormat.currency(
+      locale: 'id_ID',
+      symbol: 'Rp ',
+      decimalDigits: 0,
+    );
+    return formatter.format(number);
+  }
+
+  Future<void> _loadSaldo() async {
+    try {
+      final result = await DashboardService.getSaldo();
+      if (!mounted) return;
+
+      setState(() {
+        saldo = result;
+        loadingSaldo = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() => loadingSaldo = false);
+    }
+  }
+
+  Future<void> _loadKeluarga() async {
+    try {
+      final result = await DashboardService.getKeluarga();
+      if (!mounted) return;
+      setState(() {
+        keluarga = result;
+        loadingKeluarga = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => loadingKeluarga = false);
+    }
+  }
+
+  Future<void> _loadKegiatan() async {
+    try {
+      final result = await DashboardService.getKegiatan();
+
+      if (!mounted) return;
+
+      setState(() {
+        kegiatan = result;
+        loadingKegiatan = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => loadingKegiatan = false);
     }
   }
 
@@ -73,7 +140,7 @@ class _HomePageState extends State<HomePage> {
             _buildDashboardCard(
               title: "Ringkasan Keuangan",
               subtitle: "Saldo Kas RT",
-              value: "Rp 8.450.000",
+              value: loadingSaldo ? 'Loading...' : formatRupiah(saldo),
               icon: Icons.account_balance_wallet,
               onTap: () {
                 context.go('/dashboard/keuangan');
@@ -86,7 +153,7 @@ class _HomePageState extends State<HomePage> {
             _buildDashboardCard(
               title: "Ringkasan Warga",
               subtitle: "Jumlah KK Terdaftar",
-              value: "124 KK",
+              value: loadingKeluarga ? 'Loading...' : '$keluarga KK',
               icon: Icons.people_alt,
               onTap: () {
                 context.go('/dashboard/kependudukan');
@@ -99,7 +166,7 @@ class _HomePageState extends State<HomePage> {
             _buildDashboardCard(
               title: "Kegiatan RT & Broadcast",
               subtitle: "Agenda Aktif",
-              value: "3 Kegiatan",
+              value: loadingKegiatan ? 'Loading...' : '$kegiatan Kegiatan',
               icon: Icons.event,
               onTap: () {
                 context.go('/dashboard/kegiatan');

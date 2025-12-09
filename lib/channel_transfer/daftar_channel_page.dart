@@ -1,47 +1,123 @@
 import 'package:flutter/material.dart';
-import '../widgets/appDrawer.dart';
+import 'package:jawara/services/auth_service.dart';
+import '../services/channel_transfer_service.dart';
+import 'package:go_router/go_router.dart';
 
-class DaftarMetodePembayaranPage extends StatelessWidget {
+class DaftarMetodePembayaranPage extends StatefulWidget {
   const DaftarMetodePembayaranPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final List<Map<String, dynamic>> metodePembayaran = [
-      {
-        'no': 1,
-        'nama': 'QRIS Resmi RT 08',
-        'tipe': 'qris',
-        'an': 'RW 08 Karangploso',
-        'thumbnail':
-            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTergSPbr_HF8MzOEwAk8MhgoB3JoMog0g1Kg&s',
-      },
-      {
-        'no': 2,
-        'nama': 'BCA',
-        'tipe': 'bank',
-        'an': 'jose',
-        'thumbnail':
-            'https://buatlogoonline.com/wp-content/uploads/2022/10/Logo-BCA-PNG.png',
-      },
-      {
-        'no': 3,
-        'nama': '234234',
-        'tipe': 'ewallet',
-        'an': '23234',
-        'thumbnail': '',
-      },
-      {
-        'no': 4,
-        'nama': 'Transfer via BCA',
-        'tipe': 'bank',
-        'an': 'RT Jawara Karangploso',
-        'thumbnail': '',
-      },
-    ];
+  State<DaftarMetodePembayaranPage> createState() =>
+      _DaftarMetodePembayaranPageState();
+}
 
+class _DaftarMetodePembayaranPageState
+    extends State<DaftarMetodePembayaranPage> {
+  bool _loading = true;
+  String? cleanUrl;
+  List<Map<String, dynamic>> metodePembayaran = [];
+
+  @override
+  void initState() {
+    String? baseUrl = AuthService.baseUrl;
+    cleanUrl = baseUrl!.replaceFirst('/api', '/storage');
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    try {
+      final result = await ChannelTransferService.getAll();
+
+      setState(() {
+        metodePembayaran = result;
+        _loading = false;
+      });
+    } catch (e) {
+      debugPrint("Error: $e");
+      setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _delete(int id) async {
+    final ok = await ChannelTransferService.delete(id);
+    if (ok) {
+      _loadData();
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Berhasil dihapus")));
+    }
+  }
+
+  void _showActionMenu(BuildContext ctx, Map<String, dynamic> item) {
+    showModalBottomSheet(
+      context: ctx,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.edit),
+                title: const Text('Edit'),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  context.go('/channel/edit/${item['id']}');
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.delete, color: Colors.red),
+                title: const Text('Hapus'),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _confirmDelete(item['id']);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _confirmDelete(int id) {
+    showDialog(
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          title: const Text("Hapus Data"),
+          content: const Text("Yakin ingin menghapus channel ini?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Batal"),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              onPressed: () {
+                Navigator.pop(context);
+                _delete(id);
+              },
+              child: const Text("Hapus"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => context.go('/beranda/semua_menu'),
+        ),
         backgroundColor: Colors.white,
         elevation: 0,
         title: const Text(
@@ -52,104 +128,110 @@ class DaftarMetodePembayaranPage extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: ListView.builder(
-          itemCount: metodePembayaran.length,
-          itemBuilder: (context, index) {
-            final item = metodePembayaran[index];
-            return Card(
-              margin: const EdgeInsets.only(bottom: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              color: Colors.white,
-              elevation: 2,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // === Nomor ===
-                    CircleAvatar(
-                      radius: 18,
-                      backgroundColor: const Color(0xFFE0E7FF),
-                      child: Text(
-                        item['no'].toString(),
-                        style: const TextStyle(
-                          color: Color(0xFF3730A3),
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
+        child: _loading
+            ? const Center(child: CircularProgressIndicator())
+            : ListView.builder(
+                itemCount: metodePembayaran.length,
+                itemBuilder: (context, index) {
+                  final item = metodePembayaran[index];
 
-                    // === Data utama (expand to avoid overflow) ===
-                    Expanded(
-                      child: Column(
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    color: Colors.white,
+                    elevation: 2,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            item['nama'],
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16,
+                          CircleAvatar(
+                            radius: 18,
+                            backgroundColor: const Color(0xFFE0E7FF),
+                            child: Text(
+                              (index + 1).toString(),
+                              style: const TextStyle(
+                                color: Color(0xFF3730A3),
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                            overflow: TextOverflow.ellipsis,
                           ),
-                          const SizedBox(height: 4),
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 4,
-                            children: [
-                              _infoChip('Tipe', item['tipe']),
-                              _infoChip('A/N', item['an']),
-                            ],
+                          const SizedBox(width: 12),
+
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item['nama'] ?? '-',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 4),
+                                Wrap(
+                                  spacing: 8,
+                                  runSpacing: 4,
+                                  children: [
+                                    _infoChip('Tipe', item['tipe'] ?? '-'),
+                                    _infoChip('A/N', item['an'] ?? '-'),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          const SizedBox(width: 8),
+
+                          if (item['thumbnail'] != null &&
+                              item['thumbnail'].toString().isNotEmpty)
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.network(
+                                '$cleanUrl/${item['thumbnail']}',
+                                height: 50,
+                                width: 50,
+                                fit: BoxFit.contain,
+                              ),
+                            )
+                          else
+                            Container(
+                              height: 50,
+                              width: 50,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF1F5F9),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: const Color(0xFFE2E8F0),
+                                ),
+                              ),
+                              alignment: Alignment.center,
+                              child: const Text(
+                                '-',
+                                style: TextStyle(color: Colors.black54),
+                              ),
+                            ),
+
+                          IconButton(
+                            onPressed: () => _showActionMenu(context, item),
+                            icon: const Icon(Icons.more_horiz),
+                            color: Colors.black54,
                           ),
                         ],
                       ),
                     ),
-
-                    const SizedBox(width: 8),
-
-                    // === Thumbnail (responsive size) ===
-                    if (item['thumbnail'] != null &&
-                        item['thumbnail'].toString().isNotEmpty)
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.network(
-                          item['thumbnail'],
-                          height: 50,
-                          width: 50,
-                          fit: BoxFit.contain,
-                        ),
-                      )
-                    else
-                      Container(
-                        height: 50,
-                        width: 50,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF1F5F9),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: const Color(0xFFE2E8F0)),
-                        ),
-                        alignment: Alignment.center,
-                        child: const Text(
-                          '-',
-                          style: TextStyle(color: Colors.black54),
-                        ),
-                      ),
-
-                    // === Tombol Aksi ===
-                    IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.more_horiz),
-                      color: Colors.black54,
-                    ),
-                  ],
-                ),
+                  );
+                },
               ),
-            );
-          },
-        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => context.go('/channel_transfer/tambah'),
+        backgroundColor: const Color(0xFF5B43F1),
+        child: const Icon(Icons.add),
       ),
     );
   }

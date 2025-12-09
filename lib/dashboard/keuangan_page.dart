@@ -2,18 +2,77 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:go_router/go_router.dart';
 import '../widgets/appDrawer.dart';
+import '../services/keuangan_service.dart';
 
-class KeuanganPage extends StatelessWidget {
+class KeuanganPage extends StatefulWidget {
   const KeuanganPage({super.key});
 
-  // @override
-  // Widget build(BuildContext context) {
-  //   return AppDrawer(
-  //     email: "admin1@mail.com",
-  //     currentIndex: 3, // sesuaikan posisi di navbar kamu
-  //     body: _buildBody(context),
-  //   );
-  // }
+  @override
+  State<KeuanganPage> createState() => _KeuanganPageState();
+}
+
+class _KeuanganPageState extends State<KeuanganPage> {
+  bool loading = true;
+
+  int pemasukanLain = 0;
+  int iuran = 0;
+  int pengeluaran = 0;
+  int saldo = 0;
+  List<FlSpot> pemasukanSpots = [];
+  List<FlSpot> pengeluaranSpots = [];
+  List<String> bulanLabels = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadGlance();
+  }
+
+  Future<void> _loadGlance() async {
+    try {
+      final glance = await KeuanganService.getGlance();
+      final rekap = await KeuanganService.getRekapBulanan();
+
+      // Parse glance
+      pemasukanLain = int.parse(glance['pemasukan_lain'].toString());
+      iuran = int.parse(glance['iuran'].toString());
+      pengeluaran = int.parse(glance['pengeluaran'].toString());
+      saldo = int.parse(glance['saldo'].toString());
+
+      // Parse rekap bulanan
+      final List list = rekap['data'];
+
+      pemasukanSpots.clear();
+      pengeluaranSpots.clear();
+      bulanLabels.clear();
+
+      for (int i = 0; i < list.length; i++) {
+        final item = list[i];
+
+        final bulan = item['bulan']; // contoh: 2025-10
+        final pemasukan = double.parse(item['total_pemasukan'].toString());
+        final pengeluaranVal = double.parse(
+          item['total_pengeluaran'].toString(),
+        );
+
+        bulanLabels.add(bulan.substring(5)); // ambil "10", "11", dst
+
+        pemasukanSpots.add(FlSpot(i.toDouble(), pemasukan));
+        pengeluaranSpots.add(FlSpot(i.toDouble(), pengeluaranVal));
+      }
+
+      setState(() {
+        loading = false;
+      });
+    } catch (e) {
+      print(e);
+      setState(() => loading = false);
+    }
+  }
+
+  String formatRupiah(int value) {
+    return "Rp ${value.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (match) => '.')}";
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +83,7 @@ class KeuanganPage extends StatelessWidget {
         elevation: 0.5,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => context.go('/beranda/semua_menu'),
+          onPressed: () => context.go('/beranda'),
         ),
         title: const Text(
           "Data Keuangan",
@@ -55,21 +114,21 @@ class KeuanganPage extends StatelessWidget {
                 title: "Total Pemasukan",
                 icon: Icons.account_balance_wallet_outlined,
                 color: const Color(0xFFDCE8FA),
-                value: "50 jt",
+                value: loading ? "..." : formatRupiah(pemasukanLain + iuran),
                 textColor: Colors.blue[800]!,
               ),
               _infoCard(
                 title: "Total Pengeluaran",
                 icon: Icons.money_off_outlined,
                 color: const Color(0xFFDFF6DD),
-                value: "2.1 rb",
+                value: loading ? "..." : formatRupiah(pengeluaran),
                 textColor: Colors.green[700]!,
               ),
               _infoCard(
-                title: "Jumlah Transaksi",
+                title: "Jumlah Saldo",
                 icon: Icons.receipt_long_outlined,
                 color: const Color(0xFFFFF4CC),
-                value: "5",
+                value: loading ? "..." : formatRupiah(saldo),
                 textColor: Colors.brown[700]!,
               ),
             ],
@@ -90,17 +149,17 @@ class KeuanganPage extends StatelessWidget {
                 title: "Pemasukan per Bulan",
                 color: const Color(0xFFF5EFFF),
                 barColor: Colors.lightBlueAccent,
-                data: [FlSpot(0, 10), FlSpot(1, 45)],
-                bottomLabels: const ["Agu", "Okt"],
-                leftTitle: "jt",
+                data: pemasukanSpots,
+                bottomLabels: bulanLabels,
+                leftTitle: "Rp",
               ),
               _chartCardBar(
                 title: "Pengeluaran per Bulan",
                 color: const Color(0xFFFFEBEE),
                 barColor: Colors.redAccent,
-                data: [FlSpot(1, 2.2)],
-                bottomLabels: const ["Okt"],
-                leftTitle: "rb",
+                data: pengeluaranSpots,
+                bottomLabels: bulanLabels,
+                leftTitle: "Rp",
               ),
             ],
           ),
@@ -108,80 +167,80 @@ class KeuanganPage extends StatelessWidget {
           const SizedBox(height: 25),
 
           // ================= PIE CHART =================
-          GridView.count(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisCount: MediaQuery.of(context).size.width > 700 ? 2 : 1,
-            crossAxisSpacing: 20,
-            mainAxisSpacing: 20,
-            childAspectRatio: 1.4,
-            children: [
-              _chartCard(
-                title: "Pemasukan Berdasarkan Kategori",
-                icon: Icons.trending_up_rounded,
-                color: const Color(0xFFDCE8FA),
-                sections: [
-                  PieChartSectionData(
-                    value: 99,
-                    color: Colors.blueAccent,
-                    title: "100%",
-                    titleStyle: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  PieChartSectionData(
-                    value: 1,
-                    color: Colors.orangeAccent,
-                    title: "0%",
-                    titleStyle: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-                legends: const [
-                  {
-                    "label": "Dana Bantuan Pemerintah",
-                    "color": Colors.blueAccent,
-                  },
-                  {"label": "Pendapatan Lainnya", "color": Colors.orangeAccent},
-                ],
-              ),
-              _chartCard(
-                title: "Pengeluaran Berdasarkan Kategori",
-                icon: Icons.trending_down_rounded,
-                color: const Color(0xFFDFF6DD),
-                sections: [
-                  PieChartSectionData(
-                    value: 99,
-                    color: Colors.pinkAccent,
-                    title: "100%",
-                    titleStyle: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  PieChartSectionData(
-                    value: 1,
-                    color: Colors.amberAccent,
-                    title: "0%",
-                    titleStyle: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-                legends: const [
-                  {
-                    "label": "Pemeliharaan Fasilitas",
-                    "color": Colors.pinkAccent,
-                  },
-                  {"label": "Operasional RT/RW", "color": Colors.amberAccent},
-                ],
-              ),
-            ],
-          ),
+          // GridView.count(
+          //   shrinkWrap: true,
+          //   physics: const NeverScrollableScrollPhysics(),
+          //   crossAxisCount: MediaQuery.of(context).size.width > 700 ? 2 : 1,
+          //   crossAxisSpacing: 20,
+          //   mainAxisSpacing: 20,
+          //   childAspectRatio: 1.4,
+          //   children: [
+          //     _chartCard(
+          //       title: "Pemasukan Berdasarkan Kategori",
+          //       icon: Icons.trending_up_rounded,
+          //       color: const Color(0xFFDCE8FA),
+          //       sections: [
+          //         PieChartSectionData(
+          //           value: 99,
+          //           color: Colors.blueAccent,
+          //           title: "100%",
+          //           titleStyle: const TextStyle(
+          //             color: Colors.white,
+          //             fontWeight: FontWeight.bold,
+          //           ),
+          //         ),
+          //         PieChartSectionData(
+          //           value: 1,
+          //           color: Colors.orangeAccent,
+          //           title: "0%",
+          //           titleStyle: const TextStyle(
+          //             color: Colors.white,
+          //             fontWeight: FontWeight.bold,
+          //           ),
+          //         ),
+          //       ],
+          //       legends: const [
+          //         {
+          //           "label": "Dana Bantuan Pemerintah",
+          //           "color": Colors.blueAccent,
+          //         },
+          //         {"label": "Pendapatan Lainnya", "color": Colors.orangeAccent},
+          //       ],
+          //     ),
+          //     _chartCard(
+          //       title: "Pengeluaran Berdasarkan Kategori",
+          //       icon: Icons.trending_down_rounded,
+          //       color: const Color(0xFFDFF6DD),
+          //       sections: [
+          //         PieChartSectionData(
+          //           value: 99,
+          //           color: Colors.pinkAccent,
+          //           title: "100%",
+          //           titleStyle: const TextStyle(
+          //             color: Colors.white,
+          //             fontWeight: FontWeight.bold,
+          //           ),
+          //         ),
+          //         PieChartSectionData(
+          //           value: 1,
+          //           color: Colors.amberAccent,
+          //           title: "0%",
+          //           titleStyle: const TextStyle(
+          //             color: Colors.white,
+          //             fontWeight: FontWeight.bold,
+          //           ),
+          //         ),
+          //       ],
+          //       legends: const [
+          //         {
+          //           "label": "Pemeliharaan Fasilitas",
+          //           "color": Colors.pinkAccent,
+          //         },
+          //         {"label": "Operasional RT/RW", "color": Colors.amberAccent},
+          //       ],
+          //     ),
+          //   ],
+          // ),
         ],
       ),
     );

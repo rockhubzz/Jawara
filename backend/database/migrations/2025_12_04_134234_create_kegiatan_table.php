@@ -13,6 +13,7 @@ class CreateKegiatanTable extends Migration
             $table->string('nama');
             $table->string('kategori')->nullable();
             $table->string('penanggung_jawab')->nullable();
+            $table->integer('biaya')->nullable();
             $table->date('tanggal')->nullable();
             $table->text('lokasi')->nullable();
             $table->timestamps();

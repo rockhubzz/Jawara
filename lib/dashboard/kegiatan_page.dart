@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../widgets/appDrawer.dart';
+import '../services/kegiatan_service.dart';
 
 class KegiatanPage extends StatefulWidget {
   final String email;
@@ -12,6 +13,138 @@ class KegiatanPage extends StatefulWidget {
 }
 
 class _KegiatanPageState extends State<KegiatanPage> {
+  bool _isLoading = true;
+
+  int total = 0;
+  int sebelumHariIni = 0;
+  int hariIni = 0;
+  int setelahHariIni = 0;
+  List<dynamic> kategoriList = [];
+  bool _isLoadingKategori = true;
+  List<dynamic> kegiatanPerBulan = [];
+  bool _isLoadingBulan = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadGlance();
+    _loadCountKategori();
+    _loadKegiatanPerBulan();
+  }
+
+  Future<void> _loadGlance() async {
+    try {
+      final result = await KegiatanService.getGlance();
+
+      if (result['success'] == true) {
+        final data = result['data'];
+
+        setState(() {
+          total = int.parse(data['total'].toString());
+          sebelumHariIni = int.parse(data['sebelum_hari_ini'].toString());
+          hariIni = int.parse(data['hari_ini'].toString());
+          setelahHariIni = int.parse(data['setelah_hari_ini'].toString());
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error: $e');
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _loadCountKategori() async {
+    try {
+      final List<dynamic> result = await KegiatanService.countByKategori();
+
+      setState(() {
+        kategoriList = result;
+      });
+    } catch (e) {
+      debugPrint('Error: $e');
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _loadKegiatanPerBulan() async {
+    try {
+      final List<dynamic> result =
+          await KegiatanService.countKegiatanPerBulan();
+
+      setState(() {
+        kegiatanPerBulan = result;
+        _isLoadingBulan = false;
+      });
+    } catch (e) {
+      debugPrint('Error: $e');
+      setState(() => _isLoading = false);
+    }
+  }
+
+  List<PieChartSectionData> _buildPieFromKategori() {
+    if (kategoriList.isEmpty) {
+      return [
+        PieChartSectionData(
+          color: Colors.grey,
+          value: 100,
+          title: '0%',
+          radius: 50,
+        ),
+      ];
+    }
+
+    final double total = kategoriList.fold(0, (sum, item) {
+      return sum + double.parse(item['total'].toString());
+    });
+
+    final colors = [
+      Colors.blue,
+      Colors.green,
+      Colors.orange,
+      Colors.purple,
+      Colors.pink,
+      Colors.teal,
+      Colors.red,
+      Colors.indigo,
+    ];
+
+    return List.generate(kategoriList.length, (i) {
+      final item = kategoriList[i];
+      final value = double.parse(item['total'].toString());
+      final percent = ((value / total) * 100).toStringAsFixed(0);
+
+      return PieChartSectionData(
+        color: colors[i % colors.length].withOpacity(0.7),
+        value: value,
+        title: '$percent%',
+        radius: 50,
+      );
+    });
+  }
+
+  List<Widget> _buildKategoriLegends() {
+    if (kategoriList.isEmpty) {
+      return [_legend("Tidak ada data", Colors.grey)];
+    }
+
+    final colors = [
+      Colors.blue,
+      Colors.green,
+      Colors.orange,
+      Colors.purple,
+      Colors.pink,
+      Colors.teal,
+      Colors.red,
+      Colors.indigo,
+    ];
+
+    return List.generate(kategoriList.length, (i) {
+      final item = kategoriList[i];
+
+      return _legend(item['kategori'].toString(), colors[i % colors.length]);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,7 +155,7 @@ class _KegiatanPageState extends State<KegiatanPage> {
         elevation: 0.5, // sedikit shadow biar elegant
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF2E7D32)),
-          onPressed: () => context.go('/beranda/semua_menu'),
+          onPressed: () => context.go('/beranda'),
         ),
         title: const Text(
           "Data Kegiatan",
@@ -62,12 +195,24 @@ class _KegiatanPageState extends State<KegiatanPage> {
               children: [
                 _dashboardSmallCard(
                   "Total Kegiatan",
-                  "1",
+                  _isLoading ? "..." : total.toString(),
                   Icons.event_available,
                 ),
-                _dashboardSmallCard("Sudah Lewat", "1", Icons.history),
-                _dashboardSmallCard("Hari Ini", "0", Icons.today),
-                _dashboardSmallCard("Akan Datang", "0", Icons.upcoming),
+                _dashboardSmallCard(
+                  "Sudah Lewat",
+                  _isLoading ? "..." : sebelumHariIni.toString(),
+                  Icons.history,
+                ),
+                _dashboardSmallCard(
+                  "Hari Ini",
+                  _isLoading ? "..." : hariIni.toString(),
+                  Icons.today,
+                ),
+                _dashboardSmallCard(
+                  "Akan Datang",
+                  _isLoading ? "..." : setelahHariIni.toString(),
+                  Icons.upcoming,
+                ),
               ],
             ),
 
@@ -87,7 +232,7 @@ class _KegiatanPageState extends State<KegiatanPage> {
                         PieChartData(
                           sectionsSpace: 2,
                           centerSpaceRadius: 40,
-                          sections: _buildPieChartSections(),
+                          sections: _buildPieFromKategori(),
                           // transparan
                           borderData: FlBorderData(show: false),
                         ),
@@ -99,14 +244,7 @@ class _KegiatanPageState extends State<KegiatanPage> {
                   Wrap(
                     spacing: 10,
                     runSpacing: 8,
-                    children: [
-                      _legend("Komunitas & Sosial", Colors.blue),
-                      _legend("Kebersihan & Keamanan", Colors.green),
-                      _legend("Keagamaan", Colors.orange),
-                      _legend("Pendidikan", Colors.purple),
-                      _legend("Kesehatan & Olahraga", Colors.pink),
-                      _legend("Lainnya", Colors.teal),
-                    ],
+                    children: _buildKategoriLegends(),
                   ),
                 ],
               ),
@@ -161,11 +299,11 @@ class _KegiatanPageState extends State<KegiatanPage> {
                               'Agu',
                               'Sep',
                               'Okt',
+                              'Nov',
+                              'Des',
                             ];
                             if (value.toInt() >= 0 &&
-                                value.toInt() < months.length) {
-                              return Text(months[value.toInt()]);
-                            }
+                                value.toInt() < months.length) {}
                             return const SizedBox.shrink();
                           },
                         ),
@@ -174,19 +312,28 @@ class _KegiatanPageState extends State<KegiatanPage> {
                         sideTitles: SideTitles(showTitles: true),
                       ),
                     ),
-                    barGroups: List.generate(10, (i) {
-                      return BarChartGroupData(
-                        x: i,
-                        barRods: [
-                          BarChartRodData(
-                            toY: (i == 9) ? 1 : 0.4 + (i * 0.05),
-                            color: const Color(0xFF2E7D32).withOpacity(0.8),
-                            width: 18,
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                        ],
-                      );
-                    }),
+                    barGroups: _isLoadingBulan
+                        ? []
+                        : kegiatanPerBulan.map((e) {
+                            final int bulan = e['bulan'] + 1;
+                            final double total = double.parse(
+                              e['total'].toString(),
+                            );
+
+                            return BarChartGroupData(
+                              x: bulan - 1, // because months start at index 0
+                              barRods: [
+                                BarChartRodData(
+                                  toY: total,
+                                  color: const Color(
+                                    0xFF2E7D32,
+                                  ).withOpacity(0.8),
+                                  width: 18,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                              ],
+                            );
+                          }).toList(),
                   ),
                 ),
               ),

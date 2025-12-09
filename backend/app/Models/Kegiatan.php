@@ -12,6 +12,7 @@ class Kegiatan extends Model
         'nama',
         'kategori',
         'penanggung_jawab',
+        'biaya',
         'tanggal',
         'lokasi',
     ];

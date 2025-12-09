@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:jawara/channel_transfer/edit_channel_page.dart';
 import 'package:jawara/data_warga_rumah/tambahRumah_page.dart';
 import 'package:jawara/kegiatan_dan_brodcast/kegiatan_daftar_page.dart';
 import 'package:jawara/kegiatan_dan_brodcast/kegiatan_tambah_page.dart';
@@ -207,8 +208,24 @@ class MyApp extends StatelessWidget {
           builder: (context, state) => const DaftarPage(),
         ),
         GoRoute(
-          path: '/mutasi_keluarga/tambah',
-          builder: (context, state) => const BuatMutasiKeluargaPage(),
+          path: '/mutasi',
+          builder: (context, state) => const DaftarPage(),
+        ),
+        GoRoute(
+          path: '/mutasi/tambah', // supports optional ?id=123
+          builder: (context, state) {
+            final idStr = state.uri.queryParameters['id'];
+            return BuatMutasiKeluargaPage(
+              id: idStr != null ? int.tryParse(idStr) : null,
+            );
+          },
+        ),
+        GoRoute(
+          path: '/channel/edit/:id',
+          builder: (context, state) {
+            final idStr = state.pathParameters['id']!;
+            return EditMetodePembayaranPage(id: int.parse(idStr));
+          },
         ),
         GoRoute(
           path: '/log_aktivitas/semua_aktivitas',
@@ -228,7 +245,7 @@ class MyApp extends StatelessWidget {
         ),
         GoRoute(
           path: '/channel_transfer/tambah',
-          builder: (context, state) => const BuatTransferChannelPage(),
+          builder: (context, state) => const TambahChannelPage(),
         ),
         GoRoute(
           path: '/rumah',
