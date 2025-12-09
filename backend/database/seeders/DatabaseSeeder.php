@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
         BroadcastSeeder::class,
         PemasukanLainSeeder::class,
         MutasiKeluargaSeeder::class,
+        ChannelTransferSeeder::class,
     ]);
     }
 }
