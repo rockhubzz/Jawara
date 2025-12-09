@@ -90,6 +90,8 @@ class _WargaListPageState extends State<WargaListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final from =
+        GoRouterState.of(context).uri.queryParameters['from'] ?? 'semua';
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
@@ -97,7 +99,13 @@ class _WargaListPageState extends State<WargaListPage> {
         elevation: 0.5,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF2E7D32)),
-          onPressed: () => context.go('/beranda/semua_menu'),
+          onPressed: () {
+            if (from == 'beranda') {
+              context.go('/beranda');
+            } else {
+              context.go('/beranda/semua_menu');
+            }
+          },
         ),
         title: const Text(
           "Daftar Warga",
