@@ -17,7 +17,7 @@ class _TagihIuranPageState extends State<TagihIuranPage> {
   final _tanggalController = TextEditingController();
 
   String? selectedIuran;
-  String selectedKeluarga = "ALL"; // default
+  String selectedKeluarga = "ALL";
   List<Map<String, dynamic>> jenisIuranList = [];
   List<Map<String, dynamic>> keluargaList = [];
 
@@ -31,9 +31,6 @@ class _TagihIuranPageState extends State<TagihIuranPage> {
     loadKeluarga();
   }
 
-  // ===============================================
-  // LOAD DATA IURAN
-  // ===============================================
   Future<void> loadJenisIuran() async {
     try {
       final list = await KategoriIuranService.getAll();
@@ -43,38 +40,21 @@ class _TagihIuranPageState extends State<TagihIuranPage> {
       });
     } catch (e) {
       setState(() => isLoadingIuran = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Gagal memuat jenis iuran: $e"),
-          backgroundColor: Colors.red,
-        ),
-      );
     }
   }
 
-  // ===============================================
-  // LOAD DATA KELUARGA
-  // ===============================================
   Future<void> loadKeluarga() async {
     try {
-      final list =
-          await KeluargaService.getKeluarga(); // result: [{id, kepala_keluarga, ...}]
+      final list = await KeluargaService.getKeluarga();
       setState(() {
         keluargaList = list;
         isLoadingKeluarga = false;
       });
     } catch (e) {
       setState(() => isLoadingKeluarga = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Gagal memuat keluarga: $e"),
-          backgroundColor: Colors.red,
-        ),
-      );
     }
   }
 
-  // ===============================================
   void _resetForm() {
     _formKey.currentState?.reset();
     setState(() {
@@ -84,7 +64,64 @@ class _TagihIuranPageState extends State<TagihIuranPage> {
     });
   }
 
-  // ===============================================
+  // 🔥 POPUP SUCCESS
+  void _showSuccessPopup() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Center(
+        child: Container(
+          width: 320,
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.25),
+                blurRadius: 15,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.check_circle,
+                size: 80,
+                color: Color(0xFF2E7D32),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                "Tagihan Berhasil Dibuat!",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF2E7D32),
+                ),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF2E7D32),
+                  minimumSize: const Size(120, 40),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: const Text("OK", style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // 🔥 SUBMIT FORM + POPUP
   void _submitForm() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -100,22 +137,15 @@ class _TagihIuranPageState extends State<TagihIuranPage> {
 
     bool res = false;
 
-    // 🔥 1. Jika pilih SEMUA KELUARGA
     if (selectedKeluarga == "ALL") {
       res = await TagihanService.createAll(payload);
     } else {
-      // 🔥 2. Jika pilih 1 keluarga saja
       payload["keluarga_id"] = selectedKeluarga;
       res = await TagihanService.createByKeluarga(payload);
     }
 
     if (res == true) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Tagihan berhasil dibuat!"),
-          backgroundColor: Colors.green,
-        ),
-      );
+      _showSuccessPopup();
       _resetForm();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -127,7 +157,6 @@ class _TagihIuranPageState extends State<TagihIuranPage> {
     }
   }
 
-  // ===============================================
   Future<void> _pickDate() async {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
@@ -142,175 +171,242 @@ class _TagihIuranPageState extends State<TagihIuranPage> {
     }
   }
 
-  // ===============================================
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FC),
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => context.go('/beranda/semua_menu'),
-        ),
-
-        title: const Text("Tagih Iuran", style: TextStyle(color: Colors.black)),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
-      ),
-
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 400),
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-
-            child: Form(
-              key: _formKey,
-
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Tagih Iuran",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // ============================================
-                  // DROPDOWN KELUARGA
-                  // ============================================
-                  const Text(
-                    "Keluarga",
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  const SizedBox(height: 8),
-
-                  isLoadingKeluarga
-                      ? const Center(child: CircularProgressIndicator())
-                      : DropdownButtonFormField<String>(
-                          value: selectedKeluarga,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          items: [
-                            const DropdownMenuItem(
-                              value: "ALL",
-                              child: Text("Semua Keluarga"),
-                            ),
-                            ...keluargaList.map((kel) {
-                              return DropdownMenuItem(
-                                value: kel['id'].toString(),
-                                child: Text(kel['kepala_keluarga']),
-                              );
-                            }).toList(),
-                          ],
-                          onChanged: (v) =>
-                              setState(() => selectedKeluarga = v!),
-                        ),
-
-                  const SizedBox(height: 24),
-
-                  // ============================================
-                  // DROPDOWN IURAN
-                  // ============================================
-                  const Text(
-                    "Jenis Iuran",
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  const SizedBox(height: 8),
-
-                  isLoadingIuran
-                      ? const Center(child: CircularProgressIndicator())
-                      : DropdownButtonFormField<String>(
-                          decoration: InputDecoration(
-                            hintText: "-- Pilih Iuran --",
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          value: selectedIuran,
-                          items: jenisIuranList.map((iuran) {
-                            return DropdownMenuItem<String>(
-                              value: iuran['nama'],
-                              child: Text(iuran['nama']),
-                            );
-                          }).toList(),
-                          onChanged: (value) =>
-                              setState(() => selectedIuran = value),
-                          validator: (value) => value == null
-                              ? "Pilih jenis iuran terlebih dahulu"
-                              : null,
-                        ),
-
-                  const SizedBox(height: 24),
-
-                  // ============================================
-                  // TANGGAL TAGIHAN
-                  // ============================================
-                  const Text(
-                    "Tanggal Tagihan",
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  const SizedBox(height: 8),
-
-                  TextFormField(
-                    controller: _tanggalController,
-                    readOnly: true,
-                    decoration: InputDecoration(
-                      hintText: "--/--/----",
-                      suffixIcon: IconButton(
-                        icon: const Icon(Icons.calendar_today),
-                        onPressed: _pickDate,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    validator: (value) =>
-                        value == null || value.isEmpty ? "Pilih tanggal" : null,
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  Row(
-                    children: [
-                      ElevatedButton(
-                        onPressed: _submitForm,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF6C63FF),
-                        ),
-                        child: const Text(
-                          "Tagih Iuran",
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      OutlinedButton(
-                        onPressed: _resetForm,
-                        child: const Text("Reset"),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color.fromARGB(255, 255, 235, 188),
+              Color.fromARGB(255, 181, 255, 183),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
         ),
+        child: Column(
+          children: [
+            AppBar(
+              backgroundColor: Colors.white,
+              elevation: 0.5,
+              leading: IconButton(
+                icon: const Icon(
+                  Icons.arrow_back_ios_new,
+                  color: Color(0xFF2E7D32),
+                ),
+                onPressed: () => context.go('/beranda/semua_menu'),
+              ),
+              title: const Text(
+                "Tagih Iuran",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF2E7D32),
+                ),
+              ),
+            ),
+
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: Center(
+                  child: Container(
+                    constraints: const BoxConstraints(maxWidth: 400),
+                    padding: const EdgeInsets.all(24),
+
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.9),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.15),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "Form Tagih Iuran",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF2E7D32),
+                            ),
+                          ),
+
+                          const SizedBox(height: 24),
+
+                          // DROPDOWN KELUARGA
+                          const Text(
+                            "Keluarga",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF2E7D32),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+
+                          isLoadingKeluarga
+                              ? const Center(
+                                  child: CircularProgressIndicator(
+                                    color: Color(0xFF2E7D32),
+                                  ),
+                                )
+                              : DropdownButtonFormField<String>(
+                                  value: selectedKeluarga,
+                                  decoration: _inputStyle(),
+                                  items: [
+                                    const DropdownMenuItem(
+                                      value: "ALL",
+                                      child: Text("Semua Keluarga"),
+                                    ),
+                                    ...keluargaList.map((kel) {
+                                      return DropdownMenuItem(
+                                        value: kel['id'].toString(),
+                                        child: Text(kel['kepala_keluarga']),
+                                      );
+                                    }).toList(),
+                                  ],
+                                  onChanged: (v) =>
+                                      setState(() => selectedKeluarga = v!),
+                                ),
+
+                          const SizedBox(height: 24),
+
+                          // DROPDOWN IURAN
+                          const Text(
+                            "Jenis Iuran",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF2E7D32),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+
+                          isLoadingIuran
+                              ? const Center(
+                                  child: CircularProgressIndicator(
+                                    color: Color(0xFF2E7D32),
+                                  ),
+                                )
+                              : DropdownButtonFormField<String>(
+                                  decoration: _inputStyle(),
+                                  value: selectedIuran,
+                                  items: jenisIuranList.map((iuran) {
+                                    return DropdownMenuItem<String>(
+                                      value: iuran['nama'],
+                                      child: Text(iuran['nama']),
+                                    );
+                                  }).toList(),
+                                  onChanged: (value) =>
+                                      setState(() => selectedIuran = value),
+                                  validator: (value) => value == null
+                                      ? "Pilih jenis iuran"
+                                      : null,
+                                ),
+
+                          const SizedBox(height: 24),
+
+                          // TANGGAL TAGIHAN
+                          const Text(
+                            "Tanggal Tagihan",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF2E7D32),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+
+                          TextFormField(
+                            controller: _tanggalController,
+                            readOnly: true,
+                            decoration: _inputStyle().copyWith(
+                              hintText: "yy-mm-dd",
+                              suffixIcon: IconButton(
+                                icon: const Icon(
+                                  Icons.calendar_today,
+                                  color: Color(0xFF2E7D32),
+                                ),
+                                onPressed: _pickDate,
+                              ),
+                            ),
+                            validator: (value) => value == null || value.isEmpty
+                                ? "Pilih tanggal"
+                                : null,
+                          ),
+
+                          const SizedBox(height: 28),
+
+                          Row(
+                            children: [
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: _submitForm,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF2E7D32),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 14,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    "Buat Tagihan",
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              OutlinedButton(
+                                onPressed: _resetForm,
+                                style: OutlinedButton.styleFrom(
+                                  side: const BorderSide(
+                                    color: Color(0xFF2E7D32),
+                                  ),
+                                ),
+                                child: const Text(
+                                  "Reset",
+                                  style: TextStyle(color: Color(0xFF2E7D32)),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // STYLE INPUT FIELD
+  InputDecoration _inputStyle() {
+    return InputDecoration(
+      filled: true,
+      fillColor: Colors.white,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: Color(0xFF2E7D32)),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: Color(0xFF2E7D32)),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(width: 2, color: Color(0xFF2E7D32)),
       ),
     );
   }
