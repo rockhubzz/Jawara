@@ -68,7 +68,9 @@ class DashboardService {
     if (resp.statusCode == 200) {
       final data = json.decode(resp.body);
 
-      return (data['total_kegiatan'] as num).toInt();
+      return (data['data']?['hari_ini'] + data['data']?['setelah_hari_ini']
+              as num)
+          .toInt();
     } else {
       throw Exception('Gagal mengambil saldo: ${resp.statusCode}');
     }

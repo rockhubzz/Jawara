@@ -16,7 +16,8 @@ class _RumahFormPageState extends State<RumahFormPage> {
 
   final kodeCtrl = TextEditingController();
   final alamatCtrl = TextEditingController();
-  final statusCtrl = TextEditingController();
+  final TextEditingController statusCtrl = TextEditingController();
+  String? selectedStatus;
 
   @override
   void initState() {
@@ -81,9 +82,30 @@ class _RumahFormPageState extends State<RumahFormPage> {
                 decoration: const InputDecoration(labelText: "Alamat"),
                 validator: (v) => v!.isEmpty ? "Wajib diisi" : null,
               ),
-              TextFormField(
-                controller: statusCtrl,
-                decoration: const InputDecoration(labelText: "Status Rumah"),
+              const SizedBox(height: 20),
+              DropdownButtonFormField<String>(
+                value: selectedStatus,
+                decoration: const InputDecoration(
+                  labelText: "Status Rumah",
+                  border: OutlineInputBorder(),
+                ),
+                items: const [
+                  DropdownMenuItem(value: 'Tersedia', child: Text('Tersedia')),
+                  DropdownMenuItem(
+                    value: 'Ditempati',
+                    child: Text('Ditempati'),
+                  ),
+                  DropdownMenuItem(value: 'Nonaktif', child: Text('Nonaktif')),
+                ],
+                onChanged: (value) {
+                  setState(() {
+                    selectedStatus = value;
+                    statusCtrl.text = value ?? '';
+                  });
+                },
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Status wajib dipilih'
+                    : null,
               ),
               const SizedBox(height: 20),
               ElevatedButton(onPressed: save, child: const Text("Simpan")),
