@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:go_router/go_router.dart';
-import '../widgets/appDrawer.dart';
 import '../services/kependudukan_service.dart';
 
 class KependudukanPage extends StatefulWidget {
@@ -39,336 +38,305 @@ class _KependudukanPageState extends State<KependudukanPage> {
         loading = false;
       });
     } catch (e) {
-      print(e);
+      debugPrint("ERROR: $e");
       setState(() => loading = false);
     }
+  }
+
+  List<Widget> _buildJKLegend() {
+    if (jenisKelamin.isEmpty) {
+      return [_legend("Tidak ada data", Colors.grey)];
+    }
+
+    return jenisKelamin.map((e) {
+      final jk = e['jenis_kelamin']?.toString() ?? "Unknown";
+      final isLaki = jk.toLowerCase().startsWith('l');
+
+      Color color = isLaki ? Colors.blue : Colors.pinkAccent;
+
+      return _legend(jk, color);
+    }).toList();
+  }
+
+  List<Widget> _buildDomisiliLegend() {
+    if (domisili.isEmpty) {
+      return [_legend("Tidak ada data", Colors.grey)];
+    }
+
+    return domisili.map((e) {
+      final status = e['status_domisili']?.toString() ?? "Unknown";
+      final isAktif = status.toLowerCase() == "aktif";
+
+      Color color = isAktif ? Colors.green : Colors.red;
+
+      return _legend(status, color);
+    }).toList();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0.5,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF2E7D32)),
           onPressed: () => context.go('/beranda'),
         ),
         title: const Text(
           "Data Kependudukan",
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF2E7D32),
+            fontSize: 20,
+          ),
         ),
       ),
-
-      body: _buildBody(context),
+      body: _buildBody(),
     );
   }
 
-  Widget _buildBody(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // =================== INFO CARD ===================
-          GridView.count(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisCount: MediaQuery.of(context).size.width > 700 ? 2 : 1,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-            childAspectRatio: 2.5,
-            children: [
-              _infoCard(
-                title: "Total Keluarga",
-                value: loading ? "..." : totalKeluarga.toString(),
-                icon: Icons.house_rounded,
-                color: const Color(0xFFDCE8FA),
-                textColor: Colors.blue[800]!,
-              ),
-              _infoCard(
-                title: "Total Penduduk",
-                value: loading ? "..." : totalWarga.toString(),
-                icon: Icons.people_alt_rounded,
-                color: const Color(0xFFDFF6DD),
-                textColor: Colors.green[700]!,
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 25),
-
-          // =================== PIE CHART SECTION ===================
-          GridView.count(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisCount: MediaQuery.of(context).size.width > 1000
-                ? 3
-                : MediaQuery.of(context).size.width > 700
-                ? 2
-                : 1,
-            crossAxisSpacing: 20,
-            mainAxisSpacing: 20,
-            childAspectRatio: 1.4,
-            children: [
-              _chartCard(
-                title: "Status Penduduk",
-                icon: Icons.verified_user_rounded,
-                color: const Color(0xFFFFF5D9),
-                sections: domisili.isEmpty
-                    ? [
-                        PieChartSectionData(
-                          value: 100,
-                          color: Colors.grey,
-                          title: "Loading",
-                        ),
-                      ]
-                    : domisili.map<PieChartSectionData>((e) {
-                        return PieChartSectionData(
-                          value: double.parse(e['total'].toString()),
-                          title: e['status_domisili'],
-                          color: e['status_domisili'] == 'Aktif'
-                              ? Colors.green
-                              : Colors.red,
-                          titleStyle: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        );
-                      }).toList(),
-              ),
-
-              _chartCard(
-                title: "Jenis Kelamin",
-                icon: Icons.wc_rounded,
-                color: const Color(0xFFF3E5F5),
-                sections: jenisKelamin.isEmpty
-                    ? [
-                        PieChartSectionData(
-                          value: 100,
-                          color: Colors.grey,
-                          title: "Loading",
-                        ),
-                      ]
-                    : jenisKelamin.map<PieChartSectionData>((e) {
-                        return PieChartSectionData(
-                          value: double.parse(e['total'].toString()),
-                          title: e['jenis_kelamin'].toString().startsWith('L')
-                              ? 'L'
-                              : 'P',
-                          color: e['jenis_kelamin'] == 'Laki-laki'
-                              ? Colors.blue
-                              : Colors.pinkAccent,
-                          titleStyle: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        );
-                      }).toList(),
-              ),
-              // _chartCard(
-              //   title: "Pekerjaan Penduduk",
-              //   icon: Icons.work_rounded,
-              //   color: const Color(0xFFFFF0E6),
-              //   sections: [
-              //     PieChartSectionData(
-              //       value: 40,
-              //       color: Colors.brown,
-              //       title: "Petani",
-              //       titleStyle: const TextStyle(color: Colors.white),
-              //     ),
-              //     PieChartSectionData(
-              //       value: 25,
-              //       color: Colors.teal,
-              //       title: "Pedagang",
-              //       titleStyle: const TextStyle(color: Colors.white),
-              //     ),
-              //     PieChartSectionData(
-              //       value: 20,
-              //       color: Colors.deepPurple,
-              //       title: "Guru",
-              //       titleStyle: const TextStyle(color: Colors.white),
-              //     ),
-              //     PieChartSectionData(
-              //       value: 15,
-              //       color: Colors.orange,
-              //       title: "Lainnya",
-              //       titleStyle: const TextStyle(color: Colors.white),
-              //     ),
-              //   ],
-              // ),
-
-              // _chartCard(
-              //   title: "Peran dalam Keluarga",
-              //   icon: Icons.family_restroom_rounded,
-              //   color: const Color(0xFFD9F1FF),
-              //   sections: [
-              //     PieChartSectionData(
-              //       value: 50,
-              //       color: Colors.blue,
-              //       title: "KK",
-              //       titleStyle: const TextStyle(color: Colors.white),
-              //     ),
-              //     PieChartSectionData(
-              //       value: 30,
-              //       color: Colors.redAccent,
-              //       title: "Istri",
-              //       titleStyle: const TextStyle(color: Colors.white),
-              //     ),
-              //     PieChartSectionData(
-              //       value: 20,
-              //       color: Colors.green,
-              //       title: "Anak",
-              //       titleStyle: const TextStyle(color: Colors.white),
-              //     ),
-              //   ],
-              // ),
-
-              // _chartCard(
-              //   title: "Agama",
-              //   icon: Icons.church_rounded,
-              //   color: const Color(0xFFFFE7E7),
-              //   sections: [
-              //     PieChartSectionData(
-              //       value: 60,
-              //       color: Colors.orange,
-              //       title: "Islam",
-              //       titleStyle: const TextStyle(color: Colors.white),
-              //     ),
-              //     PieChartSectionData(
-              //       value: 40,
-              //       color: Colors.blue,
-              //       title: "Lainnya",
-              //       titleStyle: const TextStyle(color: Colors.white),
-              //     ),
-              //   ],
-              // ),
-
-              // _chartCard(
-              //   title: "Pendidikan",
-              //   icon: Icons.school_rounded,
-              //   color: const Color(0xFFE0F7F3),
-              //   sections: [
-              //     PieChartSectionData(
-              //       value: 40,
-              //       color: Colors.grey,
-              //       title: "SD",
-              //       titleStyle: const TextStyle(color: Colors.white),
-              //     ),
-              //     PieChartSectionData(
-              //       value: 30,
-              //       color: Colors.blueGrey,
-              //       title: "SMP",
-              //       titleStyle: const TextStyle(color: Colors.white),
-              //     ),
-              //     PieChartSectionData(
-              //       value: 30,
-              //       color: Colors.indigo,
-              //       title: "SMA",
-              //       titleStyle: const TextStyle(color: Colors.white),
-              //     ),
-              //   ],
-              // ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ========================= CARD ANGKA =========================
-  Widget _infoCard({
-    required String title,
-    required String value,
-    required IconData icon,
-    required Color color,
-    required Color textColor,
-  }) {
-    return Card(
-      color: color,
-      elevation: 3,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(icon, color: textColor, size: 28),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: textColor,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 38,
-                fontWeight: FontWeight.bold,
-                color: textColor,
-              ),
-            ),
+  Widget _buildBody() {
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color.fromARGB(255, 255, 235, 188),
+            Color.fromARGB(255, 181, 255, 183),
           ],
         ),
       ),
-    );
-  }
-
-  // ========================= CARD PIE CHART =========================
-  Widget _chartCard({
-    required String title,
-    required IconData icon,
-    required Color color,
-    required List<PieChartSectionData> sections,
-  }) {
-    return Card(
-      elevation: 3,
-      color: color,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            Row(
-              children: [
-                Icon(icon, color: Colors.blueAccent),
-                const SizedBox(width: 8),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: Colors.black87,
+            // =================== SMALL CARDS ===================
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Wrap(
+                spacing: 16,
+                runSpacing: 16,
+                children: [
+                  _dashboardSmallCard(
+                    "Total Keluarga",
+                    loading ? "..." : totalKeluarga.toString(),
+                    Icons.house_rounded,
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Expanded(
-              child: PieChart(
-                PieChartData(
-                  centerSpaceRadius: 40,
-                  sectionsSpace: 3,
-                  borderData: FlBorderData(show: false),
-                  sections: sections,
-                ),
+                  _dashboardSmallCard(
+                    "Total Warga",
+                    loading ? "..." : totalWarga.toString(),
+                    Icons.people_alt_rounded,
+                  ),
+                ],
               ),
             ),
+            const SizedBox(height: 24),
+
+            // =================== CHART CARDS ===================
+            _dashboardBigCard(
+              title: "Status Domisili",
+              icon: Icons.verified_user_rounded,
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: 200,
+                    child: PieChart(
+                      PieChartData(
+                        centerSpaceRadius: 35,
+                        sectionsSpace: 2,
+                        sections: domisili.isEmpty
+                            ? [
+                                PieChartSectionData(
+                                  value: 100,
+                                  color: Colors.grey,
+                                  title: "Loading",
+                                ),
+                              ]
+                            : domisili.map<PieChartSectionData>((e) {
+                                final value = double.parse(
+                                  e['total'].toString(),
+                                );
+                                return PieChartSectionData(
+                                  value: value,
+                                  title: "${value.toInt()}%",
+                                  color: e['status_domisili'] == 'Aktif'
+                                      ? Colors.green
+                                      : Colors.red,
+                                  titleStyle: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                );
+                              }).toList(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 8,
+                    children: _buildDomisiliLegend(),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            _dashboardBigCard(
+              title: "Jenis Kelamin",
+              icon: Icons.wc_rounded,
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: 200,
+                    child: PieChart(
+                      PieChartData(
+                        centerSpaceRadius: 35,
+                        sectionsSpace: 2,
+                        sections: jenisKelamin.isEmpty
+                            ? [
+                                PieChartSectionData(
+                                  value: 100,
+                                  color: Colors.grey,
+                                  title: "Loading",
+                                ),
+                              ]
+                            : jenisKelamin.map<PieChartSectionData>((e) {
+                                final value = double.parse(
+                                  e['total'].toString(),
+                                );
+                                return PieChartSectionData(
+                                  value: value,
+                                  title: "${value.toInt()}%",
+                                  color: e['jenis_kelamin'] == 'Laki-laki'
+                                      ? Colors.blue
+                                      : Colors.pinkAccent,
+                                  titleStyle: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                );
+                              }).toList(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(spacing: 10, runSpacing: 8, children: _buildJKLegend()),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 40),
           ],
         ),
       ),
     );
   }
+}
+
+// =================== COMPONENTS ===================
+
+Widget _dashboardSmallCard(String title, String value, IconData icon) {
+  return SizedBox(
+    width: 200,
+    child: Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.9),
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.white.withOpacity(0.3),
+            blurRadius: 12,
+            spreadRadius: 2,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 32, color: const Color(0xFF2E7D32)),
+          const SizedBox(height: 12),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF2E7D32),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            title,
+            style: const TextStyle(fontSize: 14, color: Colors.black87),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+Widget _legend(String label, Color color) {
+  return Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Container(
+        width: 14,
+        height: 14,
+        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+      ),
+      const SizedBox(width: 6),
+      Text(label, style: const TextStyle(fontSize: 13)),
+    ],
+  );
+}
+
+Widget _dashboardBigCard({
+  required String title,
+  required IconData icon,
+  required Widget child,
+}) {
+  return Container(
+    width: double.infinity,
+    padding: const EdgeInsets.all(18),
+    margin: const EdgeInsets.symmetric(vertical: 8),
+    decoration: BoxDecoration(
+      color: Colors.white.withOpacity(0.9),
+      borderRadius: BorderRadius.circular(14),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.white.withOpacity(0.3),
+          blurRadius: 12,
+          spreadRadius: 2,
+          offset: const Offset(0, 4),
+        ),
+      ],
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(icon, color: const Color(0xFF2E7D32)),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF2E7D32),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        child,
+      ],
+    ),
+  );
 }

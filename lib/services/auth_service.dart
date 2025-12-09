@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'network_discovery.dart';
 
+
 class AuthService {
   static String? ip;
 
