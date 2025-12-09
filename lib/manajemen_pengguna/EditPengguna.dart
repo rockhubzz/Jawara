@@ -11,13 +11,12 @@ class EditUserPage extends StatefulWidget {
 
 class _EditUserPageState extends State<EditUserPage> {
   final _formKey = GlobalKey<FormState>();
+  bool isLoadingSubmit = false;
 
   late TextEditingController namaController;
   late TextEditingController emailController;
   late TextEditingController hpController;
   String? selectedRole;
-
-  bool isLoading = false;
 
   @override
   void initState() {
@@ -28,10 +27,10 @@ class _EditUserPageState extends State<EditUserPage> {
     selectedRole = widget.user["role"];
   }
 
-  void _submit() async {
+  Future<void> save() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => isLoading = true);
+    setState(() => isLoadingSubmit = true);
 
     final result = await UserService.updateUser(
       id: widget.user["id"],
@@ -41,7 +40,9 @@ class _EditUserPageState extends State<EditUserPage> {
       role: selectedRole!,
     );
 
-    setState(() => isLoading = false);
+    setState(() => isLoadingSubmit = false);
+
+    if (!mounted) return;
 
     if (result["success"] == true) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -52,192 +53,154 @@ class _EditUserPageState extends State<EditUserPage> {
       );
       Navigator.pop(context, true);
     } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(result["message"].toString())));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(result["message"].toString())),
+      );
     }
+  }
+
+  void _resetForm() {
+    namaController.text = widget.user["name"];
+    emailController.text = widget.user["email"];
+    hpController.text = widget.user["hp"];
+    setState(() => selectedRole = widget.user["role"]);
+  }
+
+  Widget _buildTextField(String label, TextEditingController controller,
+      {TextInputType keyboard = TextInputType.text}) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboard,
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+      validator: (v) => v == null || v.isEmpty ? "$label tidak boleh kosong" : null,
+    );
+  }
+
+  Widget _buildDropdown(String label, String? value, List<String> items, Function(String?) onChanged) {
+    return DropdownButtonFormField<String>(
+      value: value,
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+      items: items.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+      onChanged: (v) => setState(() => onChanged(v)),
+      validator: (v) => v == null ? "Pilih $label" : null,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: const Text(
-          'Edit Akun Pengguna',
-          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
+    return Theme(
+      data: Theme.of(context).copyWith(
+        colorScheme: const ColorScheme.light(primary: Color(0xFF2E7D32)),
+        inputDecorationTheme: const InputDecorationTheme(
+          focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Color(0xFF2E7D32), width: 2)),
+          enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Color(0xFF2E7D32))),
         ),
-        iconTheme: const IconThemeData(color: Colors.black87),
       ),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 500),
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
-                ),
-              ],
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0.5,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF2E7D32)),
+            onPressed: () => Navigator.pop(context),
+          ),
+          title: const Text(
+            'Edit Akun Pengguna',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF2E7D32),
             ),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Edit Akun Pengguna',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.black87,
+          ),
+        ),
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color.fromARGB(255, 255, 235, 188), Color.fromARGB(255, 181, 255, 183)],
+            ),
+          ),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 500),
+                child: Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.9),
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 12, spreadRadius: 2, offset: Offset(0, 4))],
+                  ),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Ubah data pengguna di bawah ini",
+                          style: TextStyle(fontSize: 13, color: Colors.black54),
+                        ),
+                        const SizedBox(height: 16),
+
+                        _buildTextField("Nama Lengkap", namaController),
+                        const SizedBox(height: 16),
+
+                        _buildTextField("Email", emailController, keyboard: TextInputType.emailAddress),
+                        const SizedBox(height: 16),
+
+                        _buildTextField("Nomor HP", hpController, keyboard: TextInputType.phone),
+                        const SizedBox(height: 16),
+
+                        _buildDropdown("Role", selectedRole, ["admin", "rw", "rt", "sekretaris", "bendahara", "warga"], (v) => selectedRole = v),
+                        const SizedBox(height: 24),
+
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            ElevatedButton(
+                              onPressed: isLoadingSubmit ? null : save,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF2E7D32),
+                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              ),
+                              child: isLoadingSubmit
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                    )
+                                  : const Text("Update", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                            ),
+                            const SizedBox(width: 12),
+                            OutlinedButton(
+                              onPressed: _resetForm,
+                              style: OutlinedButton.styleFrom(
+                                side: const BorderSide(color: Color(0xFF2E7D32)),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                              ),
+                              child: const Text("Reset", style: TextStyle(color: Color(0xFF2E7D32), fontWeight: FontWeight.bold)),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 20),
-
-                  // NAMA
-                  const Text('Nama Lengkap'),
-                  const SizedBox(height: 6),
-                  TextFormField(
-                    controller: namaController,
-                    decoration: _inputDecoration('Masukkan nama lengkap'),
-                    validator: (v) =>
-                        v!.isEmpty ? "Nama tidak boleh kosong" : null,
-                  ),
-                  const SizedBox(height: 14),
-
-                  // EMAIL
-                  const Text('Email'),
-                  const SizedBox(height: 6),
-                  TextFormField(
-                    controller: emailController,
-                    decoration: _inputDecoration('Masukkan email aktif'),
-                    validator: (v) =>
-                        v!.isEmpty ? "Email tidak boleh kosong" : null,
-                    keyboardType: TextInputType.emailAddress,
-                  ),
-                  const SizedBox(height: 14),
-
-                  // HP
-                  const Text('Nomor HP'),
-                  const SizedBox(height: 6),
-                  TextFormField(
-                    controller: hpController,
-                    decoration: _inputDecoration('Masukkan nomor HP'),
-                    validator: (v) =>
-                        v!.isEmpty ? "Nomor HP tidak boleh kosong" : null,
-                    keyboardType: TextInputType.phone,
-                  ),
-                  const SizedBox(height: 14),
-
-                  // ROLE
-                  const Text('Role'),
-                  const SizedBox(height: 6),
-                  DropdownButtonFormField<String>(
-                    initialValue: selectedRole,
-                    decoration: _inputDecoration('-- Pilih Role --'),
-                    items: const [
-                      DropdownMenuItem(value: 'admin', child: Text('Admin')),
-                      DropdownMenuItem(value: 'rw', child: Text('Ketua RW')),
-                      DropdownMenuItem(value: 'rt', child: Text('Ketua RT')),
-                      DropdownMenuItem(
-                        value: 'sekretaris',
-                        child: Text('Sekretaris'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'bendahara',
-                        child: Text('Bendahara'),
-                      ),
-                      DropdownMenuItem(value: 'warga', child: Text('Warga')),
-                    ],
-                    validator: (v) => v == null ? "Role harus dipilih" : null,
-                    onChanged: (value) => setState(() => selectedRole = value),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // BUTTONS
-                  Row(
-                    children: [
-                      ElevatedButton(
-                        onPressed: isLoading ? null : _submit,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF6366F1),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 12,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: isLoading
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : const Text(
-                                'Simpan',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                      ),
-                      const SizedBox(width: 12),
-
-                      OutlinedButton(
-                        onPressed: () {
-                          namaController.text = widget.user["name"];
-                          emailController.text = widget.user["email"];
-                          hpController.text = widget.user["hp"];
-                          setState(() => selectedRole = widget.user["role"]);
-                        },
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Color(0xFFE2E8F0)),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 12,
-                          ),
-                        ),
-                        child: const Text('Reset'),
-                      ),
-                    ],
-                  ),
-                ],
+                ),
               ),
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  InputDecoration _inputDecoration(String hint) {
-    return InputDecoration(
-      hintText: hint,
-      filled: true,
-      fillColor: const Color(0xFFF9FAFB),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Color(0xFF6366F1), width: 1.6),
       ),
     );
   }

@@ -194,6 +194,8 @@ class _WargaListPageState extends State<WargaListPage> {
                               children: [
                                 // ICON EDIT
                                 Container(
+                                  width: 32, // ukuran container lebih kecil
+                                  height: 32,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     border: Border.all(
@@ -202,6 +204,9 @@ class _WargaListPageState extends State<WargaListPage> {
                                     ),
                                   ),
                                   child: IconButton(
+                                    padding: EdgeInsets
+                                        .zero, // hilangkan padding default
+                                    iconSize: 18, // ubah ukuran ikon
                                     icon: const Icon(
                                       Icons.edit,
                                       color: Colors.orange,
@@ -215,9 +220,35 @@ class _WargaListPageState extends State<WargaListPage> {
                                     ).then((_) => loadWarga()),
                                   ),
                                 ),
+                                // Container(
+                                //   width: 32, // ukuran container lebih kecil
+                                //   height: 32,
+                                //   decoration: BoxDecoration(
+                                //     shape: BoxShape.circle,
+                                //     border: Border.all(
+                                //       color: Colors.orange,
+                                //       width: 1.5,
+                                //     ),
+                                //   ),
+                                //   child: IconButton(
+                                //     icon: const Icon(
+                                //       Icons.edit,
+                                //       color: Colors.orange,
+                                //     ),
+                                //     onPressed: () => Navigator.push(
+                                //       context,
+                                //       MaterialPageRoute(
+                                //         builder: (_) =>
+                                //             WargaEditPage(wargaId: w['id']),
+                                //       ),
+                                //     ).then((_) => loadWarga()),
+                                //   ),
+                                // ),
                                 const SizedBox(width: 8),
                                 // ICON DELETE
                                 Container(
+                                  width: 32,
+                                  height: 32,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     border: Border.all(
@@ -226,6 +257,8 @@ class _WargaListPageState extends State<WargaListPage> {
                                     ),
                                   ),
                                   child: IconButton(
+                                    padding: EdgeInsets.zero,
+                                    iconSize: 18,
                                     icon: const Icon(
                                       Icons.delete,
                                       color: Colors.red,
@@ -233,6 +266,22 @@ class _WargaListPageState extends State<WargaListPage> {
                                     onPressed: () => confirmDelete(w['id']),
                                   ),
                                 ),
+                                // Container(
+                                //   decoration: BoxDecoration(
+                                //     shape: BoxShape.circle,
+                                //     border: Border.all(
+                                //       color: Colors.red,
+                                //       width: 1.5,
+                                //     ),
+                                //   ),
+                                //   child: IconButton(
+                                //     icon: const Icon(
+                                //       Icons.delete,
+                                //       color: Colors.red,
+                                //     ),
+                                //     onPressed: () => confirmDelete(w['id']),
+                                //   ),
+                                // ),
                               ],
                             ),
                           ),

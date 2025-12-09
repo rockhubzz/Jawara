@@ -211,11 +211,22 @@ class _TambahWargaPageState extends State<TambahWargaPage> {
                       const SizedBox(height: 24),
 
                       // === DROPDOWN KELUARGA ===
-                      DropdownButtonFormField<int>(
-                        decoration: const InputDecoration(
-                          labelText: "Keluarga",
+                      const Text(
+                        "Keluarga",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
                         ),
-                        initialValue: keluargaId,
+                      ),
+                      const SizedBox(height: 8),
+                      DropdownButtonFormField<int>(
+                        decoration: InputDecoration(
+                          hintText: "-- Pilih Keluarga --",
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        value: keluargaId,
                         items: keluargaList
                             .map(
                               (e) => DropdownMenuItem<int>(
@@ -225,8 +236,10 @@ class _TambahWargaPageState extends State<TambahWargaPage> {
                             )
                             .toList(),
                         onChanged: (v) => setState(() => keluargaId = v),
+                        validator: (v) => v == null ? "Pilih Keluarga" : null,
                       ),
-
+                      const SizedBox(height: 16),
+                  
                       _buildTextField(
                         "Nama",
                         nama,
@@ -242,11 +255,6 @@ class _TambahWargaPageState extends State<TambahWargaPage> {
                       ),
                       const SizedBox(height: 16),
 
-                      const SizedBox(height: 16),
-
-                      const SizedBox(height: 16),
-
-                      // === TANGGAL LAHIR ===
                       _buildDropdown("Jenis Kelamin", jenisKelamin, [
                         "Laki-laki",
                         "Perempuan",

@@ -66,17 +66,10 @@ class AppDrawer extends StatelessWidget {
 
       // 🔥 TOMBOL TENGAH (FAB)
       floatingActionButton: Container(
-        width: 60,
-        height: 60,
+        width: 70, // container putih sedikit lebih besar
+        height: 70,
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color.fromARGB(255, 255, 235, 188),
-              Color.fromARGB(255, 181, 255, 183),
-            ],
-          ),
+          color: Colors.white, // latar belakang putih
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
@@ -86,11 +79,39 @@ class AppDrawer extends StatelessWidget {
             ),
           ],
         ),
-        child: RawMaterialButton(
-          shape: const CircleBorder(),
-          elevation: 0,
-          onPressed: () => _onTap(context, 2),
-          child: const Icon(Icons.add, size: 32, color: Colors.white),
+        child: Center(
+          child: Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  const Color.fromARGB(255, 255, 235, 188).withOpacity(0.95),
+                  const Color.fromARGB(255, 181, 255, 183).withOpacity(0.95),
+                ],
+              ),
+              shape: BoxShape.circle,
+            ),
+            // decoration: BoxDecoration(
+            //   gradient: const LinearGradient(
+            //     begin: Alignment.topLeft,
+            //     end: Alignment.bottomRight,
+            //     colors: [
+            //       Color.fromARGB(255, 255, 235, 188),
+            //       Color.fromARGB(255, 181, 255, 183),
+            //     ],
+            //   ),
+            //   shape: BoxShape.circle,
+            // ),
+            child: RawMaterialButton(
+              shape: const CircleBorder(),
+              elevation: 0,
+              onPressed: () => _onTap(context, 2),
+              child: const Icon(Icons.add, size: 32, color: Colors.white),
+            ),
+          ),
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
