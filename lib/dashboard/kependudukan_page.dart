@@ -2,9 +2,47 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:go_router/go_router.dart';
 import '../widgets/appDrawer.dart';
+import '../services/kependudukan_service.dart';
 
-class KependudukanPage extends StatelessWidget {
+class KependudukanPage extends StatefulWidget {
   const KependudukanPage({super.key});
+
+  @override
+  State<KependudukanPage> createState() => _KependudukanPageState();
+}
+
+class _KependudukanPageState extends State<KependudukanPage> {
+  bool loading = true;
+
+  int totalKeluarga = 0;
+  int totalWarga = 0;
+
+  List domisili = [];
+  List jenisKelamin = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadGlance();
+  }
+
+  Future<void> _loadGlance() async {
+    try {
+      final result = await KependudukanService.getGlance();
+      final data = result['data'];
+
+      setState(() {
+        totalKeluarga = data['total_keluarga'];
+        totalWarga = data['total_warga'];
+        domisili = data['domisili'];
+        jenisKelamin = data['jenis_kelamin'];
+        loading = false;
+      });
+    } catch (e) {
+      print(e);
+      setState(() => loading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,14 +83,14 @@ class KependudukanPage extends StatelessWidget {
             children: [
               _infoCard(
                 title: "Total Keluarga",
-                value: "4",
+                value: loading ? "..." : totalKeluarga.toString(),
                 icon: Icons.house_rounded,
                 color: const Color(0xFFDCE8FA),
                 textColor: Colors.blue[800]!,
               ),
               _infoCard(
                 title: "Total Penduduk",
-                value: "6",
+                value: loading ? "..." : totalWarga.toString(),
                 icon: Icons.people_alt_rounded,
                 color: const Color(0xFFDFF6DD),
                 textColor: Colors.green[700]!,
@@ -79,142 +117,160 @@ class KependudukanPage extends StatelessWidget {
                 title: "Status Penduduk",
                 icon: Icons.verified_user_rounded,
                 color: const Color(0xFFFFF5D9),
-                sections: [
-                  PieChartSectionData(
-                    value: 100,
-                    color: Colors.green,
-                    title: "Aktif",
-                    titleStyle: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
+                sections: domisili.isEmpty
+                    ? [
+                        PieChartSectionData(
+                          value: 100,
+                          color: Colors.grey,
+                          title: "Loading",
+                        ),
+                      ]
+                    : domisili.map<PieChartSectionData>((e) {
+                        return PieChartSectionData(
+                          value: double.parse(e['total'].toString()),
+                          title: e['status_domisili'],
+                          color: e['status_domisili'] == 'Aktif'
+                              ? Colors.green
+                              : Colors.red,
+                          titleStyle: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        );
+                      }).toList(),
               ),
 
               _chartCard(
                 title: "Jenis Kelamin",
                 icon: Icons.wc_rounded,
                 color: const Color(0xFFF3E5F5),
-                sections: [
-                  PieChartSectionData(
-                    value: 60,
-                    color: Colors.blue,
-                    title: "L",
-                    titleStyle: const TextStyle(color: Colors.white),
-                  ),
-                  PieChartSectionData(
-                    value: 40,
-                    color: Colors.pinkAccent,
-                    title: "P",
-                    titleStyle: const TextStyle(color: Colors.white),
-                  ),
-                ],
+                sections: jenisKelamin.isEmpty
+                    ? [
+                        PieChartSectionData(
+                          value: 100,
+                          color: Colors.grey,
+                          title: "Loading",
+                        ),
+                      ]
+                    : jenisKelamin.map<PieChartSectionData>((e) {
+                        return PieChartSectionData(
+                          value: double.parse(e['total'].toString()),
+                          title: e['jenis_kelamin'].toString().startsWith('L')
+                              ? 'L'
+                              : 'P',
+                          color: e['jenis_kelamin'] == 'Laki-laki'
+                              ? Colors.blue
+                              : Colors.pinkAccent,
+                          titleStyle: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        );
+                      }).toList(),
               ),
+              // _chartCard(
+              //   title: "Pekerjaan Penduduk",
+              //   icon: Icons.work_rounded,
+              //   color: const Color(0xFFFFF0E6),
+              //   sections: [
+              //     PieChartSectionData(
+              //       value: 40,
+              //       color: Colors.brown,
+              //       title: "Petani",
+              //       titleStyle: const TextStyle(color: Colors.white),
+              //     ),
+              //     PieChartSectionData(
+              //       value: 25,
+              //       color: Colors.teal,
+              //       title: "Pedagang",
+              //       titleStyle: const TextStyle(color: Colors.white),
+              //     ),
+              //     PieChartSectionData(
+              //       value: 20,
+              //       color: Colors.deepPurple,
+              //       title: "Guru",
+              //       titleStyle: const TextStyle(color: Colors.white),
+              //     ),
+              //     PieChartSectionData(
+              //       value: 15,
+              //       color: Colors.orange,
+              //       title: "Lainnya",
+              //       titleStyle: const TextStyle(color: Colors.white),
+              //     ),
+              //   ],
+              // ),
 
-              _chartCard(
-                title: "Pekerjaan Penduduk",
-                icon: Icons.work_rounded,
-                color: const Color(0xFFFFF0E6),
-                sections: [
-                  PieChartSectionData(
-                    value: 40,
-                    color: Colors.brown,
-                    title: "Petani",
-                    titleStyle: const TextStyle(color: Colors.white),
-                  ),
-                  PieChartSectionData(
-                    value: 25,
-                    color: Colors.teal,
-                    title: "Pedagang",
-                    titleStyle: const TextStyle(color: Colors.white),
-                  ),
-                  PieChartSectionData(
-                    value: 20,
-                    color: Colors.deepPurple,
-                    title: "Guru",
-                    titleStyle: const TextStyle(color: Colors.white),
-                  ),
-                  PieChartSectionData(
-                    value: 15,
-                    color: Colors.orange,
-                    title: "Lainnya",
-                    titleStyle: const TextStyle(color: Colors.white),
-                  ),
-                ],
-              ),
+              // _chartCard(
+              //   title: "Peran dalam Keluarga",
+              //   icon: Icons.family_restroom_rounded,
+              //   color: const Color(0xFFD9F1FF),
+              //   sections: [
+              //     PieChartSectionData(
+              //       value: 50,
+              //       color: Colors.blue,
+              //       title: "KK",
+              //       titleStyle: const TextStyle(color: Colors.white),
+              //     ),
+              //     PieChartSectionData(
+              //       value: 30,
+              //       color: Colors.redAccent,
+              //       title: "Istri",
+              //       titleStyle: const TextStyle(color: Colors.white),
+              //     ),
+              //     PieChartSectionData(
+              //       value: 20,
+              //       color: Colors.green,
+              //       title: "Anak",
+              //       titleStyle: const TextStyle(color: Colors.white),
+              //     ),
+              //   ],
+              // ),
 
-              _chartCard(
-                title: "Peran dalam Keluarga",
-                icon: Icons.family_restroom_rounded,
-                color: const Color(0xFFD9F1FF),
-                sections: [
-                  PieChartSectionData(
-                    value: 50,
-                    color: Colors.blue,
-                    title: "KK",
-                    titleStyle: const TextStyle(color: Colors.white),
-                  ),
-                  PieChartSectionData(
-                    value: 30,
-                    color: Colors.redAccent,
-                    title: "Istri",
-                    titleStyle: const TextStyle(color: Colors.white),
-                  ),
-                  PieChartSectionData(
-                    value: 20,
-                    color: Colors.green,
-                    title: "Anak",
-                    titleStyle: const TextStyle(color: Colors.white),
-                  ),
-                ],
-              ),
+              // _chartCard(
+              //   title: "Agama",
+              //   icon: Icons.church_rounded,
+              //   color: const Color(0xFFFFE7E7),
+              //   sections: [
+              //     PieChartSectionData(
+              //       value: 60,
+              //       color: Colors.orange,
+              //       title: "Islam",
+              //       titleStyle: const TextStyle(color: Colors.white),
+              //     ),
+              //     PieChartSectionData(
+              //       value: 40,
+              //       color: Colors.blue,
+              //       title: "Lainnya",
+              //       titleStyle: const TextStyle(color: Colors.white),
+              //     ),
+              //   ],
+              // ),
 
-              _chartCard(
-                title: "Agama",
-                icon: Icons.church_rounded,
-                color: const Color(0xFFFFE7E7),
-                sections: [
-                  PieChartSectionData(
-                    value: 60,
-                    color: Colors.orange,
-                    title: "Islam",
-                    titleStyle: const TextStyle(color: Colors.white),
-                  ),
-                  PieChartSectionData(
-                    value: 40,
-                    color: Colors.blue,
-                    title: "Lainnya",
-                    titleStyle: const TextStyle(color: Colors.white),
-                  ),
-                ],
-              ),
-
-              _chartCard(
-                title: "Pendidikan",
-                icon: Icons.school_rounded,
-                color: const Color(0xFFE0F7F3),
-                sections: [
-                  PieChartSectionData(
-                    value: 40,
-                    color: Colors.grey,
-                    title: "SD",
-                    titleStyle: const TextStyle(color: Colors.white),
-                  ),
-                  PieChartSectionData(
-                    value: 30,
-                    color: Colors.blueGrey,
-                    title: "SMP",
-                    titleStyle: const TextStyle(color: Colors.white),
-                  ),
-                  PieChartSectionData(
-                    value: 30,
-                    color: Colors.indigo,
-                    title: "SMA",
-                    titleStyle: const TextStyle(color: Colors.white),
-                  ),
-                ],
-              ),
+              // _chartCard(
+              //   title: "Pendidikan",
+              //   icon: Icons.school_rounded,
+              //   color: const Color(0xFFE0F7F3),
+              //   sections: [
+              //     PieChartSectionData(
+              //       value: 40,
+              //       color: Colors.grey,
+              //       title: "SD",
+              //       titleStyle: const TextStyle(color: Colors.white),
+              //     ),
+              //     PieChartSectionData(
+              //       value: 30,
+              //       color: Colors.blueGrey,
+              //       title: "SMP",
+              //       titleStyle: const TextStyle(color: Colors.white),
+              //     ),
+              //     PieChartSectionData(
+              //       value: 30,
+              //       color: Colors.indigo,
+              //       title: "SMA",
+              //       titleStyle: const TextStyle(color: Colors.white),
+              //     ),
+              //   ],
+              // ),
             ],
           ),
         ],

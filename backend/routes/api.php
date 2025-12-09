@@ -100,3 +100,7 @@ Route::get('/glance/saldo', [DashboardController::class, 'getSaldo']);
 Route::get('/glance/keluarga', [DashboardController::class, 'getKeluarga']);
 Route::get('/glance/kegiatan', [DashboardController::class, 'getKegiatan']);
 Route::get('/glance/rekap-keuangan', [DashboardController::class, 'rekapBulanan']);
+Route::get('/glance/rekap-penduduk', [DashboardController::class, 'getKependudukan']);
+Route::get('/glance/kegiatan', [DashboardController::class, 'KegiatanStats']);
+Route::get('/glance/kegiatan/countByKategori', [DashboardController::class, 'countByKategori']);
+Route::get('/glance/kegiatan/countKegiatanPerBulan', [DashboardController::class, 'countKegiatanPerBulan']);
