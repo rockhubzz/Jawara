@@ -8,6 +8,7 @@ import 'package:jawara/kegiatan_dan_brodcast/broadcast_daftar_page.dart';
 import 'package:jawara/kegiatan_dan_brodcast/broadcast_tambah_page.dart';
 import 'package:jawara/data_warga_rumah/keluarga_page.dart';
 import 'package:jawara/pages/pemasukan_menu_page.dart';
+import 'package:jawara/pages/tambah_page.dart';
 import 'package:jawara/pemasukan/tagihan_page.dart';
 import 'package:jawara/pemasukan/kategori_iuran_page.dart';
 import 'package:jawara/pemasukan/tagih_iuran_page.dart';
@@ -72,6 +73,10 @@ class MyApp extends StatelessWidget {
         GoRoute(
           path: '/beranda/pemasukan_menu',
           builder: (context, state) => const PemasukanMenuPage(),
+        ),
+        GoRoute(
+          path: '/beranda/tambah',
+          builder: (context, state) => const TambahPage(),
         ),
         GoRoute(
           path: '/dashboard/kegiatan',
