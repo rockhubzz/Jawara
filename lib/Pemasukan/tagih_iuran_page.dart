@@ -173,6 +173,8 @@ class _TagihIuranPageState extends State<TagihIuranPage> {
 
   @override
   Widget build(BuildContext context) {
+    final from =
+        GoRouterState.of(context).uri.queryParameters['from'] ?? 'semua';
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -195,7 +197,13 @@ class _TagihIuranPageState extends State<TagihIuranPage> {
                   Icons.arrow_back_ios_new,
                   color: Color(0xFF2E7D32),
                 ),
-                onPressed: () => context.go('/beranda/semua_menu'),
+                onPressed: () {
+                  if (from == 'pemasukan_menu') {
+                    context.go('/beranda/pemasukan_menu');
+                  } else {
+                    context.go('/beranda/semua_menu');
+                  }
+                },
               ),
               title: const Text(
                 "Tagih Iuran",

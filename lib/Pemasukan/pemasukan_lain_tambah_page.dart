@@ -113,6 +113,8 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
 
   @override
   Widget build(BuildContext context) {
+    final from =
+        GoRouterState.of(context).uri.queryParameters['from'] ?? 'semua';
     return Theme(
       data: Theme.of(context).copyWith(
         colorScheme: const ColorScheme.light(primary: Color(0xFF2E7D32)),
@@ -135,7 +137,6 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
       ),
 
       child: Scaffold(
-        extendBodyBehindAppBar: true,
         appBar: AppBar(
           backgroundColor: Colors.white,
           elevation: 1,
@@ -144,7 +145,13 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
               Icons.arrow_back_ios_new,
               color: Color(0xFF2E7D32),
             ),
-            onPressed: () => context.go('/beranda/semua_menu'),
+            onPressed: () {
+              if (from == 'pemasukan_menu') {
+                context.go('/beranda/pemasukan_menu');
+              } else {
+                context.go('/beranda/semua_menu');
+              }
+            },
           ),
           title: const Text(
             "Tambah Pemasukan Lain",
@@ -154,16 +161,16 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
             ),
           ),
         ),
-
+        
         body: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
               colors: [
                 Color.fromARGB(255, 255, 244, 214),
                 Color.fromARGB(255, 199, 255, 201),
               ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
             ),
           ),
 
@@ -172,14 +179,15 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
             child: Center(
               child: Container(
                 padding: const EdgeInsets.all(24),
-                constraints: const BoxConstraints(maxWidth: 520),
+                constraints: const BoxConstraints(maxWidth: 500),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.95),
-                  borderRadius: BorderRadius.circular(18),
+                  color: Colors.white.withOpacity(0.9),
+                  borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
+                      color: Colors.white.withOpacity(0.3),
                       blurRadius: 12,
+                      spreadRadius: 2,
                       offset: const Offset(0, 4),
                     ),
                   ],
@@ -188,7 +196,13 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
                 child: Form(
                   key: _formKey,
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      const Text(
+                        "Isi detail di bawah untuk menambahkan pemasukan",
+                        style: TextStyle(fontSize: 13, color: Colors.black54),
+                      ),
+                      const SizedBox(height: 24),
                       // NAMA
                       _buildTextField(
                         label: "Nama Pemasukan",

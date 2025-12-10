@@ -126,6 +126,8 @@ class _RumahListPageState extends State<RumahListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final from =
+        GoRouterState.of(context).uri.queryParameters['from'] ?? 'semua';
     const Color primaryGreen = Color(0xFF2E7D32);
 
     return Scaffold(
@@ -135,7 +137,13 @@ class _RumahListPageState extends State<RumahListPage> {
         elevation: 0.5,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: primaryGreen),
-          onPressed: () => context.go('/beranda/semua_menu'),
+          onPressed: () {
+            if (from == 'beranda') {
+              context.go('/beranda');
+            } else {
+              context.go('/beranda/semua_menu');
+            }
+          },
         ),
         title: const Text(
           "Daftar Rumah",

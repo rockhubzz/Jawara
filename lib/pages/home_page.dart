@@ -198,18 +198,14 @@ class _HomePageState extends State<HomePage> {
                     Icons.people,
                     "Data Warga",
                     Colors.green,
-                    onTap: () {
-                      context.go('/beranda/data_warga');
-                    },
+                    onTap: () => context.go('/data_warga_rumah/daftarWarga?from=beranda'),
                   ),
 
                   _menuItem(
                     Icons.house,
                     "Data Rumah",
                     Colors.blue,
-                    onTap: () {
-                      context.go('/beranda/data_rumah');
-                    },
+                    onTap: () => context.go('/data_warga_rumah/daftarRumah?from=beranda'),
                   ),
 
                   _menuItem(
@@ -217,43 +213,40 @@ class _HomePageState extends State<HomePage> {
                     "Pemasukan",
                     Colors.teal,
                     onTap: () {
-                      context.go('/beranda/pemasukan');
+                      context.go('/beranda/pemasukan_menu');
                     },
                   ),
 
-                  _menuItem(
-                    Icons.money_off,
-                    "Pengeluaran",
-                    Colors.red,
-                    onTap: () {
-                      context.go('/beranda/pengeluaran');
-                    },
-                  ),
+                  // _menuItem(
+                  //   Icons.money_off,
+                  //   "Pengeluaran",
+                  //   Colors.red,
+                  //   onTap: () {
+                  //     context.go('/beranda/pengeluaran');
+                  //   },
+                  // ),
 
-                  _menuItem(
-                    Icons.message,
-                    "Pesan Warga",
-                    Colors.purple,
-                    onTap: () {
-                      context.go('/beranda/pesan_warga');
-                    },
-                  ),
+                  // _menuItem(
+                  //   Icons.message,
+                  //   "Pesan Warga",
+                  //   Colors.purple,
+                  //   onTap: () {
+                  //     context.go('/beranda/pesan_warga');
+                  //   },
+                  // ),
 
                   _menuItem(
                     Icons.swap_horiz,
                     "Mutasi",
                     Colors.orange,
-                    onTap: () =>
-                        context.go('/mutasi?from=beranda'),
+                    onTap: () => context.go('/mutasi?from=beranda'),
                   ),
 
                   _menuItem(
                     Icons.event_note,
                     "Kegiatan",
                     Colors.indigo,
-                    onTap: () {
-                      context.go('/beranda/kegiatan');
-                    },
+                    onTap: () => context.go('/kegiatan/daftar?from=beranda'),
                   ),
                   _menuItem(
                     Icons.menu,
