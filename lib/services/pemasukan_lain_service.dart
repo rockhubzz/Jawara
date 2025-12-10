@@ -6,7 +6,11 @@ class PemasukanService {
   static String? get baseUrl => AuthService.baseUrl;
 
   static Future<Map<String, dynamic>> getAll(int page) async {
-    final res = await http.get(Uri.parse("$baseUrl/pemasukan"));
+    final uri = Uri.parse(
+      "$baseUrl/pemasukan",
+    ).replace(queryParameters: {'page': page.toString()});
+
+    final res = await http.get(uri);
 
     return jsonDecode(res.body);
   }

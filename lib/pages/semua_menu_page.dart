@@ -148,7 +148,7 @@ class _SemuaMenuPageState extends State<SemuaMenuPage> {
             "Daftar Mutasi",
             Icons.list_alt,
             Colors.orange,
-            onTap: () => context.go('/mutasi?from=semua'),
+            onTap: () => context.go('/mutasi_keluarga/daftar'),
           ),
 
           MenuItem(
@@ -185,12 +185,12 @@ class _SemuaMenuPageState extends State<SemuaMenuPage> {
             Colors.orange,
             onTap: () => context.go('/laporan_keuangan/semua_pengeluaran'),
           ),
-          MenuItem(
-            "Cetak Laporan",
-            Icons.print,
-            Colors.red,
-            onTap: () => context.go('/laporan_keuangan/cetak_laporan'),
-          ),
+          // MenuItem(
+          //   "Cetak Laporan",
+          //   Icons.print,
+          //   Colors.red,
+          //   onTap: () => context.go('/laporan_keuangan/cetak_laporan'),
+          // ),
         ],
       ),
       MenuSection(
