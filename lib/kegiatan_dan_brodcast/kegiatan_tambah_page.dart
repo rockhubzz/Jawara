@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../services/kegiatan_service.dart';
 
 class KegiatanTambahPage extends StatefulWidget {
-  final int? id; // null = tambah, int = edit
+  final int? id;
 
   const KegiatanTambahPage({super.key, this.id});
 
@@ -113,8 +113,8 @@ class _KegiatanTambahPageState extends State<KegiatanTambahPage> {
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Color.fromARGB(255, 255, 235, 188), // krem
-              Color.fromARGB(255, 181, 255, 183), // hijau
+              Color.fromARGB(255, 255, 235, 188), 
+              Color.fromARGB(255, 181, 255, 183), 
             ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,

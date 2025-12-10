@@ -72,7 +72,8 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
       }
     }
   }
-
+  
+  // edit
   void _editItem(Map item) => showEditDialog(context, item);
 
   Future<void> editKegiatan(int id, String nama, String kategori, String pj,
@@ -270,7 +271,7 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
         ),
       ],
     );
-  }
+  }   
 
   @override
   Widget build(BuildContext context) {
