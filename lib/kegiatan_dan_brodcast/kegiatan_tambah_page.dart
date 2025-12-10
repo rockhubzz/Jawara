@@ -108,166 +108,171 @@ class _KegiatanTambahPageState extends State<KegiatanTambahPage> {
   Widget build(BuildContext context) {
     final from =
         GoRouterState.of(context).uri.queryParameters['from'] ?? 'tambah';
-    return Scaffold(
-      backgroundColor: const Color(0xFFF4F6F8),
 
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0.5,
-        title: Text(
-          isEdit ? "Edit Kegiatan" : "Tambah Kegiatan",
-          style: const TextStyle(
-            color: Colors.black87,
-            fontWeight: FontWeight.bold,
+    return Scaffold(
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color.fromARGB(255, 255, 235, 188),
+              Color.fromARGB(255, 181, 255, 183),
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            if (from == 'tambah') {
-              context.go('/beranda/tambah');
-            } else {
-              context.go('/beranda/semua_menu');
-            }
-          },
+        child: SafeArea(
+          child: Column(
+            children: [
+              // HEADER BACK BUTTON
+              Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back, color: Colors.black),
+                    onPressed: () {
+                      if (from == 'tambah') {
+                        context.go('/beranda/tambah');
+                      } else {
+                        context.go('/beranda/semua_menu');
+                      }
+                    },
+                  ),
+                ],
+              ),
+
+              Expanded(
+                child: loading && isEdit
+                    ? const Center(child: CircularProgressIndicator())
+                    : _buildForm(context),
+              ),
+            ],
+          ),
         ),
       ),
-
-      body: loading && isEdit
-          ? const Center(child: CircularProgressIndicator())
-          : _buildForm(context),
     );
   }
 
   Widget _buildForm(BuildContext context) {
-    return SafeArea(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 900),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(14),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.15),
-                    blurRadius: 8,
-                    offset: const Offset(0, 3),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 900),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.15),
+                  blurRadius: 8,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            padding: const EdgeInsets.all(20),
+
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // JUDUL
+                  Text(
+                    isEdit ? "Edit Kegiatan" : "Tambah Kegiatan",
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // CARD FORM
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Color.fromARGB(255, 247, 255, 204),
+                      borderRadius: BorderRadius.circular(14),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 6,
+                          offset: Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _InputField(
+                          controller: namaC,
+                          label: "Nama Kegiatan",
+                          hint: "Masukkan nama kegiatan...",
+                          icon: Icons.event_note_outlined,
+                        ),
+                        const SizedBox(height: 14),
+
+                        _InputField(
+                          controller: kategoriC,
+                          label: "Kategori",
+                          hint: "Masukkan kategori kegiatan...",
+                          icon: Icons.category_outlined,
+                        ),
+                        const SizedBox(height: 14),
+
+                        _InputField(
+                          controller: tanggalC,
+                          label: "Tanggal",
+                          hint: "Pilih tanggal",
+                          icon: Icons.date_range_outlined,
+                          readOnly: true,
+                          onTap: _pickDate,
+                        ),
+                        const SizedBox(height: 14),
+
+                        _InputField(
+                          controller: lokasiC,
+                          label: "Lokasi",
+                          hint: "Masukkan lokasi kegiatan",
+                          icon: Icons.location_on_outlined,
+                        ),
+                        const SizedBox(height: 14),
+
+                        _InputField(
+                          controller: pjC,
+                          label: "Penanggung Jawab",
+                          hint: "Masukkan penanggung jawab",
+                          icon: Icons.person_outline,
+                        ),
+
+                        const SizedBox(height: 22),
+
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Color(0xFFBC6C25),
+                                foregroundColor: Colors.white,
+                              ),
+                              onPressed: loading ? null : save,
+                              child: Text(
+                                loading
+                                    ? (isEdit
+                                          ? "Memperbarui..."
+                                          : "Menyimpan...")
+                                    : (isEdit ? "Update" : "Simpan"),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ],
-              ),
-              padding: const EdgeInsets.all(20),
-
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // BACK BUTTON
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.black),
-                      onPressed: () => context.go('/kegiatan/daftar'),
-                    ),
-
-                    const SizedBox(height: 8),
-
-                    Text(
-                      isEdit ? "Edit Kegiatan" : "Tambah Kegiatan",
-                      style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // CARD KUNING
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Color.fromARGB(255, 247, 255, 204),
-                        borderRadius: BorderRadius.circular(14),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black26,
-                            blurRadius: 6,
-                            offset: Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _InputField(
-                            controller: namaC,
-                            label: "Nama Kegiatan",
-                            hint: "Masukkan nama kegiatan...",
-                            icon: Icons.event_note_outlined,
-                          ),
-                          const SizedBox(height: 14),
-
-                          _InputField(
-                            controller: kategoriC,
-                            label: "Kategori",
-                            hint: "Masukkan kategori kegiatan...",
-                            icon: Icons.category_outlined,
-                          ),
-                          const SizedBox(height: 14),
-
-                          _InputField(
-                            controller: tanggalC,
-                            label: "Tanggal",
-                            hint: "Pilih tanggal",
-                            icon: Icons.date_range_outlined,
-                            readOnly: true,
-                            onTap: _pickDate,
-                          ),
-                          const SizedBox(height: 14),
-
-                          _InputField(
-                            controller: lokasiC,
-                            label: "Lokasi",
-                            hint: "Masukkan lokasi kegiatan",
-                            icon: Icons.location_on_outlined,
-                          ),
-                          const SizedBox(height: 14),
-
-                          _InputField(
-                            controller: pjC,
-                            label: "Penanggung Jawab",
-                            hint: "Masukkan penanggung jawab",
-                            icon: Icons.person_outline,
-                          ),
-
-                          const SizedBox(height: 22),
-
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Color(0xFFBC6C25),
-                                  foregroundColor: Colors.white,
-                                ),
-                                onPressed: loading ? null : save,
-                                child: Text(
-                                  loading
-                                      ? (isEdit
-                                            ? "Memperbarui..."
-                                            : "Menyimpan...")
-                                      : (isEdit ? "Update" : "Simpan"),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
               ),
             ),
           ),
@@ -277,7 +282,6 @@ class _KegiatanTambahPageState extends State<KegiatanTambahPage> {
   }
 }
 
-// Reusable Input Field
 class _InputField extends StatelessWidget {
   final TextEditingController controller;
   final String label;
@@ -302,20 +306,19 @@ class _InputField extends StatelessWidget {
       controller: controller,
       readOnly: readOnly,
       onTap: onTap,
-      cursorColor: const Color(0xFFBC6C25),
       decoration: InputDecoration(
-        prefixIcon: Icon(icon, color: const Color(0xFFBC6C25)),
+        prefixIcon: Icon(icon, color: Color(0xFFBC6C25)),
         labelText: label,
         hintText: hint,
         filled: true,
         fillColor: Colors.white,
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFBC6C25), width: 2),
+          borderSide: BorderSide(color: Color(0xFFBC6C25), width: 2),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFBC6C25), width: 2.2),
+          borderSide: BorderSide(color: Color(0xFFBC6C25), width: 2.2),
         ),
       ),
       validator: (v) => (v == null || v.isEmpty) ? 'Wajib diisi' : null,
