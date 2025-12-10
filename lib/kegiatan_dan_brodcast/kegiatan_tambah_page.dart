@@ -16,8 +16,10 @@ class _KegiatanTambahPageState extends State<KegiatanTambahPage> {
   final namaC = TextEditingController();
   final kategoriC = TextEditingController();
   final tanggalC = TextEditingController();
-  final lokasiC = TextEditingController();
   final pjC = TextEditingController();
+  final biayaC = TextEditingController();
+  final lokasiC = TextEditingController();
+
   bool loading = false;
 
   late final bool isEdit = widget.id != null;
@@ -37,6 +39,7 @@ class _KegiatanTambahPageState extends State<KegiatanTambahPage> {
       tanggalC.text = data['tanggal'] ?? '';
       lokasiC.text = data['lokasi'] ?? '';
       pjC.text = data['penanggung_jawab'] ?? '';
+      biayaC.text = data['biaya'] ?? '';
       loading = false;
     });
   }
@@ -70,6 +73,7 @@ class _KegiatanTambahPageState extends State<KegiatanTambahPage> {
       "tanggal": tanggalC.text,
       "lokasi": lokasiC.text,
       "penanggung_jawab": pjC.text,
+      "biaya": biayaC.text,
     };
 
     Map<String, dynamic> res;
@@ -195,6 +199,13 @@ class _KegiatanTambahPageState extends State<KegiatanTambahPage> {
                                 label: "Lokasi",
                                 hint: "Masukkan lokasi kegiatan",
                                 icon: Icons.location_on_outlined,
+                              ),
+                              const SizedBox(height: 14),
+                              _InputField(
+                                controller: biayaC,
+                                label: "Biaya",
+                                hint: "Masukkan biaya kegiatan...",
+                                icon: Icons.monetization_on_outlined,
                               ),
                               const SizedBox(height: 14),
                               _InputField(
