@@ -26,7 +26,7 @@ class AppDrawer extends StatelessWidget {
         context.go('/warga');
         break;
       case 2:
-        context.go('/tambah');
+        context.go('/beranda/tambah');
         break;
       case 3:
         context.go('/keuangan');

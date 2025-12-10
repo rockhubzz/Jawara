@@ -97,6 +97,8 @@ class _KegiatanTambahPageState extends State<KegiatanTambahPage> {
 
   @override
   Widget build(BuildContext context) {
+    final from =
+        GoRouterState.of(context).uri.queryParameters['from'] ?? 'tambah';
     return Scaffold(
       backgroundColor: const Color(0xFFF4F6F8),
 
@@ -112,7 +114,13 @@ class _KegiatanTambahPageState extends State<KegiatanTambahPage> {
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => context.go('/kegiatan/daftar'),
+          onPressed: () {
+            if (from == 'tambah') {
+              context.go('/beranda/tambah');
+            } else {
+              context.go('/beranda/semua_menu');
+            }
+          },
         ),
       ),
 

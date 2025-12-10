@@ -354,6 +354,8 @@ class _TambahAkunPenggunaPageState extends State<TambahAkunPenggunaPage> {
 
   @override
   Widget build(BuildContext context) {
+    final from =
+        GoRouterState.of(context).uri.queryParameters['from'] ?? 'tambah';
     return Theme(
       data: Theme.of(context).copyWith(
         colorScheme: const ColorScheme.light(primary: Color(0xFF2E7D32)),
@@ -379,7 +381,13 @@ class _TambahAkunPenggunaPageState extends State<TambahAkunPenggunaPage> {
               Icons.arrow_back_ios_new,
               color: Color(0xFF2E7D32),
             ),
-            onPressed: () => context.go('/beranda/semua_menu'),
+            onPressed: () {
+              if (from == 'tambah') {
+                context.go('/beranda/tambah');
+              } else {
+                context.go('/beranda/semua_menu');
+              }
+            },
           ),
           title: const Text(
             "Tambah Akun Pengguna",
