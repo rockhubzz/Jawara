@@ -102,15 +102,15 @@ class _DaftarPageState extends State<DaftarPage> {
   }
 
   // ========= NAVIGASI DETAIL (API BELUM SIAP) ==========
-  void _openDetail(Map<String, dynamic> item) {
-    // API backend detail belum siap
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("API detail belum tersedia"),
-        backgroundColor: Colors.orange,
-      ),
-    );
-  }
+  // void _openDetail(Map<String, dynamic> item) {
+  //   // API backend detail belum siap
+  //   ScaffoldMessenger.of(context).showSnackBar(
+  //     const SnackBar(
+  //       content: Text("API detail belum tersedia"),
+  //       backgroundColor: Colors.orange,
+  //     ),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -177,15 +177,15 @@ class _DaftarPageState extends State<DaftarPage> {
                             color: Color(0xFF2E7D32),
                           ),
                         ),
-                        ElevatedButton.icon(
-                          onPressed: () => context.go('/mutasi/tambah'),
-                          icon: const Icon(Icons.add),
-                          label: const Text("Tambah"),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF2E7D32),
-                            foregroundColor: Colors.white,
-                          ),
-                        ),
+                        // ElevatedButton.icon(
+                        //   onPressed: () => context.go('/mutasi/tambah'),
+                        //   icon: const Icon(Icons.add),
+                        //   label: const Text("Tambah"),
+                        //   style: ElevatedButton.styleFrom(
+                        //     backgroundColor: const Color(0xFF2E7D32),
+                        //     foregroundColor: Colors.white,
+                        //   ),
+                        // ),
                       ],
                     ),
 
@@ -294,12 +294,12 @@ class _DaftarPageState extends State<DaftarPage> {
                   PopupMenuButton<String>(
                     icon: const Icon(Icons.more_vert),
                     onSelected: (value) {
-                      if (value == "detail") _openDetail(item);
+                      // if (value == "detail") _openDetail(item);
                       if (value == "edit") _openEdit(item);
                       if (value == "hapus") _confirmDelete(item);
                     },
                     itemBuilder: (context) => const [
-                      PopupMenuItem(value: "detail", child: Text("Detail")),
+                      // PopupMenuItem(value: "detail", child: Text("Detail")),
                       PopupMenuItem(value: "edit", child: Text("Edit")),
                       PopupMenuItem(value: "hapus", child: Text("Hapus")),
                     ],
@@ -347,12 +347,12 @@ class _DaftarPageState extends State<DaftarPage> {
                     PopupMenuButton<String>(
                       icon: const Icon(Icons.more_vert),
                       onSelected: (value) {
-                        if (value == "detail") _openDetail(item);
+                        // if (value == "detail") _openDetail(item);
                         if (value == "edit") _openEdit(item);
                         if (value == "hapus") _confirmDelete(item);
                       },
                       itemBuilder: (context) => const [
-                        PopupMenuItem(value: "detail", child: Text("Detail")),
+                        // PopupMenuItem(value: "detail", child: Text("Detail")),
                         PopupMenuItem(value: "edit", child: Text("Edit")),
                         PopupMenuItem(value: "hapus", child: Text("Hapus")),
                       ],
