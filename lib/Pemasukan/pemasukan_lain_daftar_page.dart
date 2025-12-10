@@ -14,6 +14,7 @@ class _PemasukanLainDaftarState extends State<PemasukanLainDaftar> {
   int currentPage = 1;
   int lastPage = 1;
   bool isLoading = true;
+  bool isPaginating = false;
 
   @override
   void initState() {
@@ -22,19 +23,30 @@ class _PemasukanLainDaftarState extends State<PemasukanLainDaftar> {
   }
 
   Future<void> loadData(int page) async {
-    setState(() => isLoading = true);
+    if (isPaginating) return;
+
+    setState(() {
+      if (page == 1) {
+        isLoading = true;
+      }
+      isPaginating = true;
+    });
 
     try {
       final res = await PemasukanService.getAll(page);
 
       setState(() {
-        pemasukanList = res['data']['data'];
+        pemasukanList = List.from(res['data']['data']); // ensure clean reset
         currentPage = res['data']['current_page'];
         lastPage = res['data']['last_page'];
         isLoading = false;
+        isPaginating = false;
       });
     } catch (e) {
-      setState(() => isLoading = false);
+      setState(() {
+        isLoading = false;
+        isPaginating = false;
+      });
 
       ScaffoldMessenger.of(
         context,
@@ -260,31 +272,39 @@ class _PemasukanLainDaftarState extends State<PemasukanLainDaftar> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       IconButton(
-                        onPressed: currentPage > 1
-                            ? () {
-                                loadData(currentPage - 1);
-                              }
+                        onPressed: (currentPage > 1 && !isPaginating)
+                            ? () => loadData(currentPage - 1)
                             : null,
                         icon: const Icon(Icons.chevron_left),
                       ),
 
                       Container(
-                        padding: const EdgeInsets.all(8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           color: const Color(0xFF2E7D32),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Text(
-                          currentPage.toString(),
-                          style: const TextStyle(color: Colors.white),
-                        ),
+                        child: isPaginating
+                            ? const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : Text(
+                                "$currentPage / $lastPage",
+                                style: const TextStyle(color: Colors.white),
+                              ),
                       ),
 
                       IconButton(
-                        onPressed: currentPage < lastPage
-                            ? () {
-                                loadData(currentPage + 1);
-                              }
+                        onPressed: (currentPage < lastPage && !isPaginating)
+                            ? () => loadData(currentPage + 1)
                             : null,
                         icon: const Icon(Icons.chevron_right),
                       ),
