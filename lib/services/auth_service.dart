@@ -15,6 +15,11 @@ class AuthService {
     //   return "http://127.0.0.1:8000/api"; // API saat run di Chrome
     // }
     // // Jika dapat IP lokal dari device → pakai ini
+    // // jangan dihapus (bella pake ini dulu)
+    // if (ip == null) {
+    //   return "http://127.0.0.1:8000/api"; // API saat run di Chrome
+    // }
+    // Jika dapat IP lokal dari device → pakai ini
     // return "http://$ip:8000/api";
   }
 
