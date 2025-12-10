@@ -30,13 +30,15 @@ class _EditMetodePembayaranPageState extends State<EditMetodePembayaranPage> {
   bool loading = false;
   bool loadingData = true;
 
+  final Color primaryGreen = const Color(0xFF2E7D32);
+  final Color softBg = const Color(0xFFE8F5E9);
+
   @override
   void initState() {
     super.initState();
     _loadDetail();
   }
 
-  // ===== LOAD DATA DARI API =====
   Future<void> _loadDetail() async {
     final data = await ChannelTransferService.getById(widget.id);
 
@@ -53,7 +55,6 @@ class _EditMetodePembayaranPageState extends State<EditMetodePembayaranPage> {
     }
   }
 
-  // ===== PICK IMAGE =====
   Future<void> _pickImage() async {
     final picker = ImagePicker();
     final file = await picker.pickImage(source: ImageSource.gallery);
@@ -64,7 +65,6 @@ class _EditMetodePembayaranPageState extends State<EditMetodePembayaranPage> {
     }
   }
 
-  // ===== SUBMIT UPDATE =====
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -92,7 +92,7 @@ class _EditMetodePembayaranPageState extends State<EditMetodePembayaranPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Channel berhasil diperbarui')),
       );
-      context.go('/channel_transfer/daftar'); // balik & trigger refresh list
+      context.go('/channel_transfer/daftar');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(resp['message'] ?? 'Gagal memperbarui')),
@@ -103,15 +103,18 @@ class _EditMetodePembayaranPageState extends State<EditMetodePembayaranPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F6F8),
+      backgroundColor: softBg,
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(Icons.arrow_back, color: primaryGreen),
           onPressed: () => context.go('/channel_transfer/daftar'),
         ),
-
         backgroundColor: Colors.white,
-        title: const Text('Edit Channel'),
+        elevation: 1,
+        title: Text(
+          'Edit Channel',
+          style: TextStyle(color: primaryGreen, fontWeight: FontWeight.w600),
+        ),
       ),
       body: loadingData
           ? const Center(child: CircularProgressIndicator())
@@ -123,13 +126,7 @@ class _EditMetodePembayaranPageState extends State<EditMetodePembayaranPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _label('Nama Channel'),
-                    TextFormField(
-                      controller: _namaController,
-                      validator: (v) => v!.isEmpty ? 'Wajib diisi' : null,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
+                    _inputField(_namaController),
 
                     const SizedBox(height: 16),
 
@@ -147,30 +144,18 @@ class _EditMetodePembayaranPageState extends State<EditMetodePembayaranPage> {
                         DropdownMenuItem(value: 'other', child: Text('Other')),
                       ],
                       onChanged: (v) => setState(() => selectedType = v),
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                      ),
+                      decoration: _inputDecoration(),
                     ),
 
                     const SizedBox(height: 16),
 
                     _label('Nomor Rekening / Akun'),
-                    TextFormField(
-                      controller: _nomorController,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
+                    _inputField(_nomorController),
 
                     const SizedBox(height: 16),
 
                     _label('Nama Pemilik (A/N)'),
-                    TextFormField(
-                      controller: _anController,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
+                    _inputField(_anController),
 
                     const SizedBox(height: 16),
 
@@ -178,29 +163,54 @@ class _EditMetodePembayaranPageState extends State<EditMetodePembayaranPage> {
                     GestureDetector(
                       onTap: _pickImage,
                       child: Container(
-                        height: 110,
+                        height: 120,
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF7F7F7),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.grey.shade300),
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: primaryGreen.withOpacity(0.4),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 6,
+                            ),
+                          ],
                         ),
                         alignment: Alignment.center,
                         child: Builder(
                           builder: (_) {
                             if (selectedImage != null) {
-                              return Image.file(
-                                selectedImage!,
-                                fit: BoxFit.cover,
+                              return ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: Image.file(
+                                  selectedImage!,
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                ),
                               );
                             } else if (existingImage != null &&
                                 existingImage!.isNotEmpty) {
                               final imageUrl = ChannelTransferService.imageUrl(
                                 existingImage!,
                               );
-                              return Image.network(imageUrl, fit: BoxFit.cover);
+                              return ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: Image.network(
+                                  imageUrl,
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                ),
+                              );
                             }
-                            return const Text("Pilih Gambar");
+                            return Text(
+                              "Pilih Gambar",
+                              style: TextStyle(
+                                color: primaryGreen,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            );
                           },
                         ),
                       ),
@@ -212,25 +222,31 @@ class _EditMetodePembayaranPageState extends State<EditMetodePembayaranPage> {
                     TextFormField(
                       controller: _notesController,
                       maxLines: 3,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                      ),
+                      decoration: _inputDecoration(),
                     ),
 
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 30),
 
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        ElevatedButton(
-                          onPressed: loading ? null : _submit,
-                          child: loading
-                              ? const CircularProgressIndicator(
-                                  color: Colors.white,
-                                )
-                              : const Text('Update'),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: primaryGreen,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                         ),
-                      ],
+                        onPressed: loading ? null : _submit,
+                        child: loading
+                            ? const CircularProgressIndicator(
+                                color: Colors.white,
+                              )
+                            : const Text(
+                                'Update',
+                                style: TextStyle(fontSize: 16),
+                              ),
+                      ),
                     ),
                   ],
                 ),
@@ -239,10 +255,42 @@ class _EditMetodePembayaranPageState extends State<EditMetodePembayaranPage> {
     );
   }
 
+  // ===================== COMPONENTS =====================
+
   Widget _label(String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
-      child: Text(text, style: const TextStyle(fontWeight: FontWeight.w600)),
+      child: Text(
+        text,
+        style: TextStyle(fontWeight: FontWeight.w600, color: primaryGreen),
+      ),
+    );
+  }
+
+  Widget _inputField(TextEditingController c) {
+    return TextFormField(
+      controller: c,
+      validator: (v) => v!.isEmpty ? 'Wajib diisi' : null,
+      decoration: _inputDecoration(),
+    );
+  }
+
+  InputDecoration _inputDecoration() {
+    return InputDecoration(
+      filled: true,
+      fillColor: Colors.white,
+      border: OutlineInputBorder(
+        borderSide: BorderSide(color: primaryGreen.withOpacity(0.5)),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: primaryGreen.withOpacity(0.4)),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: primaryGreen, width: 2),
+        borderRadius: BorderRadius.circular(10),
+      ),
     );
   }
 }

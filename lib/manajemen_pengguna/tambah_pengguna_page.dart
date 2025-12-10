@@ -330,7 +330,7 @@ class _TambahAkunPenggunaPageState extends State<TambahAkunPenggunaPage> {
           backgroundColor: Colors.green,
         ),
       );
-      Navigator.pop(context, true);
+      context.go('/user/daftar');
     } else {
       ScaffoldMessenger.of(
         context,

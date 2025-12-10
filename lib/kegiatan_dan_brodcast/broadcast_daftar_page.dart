@@ -288,7 +288,6 @@ class _BroadcastDaftarPageState extends State<BroadcastDaftarPage> {
             children: _filtered.asMap().entries.map((e) => Padding(padding: const EdgeInsets.only(bottom: 16), child: _broadcastCard(e.value, e.key + 1))).toList(),
           ),
         const SizedBox(height: 14),
-        _pagination(),
       ]),
     );
   }
@@ -346,14 +345,5 @@ class _BroadcastDaftarPageState extends State<BroadcastDaftarPage> {
       ],
     );
   }
-
-  Widget _pagination() {
-    return const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-      Icon(Icons.chevron_left, color: Color(0xFFBC6C25)),
-      SizedBox(width: 8),
-      Text("1", style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFBC6C25))),
-      SizedBox(width: 8),
-      Icon(Icons.chevron_right, color: Color(0xFFBC6C25)),
-    ]);
-  }
 }
+

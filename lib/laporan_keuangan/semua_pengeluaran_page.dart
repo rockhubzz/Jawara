@@ -49,22 +49,20 @@ class _SemuaPengeluaranState extends State<SemuaPengeluaran> {
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: const Color(0xFFF5F7FA),
-    
+
       body: Stack(
         children: [
-          // Tombol menu di atas
+          // ========= Drawer Button =========
           Positioned(
             top: 30,
             left: 16,
             child: IconButton(
               icon: const Icon(Icons.menu, size: 28, color: Colors.black87),
-              onPressed: () {
-                _scaffoldKey.currentState?.openDrawer();
-              },
+              onPressed: () => _scaffoldKey.currentState?.openDrawer(),
             ),
           ),
 
-          // Card utama isi tabel
+          // ========= Main Content =========
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 80, 16, 16),
             child: Container(
@@ -83,27 +81,27 @@ class _SemuaPengeluaranState extends State<SemuaPengeluaran> {
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
                   children: [
-                    // Judul
+                    // ===== TITLE =====
                     const Center(
                       child: Text(
                         "Laporan Pengeluaran",
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF2D3142),
+                          color: Color(0xFF2E7D32),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 18),
 
-                    // Tombol filter
+                    // ===== FILTER BUTTON =====
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         ElevatedButton(
                           onPressed: () {},
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF6C63FF),
+                            backgroundColor: const Color(0xFF2E7D32),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
@@ -117,17 +115,18 @@ class _SemuaPengeluaranState extends State<SemuaPengeluaran> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
 
-                    // Header tabel
+                    const SizedBox(height: 18),
+
+                    // ===== TABLE HEADER =====
                     Container(
                       decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(8),
+                        color: const Color(0xFFE8F5E9),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                       padding: const EdgeInsets.symmetric(
-                        vertical: 10,
-                        horizontal: 12,
+                        vertical: 12,
+                        horizontal: 10,
                       ),
                       child: const Row(
                         children: [
@@ -148,7 +147,7 @@ class _SemuaPengeluaranState extends State<SemuaPengeluaran> {
                           Expanded(
                             flex: 3,
                             child: Text(
-                              "JENIS PENGELUARAN",
+                              "JENIS",
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                           ),
@@ -176,9 +175,10 @@ class _SemuaPengeluaranState extends State<SemuaPengeluaran> {
                         ],
                       ),
                     ),
+
                     const Divider(height: 1),
 
-                    // Daftar isi tabel
+                    // ===== TABLE BODY =====
                     Expanded(
                       child: ListView.separated(
                         itemCount: pengeluaranList.length,
@@ -191,12 +191,9 @@ class _SemuaPengeluaranState extends State<SemuaPengeluaran> {
                               vertical: 12,
                               horizontal: 8,
                             ),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              color: index % 2 == 0
-                                  ? Colors.white
-                                  : Colors.grey.shade50,
-                            ),
+                            color: index % 2 == 0
+                                ? Colors.white
+                                : Colors.grey.shade50,
                             child: Row(
                               children: [
                                 Expanded(flex: 1, child: Text(item['no']!)),
@@ -210,21 +207,25 @@ class _SemuaPengeluaranState extends State<SemuaPengeluaran> {
                                   flex: 3,
                                   child: Text(item['nominal']!),
                                 ),
+
                                 Expanded(
                                   flex: 1,
                                   child: PopupMenuButton<String>(
                                     onSelected: (value) {},
+                                    icon: const Icon(
+                                      Icons.more_horiz,
+                                      color: Color(0xFF2E7D32),
+                                    ),
                                     itemBuilder: (context) => [
                                       const PopupMenuItem(
-                                        value: 'edit',
-                                        child: Text('Edit'),
+                                        value: "edit",
+                                        child: Text("Edit"),
                                       ),
                                       const PopupMenuItem(
-                                        value: 'hapus',
-                                        child: Text('Hapus'),
+                                        value: "hapus",
+                                        child: Text("Hapus"),
                                       ),
                                     ],
-                                    child: const Icon(Icons.more_horiz),
                                   ),
                                 ),
                               ],
@@ -234,7 +235,7 @@ class _SemuaPengeluaranState extends State<SemuaPengeluaran> {
                       ),
                     ),
 
-                    // Pagination
+                    // ===== PAGINATION =====
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -247,7 +248,7 @@ class _SemuaPengeluaranState extends State<SemuaPengeluaran> {
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF6C63FF),
+                            color: const Color(0xFF2E7D32),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
