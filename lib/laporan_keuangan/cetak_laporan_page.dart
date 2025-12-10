@@ -27,11 +27,22 @@ class _CetakLaporanState extends State<CetakLaporan> {
       initialDate: DateTime.now(),
       firstDate: DateTime(2020),
       lastDate: DateTime(2101),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xFF2E7D32),
+              onPrimary: Colors.white,
+              onSurface: Colors.black87,
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
+
     if (picked != null) {
-      setState(() {
-        controller.text = DateFormat('dd/MM/yyyy').format(picked);
-      });
+      controller.text = DateFormat('dd/MM/yyyy').format(picked);
     }
   }
 
@@ -48,6 +59,8 @@ class _CetakLaporanState extends State<CetakLaporan> {
     return Scaffold(
       key: _scaffoldKey,
 
+      backgroundColor: const Color(0xFFF4F6F8),
+
       body: Stack(
         children: [
           SingleChildScrollView(
@@ -59,148 +72,133 @@ class _CetakLaporanState extends State<CetakLaporan> {
             ),
             child: Center(
               child: Card(
-                elevation: 3,
+                elevation: 4,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(18),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(24),
                   child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 800),
+                    constraints: const BoxConstraints(maxWidth: 850),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SizedBox(height: 50),
                         const Text(
-                          'Form Cetak Laporan',
+                          'Cetak Laporan Keuangan',
                           style: TextStyle(
-                            fontSize: 20,
+                            color: Color(0xFF2E7D32),
+                            fontSize: 22,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         const SizedBox(height: 24),
 
-                        // Row tanggal mulai & akhir
+                        // ================== FORM TANGGAL ==================
                         Row(
                           children: [
                             Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text('Tanggal Mulai'),
-                                  const SizedBox(height: 8),
-                                  TextField(
-                                    controller: _tanggalMulaiController,
-                                    readOnly: true,
-                                    decoration: InputDecoration(
-                                      suffixIcon: IconButton(
-                                        icon: const Icon(
-                                          Icons.calendar_today_outlined,
-                                        ),
-                                        onPressed: () => _selectDate(
-                                          context,
-                                          _tanggalMulaiController,
-                                        ),
-                                      ),
-                                      hintText: '--/--/----',
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                              child: _buildDateField(
+                                label: "Tanggal Mulai",
+                                controller: _tanggalMulaiController,
                               ),
                             ),
+
                             const SizedBox(width: 16),
+
                             Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text('Tanggal Akhir'),
-                                  const SizedBox(height: 8),
-                                  TextField(
-                                    controller: _tanggalAkhirController,
-                                    readOnly: true,
-                                    decoration: InputDecoration(
-                                      suffixIcon: IconButton(
-                                        icon: const Icon(
-                                          Icons.calendar_today_outlined,
-                                        ),
-                                        onPressed: () => _selectDate(
-                                          context,
-                                          _tanggalAkhirController,
-                                        ),
-                                      ),
-                                      hintText: '--/--/----',
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                              child: _buildDateField(
+                                label: "Tanggal Akhir",
+                                controller: _tanggalAkhirController,
                               ),
                             ),
                           ],
                         ),
+
                         const SizedBox(height: 20),
 
-                        // Dropdown Jenis Laporan
-                        const Text('Jenis Laporan'),
-                        const SizedBox(height: 8),
-                        DropdownButtonFormField<String>(
-                          value: _jenisLaporan,
-                          items: _jenisLaporanList
-                              .map(
-                                (item) => DropdownMenuItem(
-                                  value: item,
-                                  child: Text(item),
-                                ),
-                              )
-                              .toList(),
-                          onChanged: (value) =>
-                              setState(() => _jenisLaporan = value!),
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
+                        // ================== DROPDOWN JENIS ==================
+                        const Text(
+                          "Jenis Laporan",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
                           ),
                         ),
+                        const SizedBox(height: 6),
 
-                        const SizedBox(height: 24),
+                        DropdownButtonFormField<String>(
+                          value: _jenisLaporan,
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: const Color(0xFFF1F8E9),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          items: _jenisLaporanList.map((item) {
+                            return DropdownMenuItem(
+                              value: item,
+                              child: Text(item),
+                            );
+                          }).toList(),
+                          onChanged: (value) =>
+                              setState(() => _jenisLaporan = value!),
+                        ),
 
-                        // Tombol aksi
+                        const SizedBox(height: 28),
+
+                        // ================== BUTTONS ==================
                         Row(
                           children: [
-                            ElevatedButton(
+                            ElevatedButton.icon(
                               onPressed: () {},
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue,
+                                backgroundColor: const Color(0xFF2E7D32),
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                  vertical: 12,
+                                  horizontal: 22,
+                                  vertical: 14,
                                 ),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
+                                  borderRadius: BorderRadius.circular(10),
                                 ),
                               ),
-                              child: const Text(
+                              icon: const Icon(
+                                Icons.picture_as_pdf,
+                                color: Colors.white,
+                              ),
+                              label: const Text(
                                 'Download PDF',
-                                style: TextStyle(color: Colors.white),
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
+
                             const SizedBox(width: 12),
+
                             OutlinedButton(
                               onPressed: _resetForm,
                               style: OutlinedButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 20,
-                                  vertical: 12,
+                                  vertical: 14,
+                                ),
+                                side: const BorderSide(
+                                  color: Color(0xFF2E7D32),
+                                  width: 1.4,
                                 ),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
+                                  borderRadius: BorderRadius.circular(10),
                                 ),
                               ),
-                              child: const Text('Reset'),
+                              child: const Text(
+                                'Reset',
+                                style: TextStyle(
+                                  color: Color(0xFF2E7D32),
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ),
                           ],
                         ),
@@ -212,8 +210,9 @@ class _CetakLaporanState extends State<CetakLaporan> {
             ),
           ),
 
+          // MENU BUTTON
           Positioned(
-            top: 20,
+            top: 25,
             left: 16,
             child: IconButton(
               icon: const Icon(Icons.menu, size: 28, color: Colors.black87),
@@ -224,6 +223,45 @@ class _CetakLaporanState extends State<CetakLaporan> {
           ),
         ],
       ),
+    );
+  }
+
+  // ======================================================================
+  // CUSTOM DATE FIELD
+  // ======================================================================
+  Widget _buildDateField({
+    required String label,
+    required TextEditingController controller,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: controller,
+          readOnly: true,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: const Color(0xFFF1F8E9),
+            suffixIcon: IconButton(
+              icon: const Icon(
+                Icons.calendar_today_outlined,
+                color: Color(0xFF2E7D32),
+              ),
+              onPressed: () => _selectDate(context, controller),
+            ),
+            hintText: 'DD/MM/YYYY',
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+        ),
+      ],
     );
   }
 }
