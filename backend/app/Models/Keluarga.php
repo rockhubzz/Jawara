@@ -11,8 +11,20 @@ class Keluarga extends Model
     protected $fillable = [
         'nama_keluarga',
         'kepala_keluarga',
-        'alamat',
         'kepemilikan',
         'status',
+        'rumah_id',
     ];
+
+    protected $appends = ['alamat'];
+
+    public function rumah()
+    {
+        return $this->belongsTo(Rumah::class);
+    }
+
+    public function getAlamatAttribute()
+    {
+        return $this->rumah?->alamat;
+    }
 }
