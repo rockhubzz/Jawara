@@ -16,37 +16,37 @@ class KeluargaSeeder extends Seeder
             [
                 'nama_keluarga'    => 'Keluarga Andika Pratama',
                 'kepala_keluarga'  => 'Andika Pratama',
-                'alamat'           => 'Jl. Mawar No. 12, Kelurahan Sukun, Malang',
                 'kepemilikan'      => 'Pemilik',
                 'status'           => 'Aktif',
+                'rumah_id'         => 1,
             ],
             [
                 'nama_keluarga'    => 'Keluarga Rizky Ananda',
                 'kepala_keluarga'  => 'Rizky Ananda',
-                'alamat'           => 'Jl. Melati No. 8, Kelurahan Lowokwaru, Malang',
                 'kepemilikan'      => 'Penyewa',
                 'status'           => 'Aktif',
+                'rumah_id'         => 2,
             ],
             [
                 'nama_keluarga'    => 'Keluarga Dewi Lestari',
                 'kepala_keluarga'  => 'Dewi Lestari',
-                'alamat'           => 'Jl. Anggrek No. 3, Kelurahan Blimbing, Malang',
                 'kepemilikan'      => 'Pemilik',
                 'status'           => 'Aktif',
+                'rumah_id'         => 3,
             ],
             [
                 'nama_keluarga'    => 'Keluarga Rudi Hartono',
                 'kepala_keluarga'  => 'Rudi Hartono',
-                'alamat'           => 'Jl. Cendana No. 21, Kelurahan Tlogomas, Malang',
                 'kepemilikan'      => 'Penyewa',
                 'status'           => 'Nonaktif',
+                'rumah_id'         => 4,
             ],
             [
                 'nama_keluarga'    => 'Keluarga Siti Maesaroh',
                 'kepala_keluarga'  => 'Siti Maesaroh',
-                'alamat'           => 'Jl. Kenanga No. 5, Kelurahan Dinoyo, Malang',
                 'kepemilikan'      => 'Pemilik',
                 'status'           => 'Aktif',
+                'rumah_id'         => 5,
             ],
         ]);
     }

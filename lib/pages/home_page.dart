@@ -33,6 +33,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> loadUser() async {
     final user = await AuthService.me();
     if (user != null) {
+      if (!mounted) return;
       setState(() {
         username = user['name']; // get username
       });
@@ -198,14 +199,18 @@ class _HomePageState extends State<HomePage> {
                     Icons.people,
                     "Data Warga",
                     Colors.green,
-                    onTap: () => context.go('/data_warga_rumah/daftarWarga?from=beranda'),
+                    onTap: () => context.go(
+                      '/data_warga_rumah/daftarWarga?from=beranda',
+                    ),
                   ),
 
                   _menuItem(
                     Icons.house,
                     "Data Rumah",
                     Colors.blue,
-                    onTap: () => context.go('/data_warga_rumah/daftarRumah?from=beranda'),
+                    onTap: () => context.go(
+                      '/data_warga_rumah/daftarRumah?from=beranda',
+                    ),
                   ),
 
                   _menuItem(
@@ -234,7 +239,6 @@ class _HomePageState extends State<HomePage> {
                   //     context.go('/beranda/pesan_warga');
                   //   },
                   // ),
-
                   _menuItem(
                     Icons.swap_horiz,
                     "Mutasi",
