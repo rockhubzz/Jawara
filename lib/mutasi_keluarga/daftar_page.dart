@@ -276,7 +276,7 @@ class _DaftarPageState extends State<DaftarPage> {
               children: [
                 _DataCell(Text(no.toString())),
                 _DataCell(Text(item['tanggal'] ?? '-')),
-                _DataCell(Text(item['keluarga']?['nama_keluarga'] ?? '-')),
+                _DataCell(Text(item['nama_keluarga'] ?? '-')),
                 _DataCell(
                   Text(
                     item['jenis_mutasi'] ?? '-',
@@ -318,7 +318,7 @@ class _DaftarPageState extends State<DaftarPage> {
     return Column(
       children: data.map((item) {
         final jenis = item['jenis_mutasi'] ?? "-";
-        final keluarga = item['keluarga']?['nama_keluarga'] ?? "-";
+        final keluarga = item['nama_keluarga'] ?? "-";
 
         return Card(
           margin: const EdgeInsets.symmetric(vertical: 6),
