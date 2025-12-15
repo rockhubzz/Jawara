@@ -145,9 +145,12 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
               Icons.arrow_back_ios_new,
               color: Color(0xFF2E7D32),
             ),
+            
             onPressed: () {
               if (from == 'pemasukan_menu') {
                 context.go('/beranda/pemasukan_menu');
+              } else if (from == 'tambah') {
+                context.go('/beranda/tambah');
               } else {
                 context.go('/beranda/semua_menu');
               }

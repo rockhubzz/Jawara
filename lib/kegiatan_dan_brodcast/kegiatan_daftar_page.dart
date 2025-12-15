@@ -38,6 +38,8 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
           'kategori': row['kategori'] ?? '',
           'pj': row['penanggung_jawab'] ?? '',
           'tanggal': row['tanggal'] ?? '',
+          'biaya': row['biaya'] ?? '',
+          'lokasi': row['lokasi'] ?? '',
         };
       }).toList();
     } catch (e) {
@@ -77,12 +79,14 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
   void _editItem(Map item) => showEditDialog(context, item);
 
   Future<void> editKegiatan(int id, String nama, String kategori, String pj,
-      String tanggal) async {
+      String tanggal, int biaya, String lokasi) async {
     final success = await KegiatanService.update(id, {
       "nama": nama,
       "kategori": kategori,
       "penanggung_jawab": pj,
       "tanggal": tanggal,
+      "biaya": biaya,
+      "lokasi": lokasi,
     });
 
     if (success == true) {
@@ -108,6 +112,8 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
     final kategoriC = TextEditingController(text: data['kategori']);
     final pjC = TextEditingController(text: data['pj']);
     final tanggalC = TextEditingController(text: data['tanggal']);
+    final biayaC = TextEditingController(text: data['biaya'].toString());
+    final lokasiC = TextEditingController(text: data['lokasi']);
 
     showDialog(
       context: context,
@@ -188,6 +194,30 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
                     }
                   },
                 ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: biayaC,
+                  decoration: InputDecoration(
+                    labelText: "Biaya",
+                    filled: true,
+                    fillColor: const Color(0xFFF4D9B2),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: lokasiC,
+                  decoration: InputDecoration(
+                    labelText: "Lokasi",
+                    filled: true,
+                    fillColor: const Color(0xFFF4D9B2),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none),
+                  ),
+                ),
               ],
             ),
           ),
@@ -214,6 +244,8 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
                   kategoriC.text,
                   pjC.text,
                   tanggalC.text,
+                  int.parse(biayaC.text),
+                  lokasiC.text,
                 );
               },
               style: TextButton.styleFrom(
@@ -401,6 +433,8 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
                 Text("Kategori: ${item['kategori']}"),
                 Text("Penanggung Jawab: ${item['pj']}"),
                 Text("Tanggal: ${item['tanggal']}"),
+                Text("Biaya: ${item['biaya']}"),
+                Text("Lokasi: ${item['lokasi']}"),
                 const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,

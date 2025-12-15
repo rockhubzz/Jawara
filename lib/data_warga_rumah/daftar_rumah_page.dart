@@ -126,8 +126,12 @@ class _RumahListPageState extends State<RumahListPage> {
 
   @override
   Widget build(BuildContext context) {
-    final from =
-        GoRouterState.of(context).uri.queryParameters['from'] ?? 'semua';
+    String from = 'semua';
+    try {
+      from = GoRouterState.of(context).uri?.queryParameters?['from'] ?? 'semua';
+    } catch (e) {
+      from = 'semua';
+    }
     const Color primaryGreen = Color(0xFF2E7D32);
 
     return Scaffold(

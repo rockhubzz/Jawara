@@ -84,15 +84,17 @@ class _BroadcastFormPageState extends State<BroadcastFormPage> {
       }
     } else {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(res['message'] ?? 'Gagal')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(res['message'] ?? 'Gagal')));
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final from =
+        GoRouterState.of(context).uri.queryParameters['from'] ?? 'tambah';
     final isEdit = widget.id != null;
     return Scaffold(
       body: Container(
@@ -119,7 +121,13 @@ class _BroadcastFormPageState extends State<BroadcastFormPage> {
                   children: [
                     IconButton(
                       icon: const Icon(Icons.arrow_back, color: Colors.black),
-                      onPressed: () => context.go('/kegiatan/daftar_broad'),
+                      onPressed: () {
+                        if (from == 'tambah') {
+                          context.go('/beranda/tambah');
+                        } else {
+                          context.go('/beranda/semua_menu');
+                        }
+                      },
                     ),
                     const SizedBox(width: 8),
                     Text(
@@ -188,7 +196,7 @@ class _BroadcastFormPageState extends State<BroadcastFormPage> {
                           children: [
                             ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                backgroundColor:const Color(0xFFBC6C25), 
+                                backgroundColor: const Color(0xFFBC6C25),
                                 foregroundColor: Colors.white,
                               ),
                               onPressed: loading ? null : save,
@@ -196,8 +204,8 @@ class _BroadcastFormPageState extends State<BroadcastFormPage> {
                                 loading
                                     ? 'Menyimpan...'
                                     : isEdit
-                                        ? 'Update'
-                                        : 'Simpan',
+                                    ? 'Update'
+                                    : 'Simpan',
                               ),
                             ),
                           ],

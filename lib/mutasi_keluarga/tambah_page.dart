@@ -136,12 +136,20 @@ class _BuatMutasiKeluargaPageState extends State<BuatMutasiKeluargaPage> {
 
   @override
   Widget build(BuildContext context) {
+    final from =
+        GoRouterState.of(context).uri.queryParameters['from'] ?? 'tambah';
     return Scaffold(
       backgroundColor: const Color(0xFFE8F5E9),
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => context.go('/beranda/semua_menu'),
+          onPressed: () {
+            if (from == 'tambah') {
+              context.go('/beranda/tambah');
+            } else {
+              context.go('/beranda/semua_menu');
+            }
+          },
         ),
         title: Text(
           widget.id == null ? 'Buat Mutasi Keluarga' : 'Edit Mutasi',
