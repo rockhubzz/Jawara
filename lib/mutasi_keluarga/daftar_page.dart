@@ -158,11 +158,58 @@ class _DaftarPageState extends State<DaftarPage> {
                   ],
                 ),
               ),
-              actionsAlignment: MainAxisAlignment.center,
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text("Batal", style: baseFont.copyWith(color: primaryGreen)),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // =============== TABLE VIEW (DEKSTOP) =================
+  Widget _buildTableView(List data) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Table(
+        columnWidths: const {
+          0: FlexColumnWidth(0.5),
+          1: FlexColumnWidth(1.5),
+          2: FlexColumnWidth(2),
+          3: FlexColumnWidth(1.5),
+          4: FlexColumnWidth(0.8),
+        },
+        border: TableBorder.all(color: Color(0xFFE0E0E0)),
+        children: [
+          const TableRow(
+            decoration: BoxDecoration(color: Color(0xFFE8F5E9)),
+            children: [
+              _HeaderCell("NO"),
+              _HeaderCell("TANGGAL"),
+              _HeaderCell("KELUARGA"),
+              _HeaderCell("JENIS MUTASI"),
+              _HeaderCell("AKSI"),
+            ],
+          ),
+
+          // ==== DATA ROW ====
+          ...List.generate(data.length, (i) {
+            final item = data[i];
+            final no = ((currentPage - 1) * 10) + i + 1;
+
+            return TableRow(
+              children: [
+                _DataCell(Text(no.toString())),
+                _DataCell(Text(item['tanggal'] ?? '-')),
+                _DataCell(Text(item['nama_keluarga'] ?? '-')),
+                _DataCell(
+                  Text(
+                    item['jenis_mutasi'] ?? '-',
+                    style: TextStyle(
+                      color: (item['jenis_mutasi'] == "Pindah Masuk")
+                          ? Colors.green
+                          : Colors.red,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
                 ElevatedButton(
                   onPressed: () async {
@@ -180,61 +227,17 @@ class _DaftarPageState extends State<DaftarPage> {
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller,
-      {bool readOnly = false, bool showCalendar = false, TextInputType? keyboardType}) {
-    return TextField(
-      controller: controller,
-      readOnly: readOnly,
-      keyboardType: keyboardType,
-      decoration: InputDecoration(
-        labelText: label,
-        filled: true,
-        fillColor: const Color(0xFFE8F5E9),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
-        ),
-        suffixIcon: showCalendar ? const Icon(Icons.calendar_today) : null,
-      ),
-      onTap: showCalendar
-          ? () async {
-              DateTime? picked = await showDatePicker(
-                context: context,
-                initialDate: DateTime.tryParse(controller.text) ?? DateTime.now(),
-                firstDate: DateTime(2000),
-                lastDate: DateTime(2100),
-              );
-              if (picked != null) {
-                controller.text = picked.toIso8601String().split('T').first;
-              }
-            }
-          : null,
-    );
-  }
-  
-  // hapus
-  Widget _deleteDialog() {
-    return AlertDialog(
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      content: Column(mainAxisSize: MainAxisSize.min, children: const [
-        Icon(Icons.warning_rounded, color: Colors.red, size: 60),
-        SizedBox(height: 12),
-        Text(
-          "Apakah Anda yakin ingin menghapus data ini?",
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 15, color: Colors.black87),
-        ),
-      ]),
-      actionsAlignment: MainAxisAlignment.center,
-      actions: [
-        ElevatedButton(
-          onPressed: () => Navigator.pop(context, false),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFFFFF3D4),
-            foregroundColor: Colors.black,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+  // =============== MOBILE CARD VIEW =================
+  Widget _buildMobileCardView(List data) {
+    return Column(
+      children: data.map((item) {
+        final jenis = item['jenis_mutasi'] ?? "-";
+        final keluarga = item['nama_keluarga'] ?? "-";
+
+        return Card(
+          margin: const EdgeInsets.symmetric(vertical: 6),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
           ),
           child: const Text("Batal"),
         ),

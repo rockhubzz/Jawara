@@ -90,8 +90,12 @@ class _WargaListPageState extends State<WargaListPage> {
 
   @override
   Widget build(BuildContext context) {
-    final from =
-        GoRouterState.of(context).uri?.queryParameters?['from'] ?? 'semua';
+    String from = 'semua';
+    try {
+      from = GoRouterState.of(context).uri?.queryParameters?['from'] ?? 'semua';
+    } catch (e) {
+      from = 'semua';
+    }
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(

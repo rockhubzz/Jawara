@@ -12,6 +12,7 @@ class PemasukanLain extends Model
         'nama',
         'jenis',
         'tanggal',
-        'nominal'
+        'nominal',
+        'bukti'
     ];
 }

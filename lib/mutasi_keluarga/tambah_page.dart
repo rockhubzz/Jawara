@@ -29,10 +29,8 @@ class _BuatMutasiKeluargaPageState extends State<BuatMutasiKeluargaPage> {
   List<Map<String, dynamic>> keluargaList = [];
   final jenisList = [
     'Pindah Keluar',
-    'Pindah Masuk',
     'Pindah Domisili',
     'Perubahan Status',
-    'Kematian',
     'Lainnya',
   ];
 
@@ -45,6 +43,7 @@ class _BuatMutasiKeluargaPageState extends State<BuatMutasiKeluargaPage> {
 
   Future<void> _loadKeluarga() async {
     keluargaList = await KeluargaService.getKeluarga();
+    if(!mounted) return;
     setState(() {});
   }
 
@@ -105,32 +104,38 @@ class _BuatMutasiKeluargaPageState extends State<BuatMutasiKeluargaPage> {
       "alasan": alasanCtrl.text,
     };
 
-    Map<String, dynamic> res;
-    if (isEdit) {
-      res = await MutasiService.update(widget.id!, payload);
-    } else {
-      res = await MutasiService.create(payload);
-    }
-
-    setState(() => loading = false);
-
-    if (res['success'] == true) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              isEdit ? 'Mutasi berhasil diperbarui' : 'Mutasi berhasil disimpan',
+    try {
+      if (widget.id == null) {
+        final res = await MutasiService.create(body);
+        if (res['success'] == true) {
+            await KeluargaService.deleteKeluarga(selectedKeluargaId!);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Mutasi berhasil ditambahkan'),
+              backgroundColor: Color(0xFF2E7D32),
             ),
-            backgroundColor: Colors.green,
-          ),
-        );
-        context.go('/mutasi_keluarga/daftar'); // arah ke daftar
-      }
-    } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(res['message'] ?? 'Gagal menyimpan data')),
-        );
+          );
+          context.go('/mutasi_keluarga/daftar'); // go back to daftar
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(res['message'] ?? 'Gagal menambah')),
+          );
+        }
+      } else {
+        final res = await MutasiService.update(widget.id!, body);
+        if (res['success'] == true) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Mutasi berhasil diupdate'),
+              backgroundColor: Color(0xFF2E7D32),
+            ),
+          );
+          context.go('/mutasi_keluarga/daftar');
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(res['message'] ?? 'Gagal update')),
+          );
+        }
       }
     }
   }

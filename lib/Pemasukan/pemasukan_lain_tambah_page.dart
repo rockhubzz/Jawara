@@ -82,32 +82,43 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
 
     final payload = {
       "nama": _namaController.text,
-      "jenis": _kategori,
+      "jenis": _kategori!,
       "tanggal": _tanggalController.text,
       "nominal": _nominalController.text,
-      "bukti": null,
     };
 
-    final ok = await PemasukanService.create(payload);
-
-    setState(() => isSubmitting = false);
-
-    if (ok) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Pemasukan berhasil disimpan'),
-          backgroundColor: Colors.green,
-        ),
+    try {
+      final response = await PemasukanService.create(
+        payload,
+        filePath: _buktiFile?.path,
       );
 
-      context.go('/pemasukan/lain_daftar');
-    } else {
+      if (response['success'] == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Pemasukan berhasil disimpan'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        context.go('/pemasukan/lain_daftar');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(response['message'] ?? 'Gagal menyimpan pemasukan'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Gagal menyimpan pemasukan'),
+          content: Text('Terjadi kesalahan saat menyimpan'),
           backgroundColor: Colors.red,
         ),
       );
+    } finally {
+      setState(() => isSubmitting = false);
     }
   }
 
@@ -220,7 +231,7 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
                       // KATEGORI
                       _buildDropdown(
                         label: "Kategori",
-                        value: _kategori,
+                        initialValue: _kategori,
                         items: _kategoriList,
                         onChanged: (v) => setState(() => _kategori = v),
                       ),
@@ -389,7 +400,7 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
 
   Widget _buildDropdown({
     required String label,
-    required String? value,
+    required String? initialValue,
     required List<String> items,
     required Function(String?) onChanged,
   }) {
@@ -400,7 +411,7 @@ class _PemasukanLainTambahState extends State<PemasukanLainTambah> {
         const SizedBox(height: 8),
 
         DropdownButtonFormField<String>(
-          value: value,
+          initialValue: initialValue,
           decoration: const InputDecoration(hintText: "Pilih salah satu"),
           items: items
               .map((e) => DropdownMenuItem(value: e, child: Text(e)))
