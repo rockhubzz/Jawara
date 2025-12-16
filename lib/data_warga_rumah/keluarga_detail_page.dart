@@ -103,6 +103,7 @@ class _KeluargaDetailPageState extends State<KeluargaDetailPage> {
                                 "Kepala Keluarga: ${data['kepala_keluarga'] ?? '-'}",
                               ),
                               Text("Alamat: ${data['alamat'] ?? '-'}"),
+                              Text("Kode Rumah: ${data['rumah']?['kode'] ?? '-'}"),
                               Text(
                                 "Kepemilikan: ${data['kepemilikan'] ?? '-'}",
                               ),

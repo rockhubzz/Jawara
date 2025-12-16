@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jawara/services/keluarga_service.dart';
+import 'package:jawara/services/rumah_service.dart';
 
 class KeluargaFormPage extends StatefulWidget {
   final Map<String, dynamic>? data;
@@ -15,10 +16,12 @@ class _KeluargaFormPageState extends State<KeluargaFormPage> {
 
   final namaCtrl = TextEditingController();
   final kepalaCtrl = TextEditingController();
-  final alamatCtrl = TextEditingController();
   final kepemilikanCtrl = TextEditingController();
   String status = "Aktif";
+  int? selectedRumahId;
+  List<Map<String, dynamic>> rumahList = [];
   bool isLoading = false;
+  bool isLoadingRumah = true;
 
   @override
   void initState() {
@@ -27,9 +30,33 @@ class _KeluargaFormPageState extends State<KeluargaFormPage> {
     if (widget.data != null) {
       namaCtrl.text = widget.data!['nama_keluarga'];
       kepalaCtrl.text = widget.data!['kepala_keluarga'];
-      alamatCtrl.text = widget.data!['alamat'];
       kepemilikanCtrl.text = widget.data!['kepemilikan'];
       status = widget.data!['status'];
+      selectedRumahId = widget.data!['rumah_id'];
+    }
+
+    loadRumah();
+  }
+
+  void loadRumah() async {
+    try {
+      final data = await RumahService.getAll();
+      var filtered = data.where((r) => r['status'] == 'Tersedia').toList();
+      if (selectedRumahId != null) {
+        final current = data.firstWhere((r) => r['id'] == selectedRumahId, orElse: () => {});
+        if (current.isNotEmpty && !filtered.any((r) => r['id'] == selectedRumahId)) {
+          filtered.add(current);
+        }
+      }
+      setState(() {
+        rumahList = filtered;
+        isLoadingRumah = false;
+      });
+    } catch (e) {
+      setState(() => isLoadingRumah = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Gagal memuat data rumah: $e")),
+      );
     }
   }
 
@@ -41,9 +68,9 @@ class _KeluargaFormPageState extends State<KeluargaFormPage> {
     final payload = {
       "nama_keluarga": namaCtrl.text,
       "kepala_keluarga": kepalaCtrl.text,
-      "alamat": alamatCtrl.text,
       "kepemilikan": kepemilikanCtrl.text,
       "status": status,
+      "rumah_id": selectedRumahId,
     };
 
     bool success;
@@ -157,19 +184,32 @@ class _KeluargaFormPageState extends State<KeluargaFormPage> {
                         ),
                         const SizedBox(height: 16),
                         TextFormField(
-                          controller: alamatCtrl,
-                          decoration: const InputDecoration(
-                            labelText: "Alamat",
-                          ),
-                          validator: (v) => v!.isEmpty ? "Wajib diisi" : null,
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
                           controller: kepemilikanCtrl,
                           decoration: const InputDecoration(
                             labelText: "Kepemilikan",
                           ),
                         ),
+                        const SizedBox(height: 16),
+                        const Text("Rumah"),
+                        isLoadingRumah
+                            ? const CircularProgressIndicator()
+                            : DropdownButton<int?>(
+                                value: selectedRumahId,
+                                hint: const Text("Pilih Rumah"),
+                                items: [
+                                  const DropdownMenuItem<int?>(
+                                    value: null,
+                                    child: Text("Tidak ada rumah"),
+                                  ),
+                                  ...rumahList.map(
+                                    (rumah) => DropdownMenuItem<int?>(
+                                      value: rumah['id'],
+                                      child: Text("${rumah['kode']} - ${rumah['alamat']}"),
+                                    ),
+                                  ),
+                                ],
+                                onChanged: (v) => setState(() => selectedRumahId = v),
+                              ),
                         const SizedBox(height: 16),
                         const Text("Status"),
                         DropdownButton<String>(
