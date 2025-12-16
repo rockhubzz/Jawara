@@ -11,7 +11,7 @@ class AppDrawer extends StatelessWidget {
     required this.body,
     required this.currentIndex,
     required this.username,
-  });
+  }); 
 
   // Warna utama hijau tua
   static const Color primaryGreen = Color(0xFF2E7D32);
@@ -26,7 +26,7 @@ class AppDrawer extends StatelessWidget {
         context.go('/warga');
         break;
       case 2:
-        context.go('/tambah');
+        context.go('/beranda/tambah');
         break;
       case 3:
         context.go('/keuangan');
@@ -108,7 +108,7 @@ class AppDrawer extends StatelessWidget {
             child: RawMaterialButton(
               shape: const CircleBorder(),
               elevation: 0,
-              onPressed: () => _onTap(context, 2),
+              onPressed: () => context.go('/data_warga_rumah/tambahWarga'),
               child: const Icon(Icons.add, size: 32, color: Colors.white),
             ),
           ),
@@ -137,7 +137,7 @@ class AppDrawer extends StatelessWidget {
                 icon: Icons.account_balance_wallet_outlined,
                 label: "Kas",
                 isActive: currentIndex == 1,
-                onTap: () => _onTap(context, 1),
+                onTap: () => context.go('/dashboard/keuangan'),
               ),
 
               const SizedBox(width: 40), // ruang FAB
@@ -146,7 +146,7 @@ class AppDrawer extends StatelessWidget {
                 icon: Icons.people_alt_outlined,
                 label: "Warga",
                 isActive: currentIndex == 3,
-                onTap: () => _onTap(context, 3),
+                onTap: () => context.go('/dashboard/kependudukan'),
               ),
               _navItem(
                 icon: Icons.logout,

@@ -10,6 +10,11 @@ class AuthService {
     // api baru
     return "https://jawara-backend-production-ae19.up.railway.app/api"; // ip address api railway
 
+    // jangan dihapus (bella pake ini dulu)
+    // if (ip == null) {s
+    //   return "http://127.0.0.1:8000/api"; // API saat run di Chrome
+    // }
+    // // Jika dapat IP lokal dari device → pakai ini
     // // jangan dihapus (bella pake ini dulu)
     // if (ip == null) {
     //   return "http://127.0.0.1:8000/api"; // API saat run di Chrome

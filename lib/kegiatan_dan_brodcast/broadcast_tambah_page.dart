@@ -18,20 +18,25 @@ class _BroadcastFormPageState extends State<BroadcastFormPage> {
   final senderC = TextEditingController();
   final dateC = TextEditingController();
   bool loading = false;
+  late final bool isEdit = widget.id != null;
+
+  final Color primaryGreen = const Color(0xFF2E7D32);
 
   @override
   void initState() {
     super.initState();
-    if (widget.id != null) _loadDetail(widget.id!);
+    if (isEdit) _loadDetail(widget.id!);
   }
 
   Future<void> _loadDetail(int id) async {
+    setState(() => loading = true);
     final data = await BroadcastService.getById(id);
     setState(() {
       titleC.text = data['data']?['title'] ?? '';
       bodyC.text = data['data']?['body'] ?? '';
       senderC.text = data['data']?['sender'] ?? '';
       dateC.text = data['data']?['date'] ?? '';
+      loading = false;
     });
   }
 
@@ -48,12 +53,14 @@ class _BroadcastFormPageState extends State<BroadcastFormPage> {
     );
 
     if (picked != null) {
-      dateC.text = picked.toIso8601String().split('T').first;
+      dateC.text =
+          "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
     }
   }
 
   Future<void> save() async {
     if (!_formKey.currentState!.validate()) return;
+
     setState(() => loading = true);
 
     final payload = {
@@ -64,10 +71,10 @@ class _BroadcastFormPageState extends State<BroadcastFormPage> {
     };
 
     Map<String, dynamic> res;
-    if (widget.id == null) {
-      res = await BroadcastService.create(payload);
-    } else {
+    if (isEdit) {
       res = await BroadcastService.update(widget.id!, payload);
+    } else {
+      res = await BroadcastService.create(payload);
     }
 
     setState(() => loading = false);
@@ -75,8 +82,10 @@ class _BroadcastFormPageState extends State<BroadcastFormPage> {
     if (res['success'] == true) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Berhasil disimpan'),
+          SnackBar(
+            content: Text(isEdit
+                ? 'Broadcast berhasil diperbarui'
+                : 'Broadcast berhasil disimpan'),
             backgroundColor: Colors.green,
           ),
         );
@@ -85,7 +94,7 @@ class _BroadcastFormPageState extends State<BroadcastFormPage> {
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(res['message'] ?? 'Gagal')),
+          SnackBar(content: Text(res['message'] ?? 'Gagal menyimpan data')),
         );
       }
     }
@@ -93,129 +102,133 @@ class _BroadcastFormPageState extends State<BroadcastFormPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isEdit = widget.id != null;
+    final from =
+        GoRouterState.of(context).uri.queryParameters['from'] ?? 'tambah';
+
     return Scaffold(
+      backgroundColor: Colors.transparent,
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new, color: primaryGreen),
+          onPressed: () {
+            if (from == 'tambah') {
+              context.go('/beranda/tambah');
+            } else {
+              context.go('/beranda/semua_menu');
+            }
+          },
+        ),
+        title: Text(
+          isEdit ? "Edit Broadcast" : "Tambah Broadcast",
+          style: TextStyle(
+              fontWeight: FontWeight.bold, color: primaryGreen, fontSize: 20),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0.5,
+      ),
       body: Container(
         width: double.infinity,
-        height: double.infinity, // pastikan menutupi seluruh layar
+        height: double.infinity,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Color.fromARGB(255, 255, 235, 188), // krem
-              Color.fromARGB(255, 181, 255, 183), // hijau
+              Color.fromARGB(255, 255, 235, 188),
+              Color.fromARGB(255, 181, 255, 183),
             ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
         ),
         child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header
-                Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.black),
-                      onPressed: () => context.go('/kegiatan/daftar_broad'),
+          child: loading && isEdit
+              ? const Center(child: CircularProgressIndicator())
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.all(24),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 900),
+                      child: _buildForm(context),
                     ),
-                    const SizedBox(width: 8),
-                    Text(
-                      isEdit ? "Edit Broadcast" : "Tambah Broadcast",
-                      style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-
-                // Card utama
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 247, 255, 204),
-                    borderRadius: BorderRadius.circular(14),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 6,
-                        offset: Offset(0, 3),
-                      ),
-                    ],
                   ),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _InputField(
-                          controller: titleC,
-                          label: "Judul Broadcast",
-                          hint: "Masukkan judul broadcast...",
-                          icon: Icons.campaign_outlined,
-                        ),
-                        const SizedBox(height: 14),
-                        _TextAreaField(
-                          controller: bodyC,
-                          label: "Isi Broadcast",
-                          hint: "Tulis isi broadcast di sini...",
-                          icon: Icons.edit_note_outlined,
-                        ),
-                        const SizedBox(height: 14),
-                        _InputField(
-                          controller: senderC,
-                          label: "Pengirim",
-                          hint: "Masukkan pengirim",
-                          icon: Icons.person_outline,
-                        ),
-                        const SizedBox(height: 14),
-                        _InputField(
-                          controller: dateC,
-                          label: "Tanggal",
-                          hint: "Pilih tanggal",
-                          icon: Icons.date_range_outlined,
-                          readOnly: true,
-                          onTap: _pickDate,
-                        ),
-                        const SizedBox(height: 22),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor:const Color(0xFFBC6C25), 
-                                foregroundColor: Colors.white,
-                              ),
-                              onPressed: loading ? null : save,
-                              child: Text(
-                                loading
-                                    ? 'Menyimpan...'
-                                    : isEdit
-                                        ? 'Update'
-                                        : 'Simpan',
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildForm(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.15),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(20),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _InputField(
+              controller: titleC,
+              label: "Judul Broadcast",
+              hint: "Masukkan judul broadcast...",
+              icon: Icons.campaign_outlined,
+            ),
+            const SizedBox(height: 14),
+            _TextAreaField(
+              controller: bodyC,
+              label: "Isi Broadcast",
+              hint: "Tulis isi broadcast di sini...",
+              icon: Icons.edit_note_outlined,
+            ),
+            const SizedBox(height: 14),
+            _InputField(
+              controller: senderC,
+              label: "Pengirim",
+              hint: "Masukkan pengirim",
+              icon: Icons.person_outline,
+            ),
+            const SizedBox(height: 14),
+            _InputField(
+              controller: dateC,
+              label: "Tanggal",
+              hint: "Pilih tanggal",
+              icon: Icons.date_range_outlined,
+              readOnly: true,
+              onTap: _pickDate,
+            ),
+            const SizedBox(height: 22),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryGreen,
+                    foregroundColor: Colors.white,
+                  ),
+                  onPressed: loading ? null : save,
+                  child: Text(
+                    loading
+                        ? (isEdit ? "Memperbarui..." : "Menyimpan...")
+                        : (isEdit ? "Update" : "Simpan"),
                   ),
                 ),
               ],
             ),
-          ),
+          ],
         ),
       ),
     );
   }
 }
 
-// Reusable Input Field
 class _InputField extends StatelessWidget {
   final TextEditingController controller;
   final String label;
@@ -240,8 +253,21 @@ class _InputField extends StatelessWidget {
       controller: controller,
       readOnly: readOnly,
       onTap: onTap,
-      cursorColor: const Color(0xFFBC6C25),
-      decoration: _inputDecoration(label, hint, icon),
+      decoration: InputDecoration(
+        prefixIcon: Icon(icon, color: const Color(0xFF2E7D32)),
+        labelText: label,
+        hintText: hint,
+        filled: true,
+        fillColor: Colors.white,
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFF2E7D32), width: 2),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFF2E7D32), width: 2.2),
+        ),
+      ),
       validator: (v) => (v == null || v.isEmpty) ? 'Wajib diisi' : null,
     );
   }
@@ -266,30 +292,22 @@ class _TextAreaField extends StatelessWidget {
     return TextFormField(
       controller: controller,
       maxLines: 4,
-      cursorColor: const Color(0xFFBC6C25),
-      decoration: _inputDecoration(label, hint, icon),
+      decoration: InputDecoration(
+        prefixIcon: Icon(icon, color: const Color(0xFF2E7D32)),
+        labelText: label,
+        hintText: hint,
+        filled: true,
+        fillColor: Colors.white,
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFF2E7D32), width: 2),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFF2E7D32), width: 2.2),
+        ),
+      ),
       validator: (v) => (v == null || v.isEmpty) ? 'Wajib diisi' : null,
     );
   }
 }
-
-InputDecoration _inputDecoration(String label, String hint, IconData icon) {
-  return InputDecoration(
-    prefixIcon: Icon(icon, color: Color(0xFFBC6C25)),
-    labelText: label,
-    labelStyle: const TextStyle(color: Color(0xFFBC6C25)),
-    floatingLabelStyle: const TextStyle(color: Color(0xFFBC6C25)),
-    hintText: hint,
-    filled: true,
-    fillColor: Colors.white,
-    enabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: Color(0xFFBC6C25), width: 2),
-    ),
-    focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: Color(0xFFBC6C25), width: 2.2),
-    ),
-  );
-}
-

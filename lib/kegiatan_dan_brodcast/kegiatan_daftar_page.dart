@@ -14,6 +14,13 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
   bool _loading = true;
   String? _error;
 
+  final Color primaryGreen = const Color(0xFF2E7D32);
+  final TextStyle baseFont = const TextStyle(fontFamily: "Poppins");
+
+  // Pagination
+  int _currentPage = 0;
+  final int _itemsPerPage = 5;
+
   @override
   void initState() {
     super.initState();
@@ -38,6 +45,8 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
           'kategori': row['kategori'] ?? '',
           'pj': row['penanggung_jawab'] ?? '',
           'tanggal': row['tanggal'] ?? '',
+          'biaya': row['biaya'] ?? '',
+          'lokasi': row['lokasi'] ?? '',
         };
       }).toList();
     } catch (e) {
@@ -72,20 +81,21 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
       }
     }
   }
-  
-  // edit
+
   void _editItem(Map item) => showEditDialog(context, item);
 
   Future<void> editKegiatan(int id, String nama, String kategori, String pj,
-      String tanggal) async {
-    final success = await KegiatanService.update(id, {
+      String tanggal, int biaya, String lokasi) async {
+    final result = await KegiatanService.update(id, {
       "nama": nama,
       "kategori": kategori,
       "penanggung_jawab": pj,
       "tanggal": tanggal,
+      "biaya": biaya,
+      "lokasi": lokasi,
     });
 
-    if (success == true) {
+    if (result['success'] == true) {
       await _loadData();
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -96,8 +106,8 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
     } else {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text("Gagal memperbarui data"),
+        SnackBar(
+            content: Text("Gagal memperbarui data: ${result['message']}"),
             backgroundColor: Colors.red),
       );
     }
@@ -108,127 +118,115 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
     final kategoriC = TextEditingController(text: data['kategori']);
     final pjC = TextEditingController(text: data['pj']);
     final tanggalC = TextEditingController(text: data['tanggal']);
+    final biayaC = TextEditingController(text: data['biaya'].toString());
+    final lokasiC = TextEditingController(text: data['lokasi']);
 
     showDialog(
       context: context,
       builder: (_) {
-        return AlertDialog(
-          backgroundColor: Colors.white,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-          title: const Text(
-            "Edit Kegiatan",
-            textAlign: TextAlign.center,
-            style: TextStyle(
-                fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87),
-          ),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: namaC,
-                  decoration: InputDecoration(
-                    labelText: "Nama",
-                    filled: true,
-                    fillColor: const Color(0xFFF4D9B2),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none),
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return AlertDialog(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(color: primaryGreen),
+              ),
+              title: Text(
+                "Edit Kegiatan",
+                style: baseFont.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: primaryGreen,
+                ),
+              ),
+              content: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildTextField("Nama", namaC),
+                    const SizedBox(height: 12),
+                    _buildTextField("Kategori", kategoriC),
+                    const SizedBox(height: 12),
+                    _buildTextField("Penanggung Jawab", pjC),
+                    const SizedBox(height: 12),
+                    _buildTextField("Tanggal", tanggalC,
+                        readOnly: true, showCalendar: true),
+                    const SizedBox(height: 12),
+                    _buildTextField("Biaya", biayaC,
+                        keyboardType: TextInputType.number),
+                    const SizedBox(height: 12),
+                    _buildTextField("Lokasi", lokasiC),
+                  ],
+                ),
+              ),
+              actionsAlignment: MainAxisAlignment.center,
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(
+                    "Batal",
+                    style: baseFont.copyWith(color: primaryGreen),
                   ),
                 ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: kategoriC,
-                  decoration: InputDecoration(
-                    labelText: "Kategori",
-                    filled: true,
-                    fillColor: const Color(0xFFF4D9B2),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: pjC,
-                  decoration: InputDecoration(
-                    labelText: "Penanggung Jawab",
-                    filled: true,
-                    fillColor: const Color(0xFFF4D9B2),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: tanggalC,
-                  readOnly: true,
-                  decoration: InputDecoration(
-                    labelText: "Tanggal",
-                    filled: true,
-                    fillColor: const Color(0xFFF4D9B2),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none),
-                    suffixIcon: const Icon(Icons.calendar_today),
-                  ),
-                  onTap: () async {
-                    DateTime? picked = await showDatePicker(
-                      context: context,
-                      initialDate:
-                          DateTime.tryParse(tanggalC.text) ?? DateTime.now(),
-                      firstDate: DateTime(2000),
-                      lastDate: DateTime(2100),
+                ElevatedButton(
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    await editKegiatan(
+                      data['id'],
+                      namaC.text,
+                      kategoriC.text,
+                      pjC.text,
+                      tanggalC.text,
+                      int.parse(biayaC.text),
+                      lokasiC.text,
                     );
-                    if (picked != null) {
-                      tanggalC.text =
-                          picked.toIso8601String().split('T').first;
-                    }
                   },
+                  style: ElevatedButton.styleFrom(backgroundColor: primaryGreen),
+                  child: Text(
+                    "Simpan",
+                    style: baseFont.copyWith(color: Colors.white),
+                  ),
                 ),
               ],
-            ),
-          ),
-          actionsAlignment: MainAxisAlignment.center,
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.black,
-                backgroundColor: const Color(0xFFF4D9B2),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
-              ),
-              child: const Text("Batal"),
-            ),
-            TextButton(
-              onPressed: () async {
-                Navigator.pop(context);
-                await editKegiatan(
-                  data['id'],
-                  namaC.text,
-                  kategoriC.text,
-                  pjC.text,
-                  tanggalC.text,
-                );
-              },
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.white,
-                backgroundColor: const Color(0xFFBC6C25),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
-              ),
-              child: const Text("Simpan"),
-            ),
-          ],
+            );
+          },
         );
       },
+    );
+  }
+
+  Widget _buildTextField(String label, TextEditingController controller,
+      {bool readOnly = false,
+      bool showCalendar = false,
+      TextInputType? keyboardType}) {
+    return TextField(
+      controller: controller,
+      readOnly: readOnly,
+      keyboardType: keyboardType,
+      decoration: InputDecoration(
+        labelText: label,
+        filled: true,
+        fillColor: const Color(0xFFE8F5E9),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        suffixIcon: showCalendar ? const Icon(Icons.calendar_today) : null,
+      ),
+      onTap: showCalendar
+          ? () async {
+              DateTime? picked = await showDatePicker(
+                context: context,
+                initialDate:
+                    DateTime.tryParse(controller.text) ?? DateTime.now(),
+                firstDate: DateTime(2000),
+                lastDate: DateTime(2100),
+              );
+              if (picked != null) {
+                controller.text = picked.toIso8601String().split('T').first;
+              }
+            }
+          : null,
     );
   }
 
@@ -271,11 +269,33 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
         ),
       ],
     );
-  }   
+  }
 
   @override
   Widget build(BuildContext context) {
+    final totalPages = (_data.length / _itemsPerPage).ceil();
+    final startIndex = _currentPage * _itemsPerPage;
+    final endIndex =
+        (_currentPage + 1) * _itemsPerPage > _data.length ? _data.length : (_currentPage + 1) * _itemsPerPage;
+    final pageItems = _data.sublist(startIndex, endIndex);
+
     return Scaffold(
+      backgroundColor: Colors.transparent,
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF2E7D32)),
+          onPressed: () => context.go('/beranda/semua_menu'),
+        ),
+        title: const Text(
+          "Daftar Kegiatan",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF2E7D32),
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0.5,
+      ),
       body: Container(
         width: double.infinity,
         height: double.infinity,
@@ -285,139 +305,121 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
               Color.fromARGB(255, 255, 235, 188),
               Color.fromARGB(255, 181, 255, 183),
             ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
         ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 16, top: 10),
-                    child: IconButton(
-                      onPressed: () => context.go('/beranda/semua_menu'),
-                      icon: const Icon(Icons.arrow_back, color: Colors.black),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  const Text(
-                    "Daftar Kegiatan",
-                    style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
-                  child: _buildMainContainer(),
-                ),
-              ),
-            ],
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: _loading
+                ? const Center(child: CircularProgressIndicator())
+                : _data.isEmpty
+                    ? const Center(child: Text("Belum ada kegiatan"))
+                    : Card(
+                        margin: const EdgeInsets.symmetric(horizontal: 16),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16)),
+                        elevation: 6,
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            children: [
+                              ...pageItems.map((entry) {
+                                return Card(
+                                  elevation: 2,
+                                  margin: const EdgeInsets.only(bottom: 12),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12)),
+                                  child: ListTile(
+                                    leading: CircleAvatar(
+                                      backgroundColor:
+                                          primaryGreen.withOpacity(0.15),
+                                      child: Text(entry['no'],
+                                          style: baseFont.copyWith(
+                                              fontWeight: FontWeight.bold,
+                                              color: primaryGreen)),
+                                    ),
+                                    title: Text(entry['nama'],
+                                        style: baseFont.copyWith(
+                                            fontWeight: FontWeight.bold)),
+                                    subtitle: Text(
+                                      "Kategori: ${entry['kategori']}\nPenanggung Jawab: ${entry['pj']}\nTanggal: ${entry['tanggal']}\nBiaya: ${entry['biaya']}\nLokasi: ${entry['lokasi']}",
+                                      style: baseFont.copyWith(height: 1.3),
+                                    ),
+                                    trailing: PopupMenuButton<String>(
+                                      onSelected: (value) {
+                                        if (value == 'Edit') _editItem(entry);
+                                        if (value == 'Hapus') _deleteItem(entry);
+                                      },
+                                      itemBuilder: (context) => [
+                                        PopupMenuItem(
+                                            value: 'Edit',
+                                            child:
+                                                Text('Edit', style: baseFont)),
+                                        PopupMenuItem(
+                                            value: 'Hapus',
+                                            child:
+                                                Text('Hapus', style: baseFont)),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                              const SizedBox(height: 12),
+                              // Pagination
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  IconButton(
+                                    onPressed: _currentPage > 0
+                                        ? () => setState(() => _currentPage--)
+                                        : null,
+                                    icon: const Icon(Icons.chevron_left),
+                                  ),
+                                  ...List.generate(totalPages, (index) {
+                                    final isCurrent = index == _currentPage;
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 4.0),
+                                      child: GestureDetector(
+                                        onTap: () =>
+                                            setState(() => _currentPage = index),
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 12, vertical: 6),
+                                          decoration: BoxDecoration(
+                                            color: isCurrent
+                                                ? primaryGreen
+                                                : Colors.grey[300],
+                                            borderRadius:
+                                                BorderRadius.circular(6),
+                                          ),
+                                          child: Text(
+                                            "${index + 1}",
+                                            style: TextStyle(
+                                                color: isCurrent
+                                                    ? Colors.white
+                                                    : Colors.black),
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  }),
+                                  IconButton(
+                                    onPressed: _currentPage < totalPages - 1
+                                        ? () => setState(() => _currentPage++)
+                                        : null,
+                                    icon: const Icon(Icons.chevron_right),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildMainContainer() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 247, 255, 204),
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: const [
-          BoxShadow(color: Colors.black26, blurRadius: 6, offset: Offset(0, 3)),
-        ],
-      ),
-      child: Column(
-        children: [
-          if (_loading)
-            const Padding(
-                padding: EdgeInsets.all(16),
-                child: Center(child: CircularProgressIndicator()))
-          else if (_error != null)
-            Padding(padding: const EdgeInsets.all(8.0), child: Text(_error!))
-          else if (_data.isEmpty)
-            const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text("Belum ada kegiatan"))
-          else
-            Column(
-              children: _data
-                  .asMap()
-                  .entries
-                  .map(
-                    (e) => Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: _kegiatanCard(e.value, e.key + 1)),
-                  )
-                  .toList(),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _kegiatanCard(Map item, int number) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFBC6C25), width: 2),
-          boxShadow: const [
-            BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 3))
-          ]),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: const BoxDecoration(
-              color: Color(0xFFBC6C25),
-              shape: BoxShape.circle,
-            ),
-            alignment: Alignment.center,
-            child: Text(number.toString(),
-                style: const TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.bold)),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(item['nama'],
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 4),
-                Text("Kategori: ${item['kategori']}"),
-                Text("Penanggung Jawab: ${item['pj']}"),
-                Text("Tanggal: ${item['tanggal']}"),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    InkWell(
-                        onTap: () => _editItem(item),
-                        child: const Icon(Icons.edit, color: Colors.orange)),
-                    const SizedBox(width: 20),
-                    InkWell(
-                        onTap: () => _deleteItem(item),
-                        child: const Icon(Icons.delete, color: Colors.red)),
-                  ],
-                )
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }

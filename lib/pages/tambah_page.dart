@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-class SemuaMenuPage extends StatefulWidget {
-  const SemuaMenuPage({super.key});
+class TambahPage extends StatefulWidget {
+  const TambahPage({super.key});
 
   @override
-  State<SemuaMenuPage> createState() => _SemuaMenuPageState();
+  State<TambahPage> createState() => _TambahPageState();
 }
 
-class _SemuaMenuPageState extends State<SemuaMenuPage> {
+class _TambahPageState extends State<TambahPage> {
   final Color primaryGreen = const Color(0xFF2E7D32);
   final TextEditingController searchController = TextEditingController();
 
@@ -21,209 +21,60 @@ class _SemuaMenuPageState extends State<SemuaMenuPage> {
 
     allMenuSections = [
       MenuSection(
-        title: "DATA WARGA & RUMAH",
+        title: "MENU TAMBAH DATA",
         items: [
-          MenuItem(
-            "Warga Daftar",
-            Icons.people,
-            Colors.green,
-            onTap: () => context.go('/data_warga_rumah/daftarWarga?from=semua'),
-          ),
           MenuItem(
             "Warga Tambah",
             Icons.person_add,
             Colors.teal,
-            onTap: () => context.go('/data_warga_rumah/tambahWarga?from=semua'),
-          ),
-          MenuItem(
-            "Rumah Daftar",
-            Icons.house,
-            Colors.blue,
-            onTap: () => context.go('/data_warga_rumah/daftarRumah?from=semua'),
+            onTap: () => context.go('/data_warga_rumah/tambahWarga?from=tambah'),
           ),
           MenuItem(
             "Rumah Tambah",
             Icons.home_work,
             Colors.indigo,
-            onTap: () => context.go('/data_warga_rumah/tambahRumah?from=semua'),
+            onTap: () => context.go('/data_warga_rumah/tambahRumah?from=tambah'),
           ),
-          MenuItem(
-            "Keluarga",
-            Icons.family_restroom,
-            Colors.orange,
-            onTap: () => context.go('/data_warga_rumah/keluarga'),
-          ),
-        ],
-      ),
-      MenuSection(
-        title: "PEMASUKAN RT",
-        items: [
-          MenuItem(
-            "Kategori Iuran",
-            Icons.category,
-            Colors.blue,
-            onTap: () => context.go('/pemasukan/kategori_iuran?from=semua'),
-          ),
-          MenuItem(
-            "Tagih Iuran",
-            Icons.request_page,
-            Colors.green,
-            onTap: () => context.go('/pemasukan/tagih_iuran?from=semua'),
-          ),
-          MenuItem(
-            "Tagihan",
-            Icons.receipt_long,
-            Colors.red,
-            onTap: () => context.go('/pemasukan/tagihan?from=semua'),
-          ),
-          MenuItem(
-            "Daftar Pemasukan Lainnya",
-            Icons.add_chart,
-            Colors.purple,
-            onTap: () => context.go('/pemasukan/lain_daftar?from=semua'),
-          ),
+
           MenuItem(
             "Tambah Pemasukan Lainnya",
             Icons.playlist_add,
             Colors.teal,
-            onTap: () => context.go('/pemasukan/lain_tambah?from=semua'),
+            onTap: () => context.go('/pemasukan/lain_tambah?from=tambah'),
           ),
-        ],
-      ),
-      MenuSection(
-        title: "KEGIATAN & BROADCAST",
-        items: [
-          MenuItem(
-            "Kegiatan Daftar",
-            Icons.event_note,
-            Colors.blue,
-            onTap: () => context.go('/kegiatan/daftar?from=semua'),
-          ),
+
           MenuItem(
             "Kegiatan Tambah",
             Icons.event_available,
             Colors.green,
-            onTap: () => context.go('/kegiatan/tambah/new?from=semua'),
-          ),
-          MenuItem(
-            "Broadcast Daftar",
-            Icons.campaign,
-            Colors.purple,
-            onTap: () => context.go('/kegiatan/daftar_broad'),
+            onTap: () => context.go('/kegiatan/tambah/new?from=tambah'),
           ),
           MenuItem(
             "Broadcast Tambah",
             Icons.add_alert,
             Colors.teal,
-            onTap: () => context.go('/kegiatan/tambah_broad?from=semua'),
-          ),
-        ],
-      ),
-      // MenuSection(
-      //   title: "PESAN & ASPIRASI WARGA",
-      //   items: [
-      //     MenuItem(
-      //       "Informasi Aspirasi",
-      //       Icons.forum,
-      //       Colors.blue,
-      //       onTap: () => context.go('/pesan/informasi'),
-      //     ),
-      //   ],
-      // ),
-      // MenuSection(
-      //   title: "PENERIMAAN WARGA BARU",
-      //   items: [
-      //     MenuItem(
-      //       "Penerimaan Warga",
-      //       Icons.how_to_reg,
-      //       Colors.green,
-      //       onTap: () => context.go('/penerimaan/warga'),
-      //     ),
-      //   ],
-      // ),
-      MenuSection(
-        title: "MUTASI KELUARGA",
-        items: [
-          MenuItem(
-            "Daftar Mutasi",
-            Icons.list_alt,
-            Colors.orange,
-            onTap: () => context.go('/mutasi_keluarga/daftar'),
+            onTap: () => context.go('/kegiatan/tambah_broad?from=tambah'),
           ),
 
           MenuItem(
             "Tambah Mutasi",
             Icons.add_box,
             Colors.teal,
-            onTap: () => context.go('/mutasi/tambah?from=semua'),
+            onTap: () => context.go('/mutasi/tambah?from=tambah'),
           ),
-        ],
-      ),
-      // MenuSection(
-      //   title: "LOG AKTIVITAS",
-      //   items: [
-      //     MenuItem(
-      //       "Semua Aktivitas",
-      //       Icons.list_alt,
-      //       Colors.blue,
-      //       onTap: () => context.go('/log_aktivitas/semua_aktivitas'),
-      //     ),
-      //   ],
-      // ),
-      MenuSection(
-        title: "LAPORAN KEUANGAN",
-        items: [
-          MenuItem(
-            "Semua Pemasukan",
-            Icons.attach_money,
-            Colors.teal,
-            onTap: () => context.go('/laporan_keuangan/semua_pemasukan'),
-          ),
-          MenuItem(
-            "Semua Pengeluaran",
-            Icons.money_off_csred,
-            Colors.orange,
-            onTap: () => context.go('/laporan_keuangan/semua_pengeluaran'),
-          ),
-          // MenuItem(
-          //   "Cetak Laporan",
-          //   Icons.print,
-          //   Colors.red,
-          //   onTap: () => context.go('/laporan_keuangan/cetak_laporan'),
-          // ),
-        ],
-      ),
-      MenuSection(
-        title: "MANAJEMEN PENGGUNA",
-        items: [
-          MenuItem(
-            "Daftar Pengguna",
-            Icons.manage_accounts,
-            Colors.green,
-            onTap: () => context.go('/user/daftar'),
-          ),
+
           MenuItem(
             "Tambah Pengguna",
             Icons.person_add_alt_1,
             Colors.teal,
-            onTap: () => context.go('/user/tambah?from=semua'),
+            onTap: () => context.go('/user/tambah?from=tambah'),
           ),
-        ],
-      ),
-      MenuSection(
-        title: "CHANNEL TRANSFER",
-        items: [
-          MenuItem(
-            "Daftar Channel",
-            Icons.tv,
-            Colors.blue,
-            onTap: () => context.go('/channel_transfer/daftar'),
-          ),
+
           MenuItem(
             "Tambah Channel",
             Icons.add_to_queue,
             Colors.purple,
-            onTap: () => context.go('/channel_transfer/tambah'),
+            onTap: () => context.go('/channel_transfer/tambah?from=tambah'),
           ),
         ],
       ),
@@ -241,7 +92,7 @@ class _SemuaMenuPageState extends State<SemuaMenuPage> {
           onPressed: () => context.go('/beranda'),
         ),
         title: const Text(
-          "Semua Menu",
+          "Tambah Data",
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -250,6 +101,7 @@ class _SemuaMenuPageState extends State<SemuaMenuPage> {
         ),
       ),
       body: Container(
+        height: MediaQuery.of(context).size.height,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
