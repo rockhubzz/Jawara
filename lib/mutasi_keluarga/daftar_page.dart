@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../services/mutasi_service.dart';
+import '../services/keluarga_service.dart';
 
 class DaftarPage extends StatefulWidget {
   const DaftarPage({super.key});
@@ -10,413 +11,358 @@ class DaftarPage extends StatefulWidget {
 }
 
 class _DaftarPageState extends State<DaftarPage> {
-  int currentPage = 1;
-  int lastPage = 1;
-  bool isLoading = true;
-  List<dynamic> data = [];
+  List<Map<String, dynamic>> _data = [];
+  List<Map<String, dynamic>> _keluargaList = [];
+  bool _loading = true;
+  String? _error;
+
+  final Color primaryGreen = const Color(0xFF2E7D32);
+  final TextStyle baseFont = const TextStyle(fontFamily: "Poppins");
+
+  // Pagination
+  int _currentPage = 0;
+  final int _itemsPerPage = 5;
 
   @override
   void initState() {
     super.initState();
-    loadData();
+    _loadKeluarga();
   }
 
-  Future<void> loadData({int page = 1}) async {
-    setState(() => isLoading = true);
+  Future<void> _loadKeluarga() async {
+    setState(() => _loading = true);
     try {
-      final res = await MutasiService.getAll(page: page);
-      setState(() {
-        data = (res['data'] as List)
-            .map((e) => e as Map<String, dynamic>)
-            .toList();
-        currentPage = res['current_page'] ?? page;
-        lastPage = res['last_page'] ?? page;
-      });
+      // Ambil data keluarga dulu
+      _keluargaList = await KeluargaService.getKeluarga();
+      await _loadData();
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Gagal memuat data: $e')));
-    } finally {
-      setState(() => isLoading = false);
+      setState(() {
+        _loading = false;
+        _error = "Gagal memuat keluarga: $e";
+      });
     }
   }
 
-  // ========= DELETE POPUP ==========
-  Future<void> _confirmDelete(Map<String, dynamic> item) async {
-    final id = item['id'];
+  Future<void> _loadData() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
 
-    final ok = await showDialog<bool>(
+    try {
+      final res = await MutasiService.getAll();
+      final items = (res['data'] as List).map((e) => e as Map<String, dynamic>).toList();
+
+      _data = items.asMap().entries.map((e) {
+        final idx = e.key;
+        final row = e.value;
+
+        // Cari nama keluarga dari _keluargaList
+        final keluargaIdStr = row['keluarga_id'].toString();
+        final keluargaName = _keluargaList.firstWhere(
+          (k) => k['id'].toString() == keluargaIdStr,
+          orElse: () => {'nama_keluarga': '-'},
+        )['nama_keluarga'];
+
+        // Debug
+        print("Mutasi id: ${row['id']}, keluarga_id: ${row['keluarga_id']}, nama_keluarga: $keluargaName");
+
+        return {
+          'no': (idx + 1).toString(),
+          'id': row['id'],
+          'keluarga_id': row['keluarga_id'] ?? '-',
+          'nama_keluarga': keluargaName ?? '-',
+          'jenis_mutasi': row['jenis_mutasi'] ?? '-',
+          'tanggal': row['tanggal'] ?? '-',
+          'alasan': row['alasan'] ?? '-',
+        };
+      }).toList();
+    } catch (e) {
+      _error = "Gagal memuat data: $e";
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _deleteItem(Map item) async {
+    final confirm = await showDialog<bool>(
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Text(
-          "Hapus Mutasi",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF2E7D32),
-          ),
-        ),
-        content: const Text("Apakah Anda yakin ingin menghapus data ini?"),
-        actions: [
-          TextButton(
-            child: const Text(
-              "Batal",
-              style: TextStyle(color: Color(0xFF2E7D32)),
-            ),
-            onPressed: () => Navigator.pop(context, false),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF2E7D32),
-            ),
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text("Hapus", style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
+      builder: (context) => _deleteDialog(),
     );
 
-    if (ok == true) {
-      final deleted = await MutasiService.delete(id);
-      if (deleted) {
+    if (confirm == true) {
+      final success = await MutasiService.delete(item['id']);
+      if (success) {
+        _data.removeWhere((d) => d['id'] == item['id']);
+        if (mounted) setState(() {});
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Mutasi berhasil dihapus"),
-            backgroundColor: Colors.green,
-          ),
+          const SnackBar(content: Text("Mutasi berhasil dihapus!"), backgroundColor: Colors.green),
         );
-        loadData(page: currentPage);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Gagal menghapus"),
-            backgroundColor: Colors.red,
-          ),
+          const SnackBar(content: Text("Gagal menghapus data"), backgroundColor: Colors.red),
         );
       }
     }
   }
 
-  // ========= NAVIGASI EDIT ==========
-  void _openEdit(Map<String, dynamic> item) {
-    context.go('/mutasi/tambah?id=${item['id']}');
+  void _editItem(Map item) => _openEditDialog(context, item);
+
+  Future<void> _updateMutasi(Map item, String jenis, String tanggal, String alasan) async {
+    final result = await MutasiService.update(item['id'], {
+      "jenis_mutasi": jenis,
+      "tanggal": tanggal,
+      "alasan": alasan,
+    });
+
+    if (result['success'] == true) {
+      await _loadData();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Mutasi berhasil diperbarui!"), backgroundColor: Colors.green),
+      );
+    } else {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Gagal memperbarui data: ${result['message']}"), backgroundColor: Colors.red),
+      );
+    }
   }
 
-  // ========= NAVIGASI DETAIL (API BELUM SIAP) ==========
-  void _openDetail(Map<String, dynamic> item) {
-    // API backend detail belum siap
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("API detail belum tersedia"),
-        backgroundColor: Colors.orange,
-      ),
-    );
-  }
+  void _openEditDialog(BuildContext context, Map data) {
+    final jenisC = TextEditingController(text: data['jenis_mutasi']);
+    final tanggalC = TextEditingController(text: data['tanggal']);
+    final alasanC = TextEditingController(text: data['alasan']);
 
-  @override
-  Widget build(BuildContext context) {
-    final from =
-        GoRouterState.of(context).uri.queryParameters['from'] ?? 'semua';
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isMobile = screenWidth < 700;
-
-    return Scaffold(
-      backgroundColor: const Color(0xFFF4F6F8),
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            if (from == 'beranda') {
-              context.go('/beranda');
-            } else {
-              context.go('/beranda/semua_menu');
-            }
-          },
-        ),
-        title: const Text(
-          "Mutasi Keluarga",
-          style: TextStyle(
-            color: Color(0xFF2E7D32),
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0.5,
-      ),
-
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1200),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(14),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.15),
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                padding: const EdgeInsets.all(20),
+    showDialog(
+      context: context,
+      builder: (_) {
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return AlertDialog(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(color: primaryGreen),
+              ),
+              title: Text("Edit Mutasi", style: baseFont.copyWith(fontWeight: FontWeight.bold, color: primaryGreen)),
+              content: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // ===== HEADER =====
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          "Daftar Mutasi Keluarga",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF2E7D32),
-                          ),
-                        ),
-                        ElevatedButton.icon(
-                          onPressed: () => context.go('/mutasi/tambah'),
-                          icon: const Icon(Icons.add),
-                          label: const Text("Tambah"),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF2E7D32),
-                            foregroundColor: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    if (isLoading)
-                      const Center(child: CircularProgressIndicator())
-                    else if (isMobile)
-                      _buildMobileCardView(data)
-                    else
-                      _buildTableView(data),
-
-                    const SizedBox(height: 20),
-
-                    // ===== PAGINATION =====
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.chevron_left),
-                          onPressed: currentPage > 1
-                              ? () => loadData(page: currentPage - 1)
-                              : null,
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF2E7D32),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            currentPage.toString(),
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.chevron_right),
-                          onPressed: currentPage < lastPage
-                              ? () => loadData(page: currentPage + 1)
-                              : null,
-                        ),
-                      ],
-                    ),
+                    _buildTextField("Jenis Mutasi", jenisC),
+                    const SizedBox(height: 12),
+                    _buildTextField("Tanggal", tanggalC, readOnly: true, showCalendar: true),
+                    const SizedBox(height: 12),
+                    _buildTextField("Alasan", alasanC),
                   ],
                 ),
               ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // =============== TABLE VIEW (DEKSTOP) =================
-  Widget _buildTableView(List data) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Table(
-        columnWidths: const {
-          0: FlexColumnWidth(0.5),
-          1: FlexColumnWidth(1.5),
-          2: FlexColumnWidth(2),
-          3: FlexColumnWidth(1.5),
-          4: FlexColumnWidth(0.8),
-        },
-        border: TableBorder.all(color: Color(0xFFE0E0E0)),
-        children: [
-          const TableRow(
-            decoration: BoxDecoration(color: Color(0xFFE8F5E9)),
-            children: [
-              _HeaderCell("NO"),
-              _HeaderCell("TANGGAL"),
-              _HeaderCell("KELUARGA"),
-              _HeaderCell("JENIS MUTASI"),
-              _HeaderCell("AKSI"),
-            ],
-          ),
-
-          // ==== DATA ROW ====
-          ...List.generate(data.length, (i) {
-            final item = data[i];
-            final no = ((currentPage - 1) * 10) + i + 1;
-
-            return TableRow(
-              children: [
-                _DataCell(Text(no.toString())),
-                _DataCell(Text(item['tanggal'] ?? '-')),
-                _DataCell(Text(item['keluarga']?['nama_keluarga'] ?? '-')),
-                _DataCell(
-                  Text(
-                    item['jenis_mutasi'] ?? '-',
-                    style: TextStyle(
-                      color: (item['jenis_mutasi'] == "Pindah Masuk")
-                          ? Colors.green
-                          : Colors.red,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+              actionsAlignment: MainAxisAlignment.center,
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text("Batal", style: baseFont.copyWith(color: primaryGreen)),
                 ),
-
-                // ====== TITIK TIGA ======
-                _DataCell(
-                  PopupMenuButton<String>(
-                    icon: const Icon(Icons.more_vert),
-                    onSelected: (value) {
-                      if (value == "detail") _openDetail(item);
-                      if (value == "edit") _openEdit(item);
-                      if (value == "hapus") _confirmDelete(item);
-                    },
-                    itemBuilder: (context) => const [
-                      PopupMenuItem(value: "detail", child: Text("Detail")),
-                      PopupMenuItem(value: "edit", child: Text("Edit")),
-                      PopupMenuItem(value: "hapus", child: Text("Hapus")),
-                    ],
-                  ),
+                ElevatedButton(
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    await _updateMutasi(data, jenisC.text, tanggalC.text, alasanC.text);
+                  },
+                  style: ElevatedButton.styleFrom(backgroundColor: primaryGreen),
+                  child: Text("Simpan", style: baseFont.copyWith(color: Colors.white)),
                 ),
               ],
             );
-          }),
-        ],
-      ),
-    );
-  }
-
-  // =============== MOBILE CARD VIEW =================
-  Widget _buildMobileCardView(List data) {
-    return Column(
-      children: data.map((item) {
-        final jenis = item['jenis_mutasi'] ?? "-";
-        final keluarga = item['keluarga']?['nama_keluarga'] ?? "-";
-
-        return Card(
-          margin: const EdgeInsets.symmetric(vertical: 6),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          elevation: 2,
-          child: Padding(
-            padding: const EdgeInsets.all(14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // NAMA KELUARGA
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      keluarga,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-
-                    // TITIK TIGA
-                    PopupMenuButton<String>(
-                      icon: const Icon(Icons.more_vert),
-                      onSelected: (value) {
-                        if (value == "detail") _openDetail(item);
-                        if (value == "edit") _openEdit(item);
-                        if (value == "hapus") _confirmDelete(item);
-                      },
-                      itemBuilder: (context) => const [
-                        PopupMenuItem(value: "detail", child: Text("Detail")),
-                        PopupMenuItem(value: "edit", child: Text("Edit")),
-                        PopupMenuItem(value: "hapus", child: Text("Hapus")),
-                      ],
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 6),
-
-                Row(
-                  children: [
-                    const Icon(Icons.calendar_today, size: 16),
-                    const SizedBox(width: 6),
-                    Text(item['tanggal'] ?? "-"),
-                  ],
-                ),
-
-                const SizedBox(height: 4),
-
-                Text(
-                  jenis,
-                  style: TextStyle(
-                    color: jenis == "Pindah Masuk"
-                        ? Colors.green
-                        : Colors.redAccent,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          },
         );
-      }).toList(),
+      },
     );
   }
-}
 
-// ================= HELPER WIDGETS =================
+  Widget _buildTextField(String label, TextEditingController controller,
+      {bool readOnly = false, bool showCalendar = false, TextInputType? keyboardType}) {
+    return TextField(
+      controller: controller,
+      readOnly: readOnly,
+      keyboardType: keyboardType,
+      decoration: InputDecoration(
+        labelText: label,
+        filled: true,
+        fillColor: const Color(0xFFE8F5E9),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        suffixIcon: showCalendar ? const Icon(Icons.calendar_today) : null,
+      ),
+      onTap: showCalendar
+          ? () async {
+              DateTime? picked = await showDatePicker(
+                context: context,
+                initialDate: DateTime.tryParse(controller.text) ?? DateTime.now(),
+                firstDate: DateTime(2000),
+                lastDate: DateTime(2100),
+              );
+              if (picked != null) {
+                controller.text = picked.toIso8601String().split('T').first;
+              }
+            }
+          : null,
+    );
+  }
 
-class _HeaderCell extends StatelessWidget {
-  final String text;
-  const _HeaderCell(this.text);
+  Widget _deleteDialog() {
+    return AlertDialog(
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      content: Column(mainAxisSize: MainAxisSize.min, children: const [
+        Icon(Icons.warning_rounded, color: Colors.red, size: 60),
+        SizedBox(height: 12),
+        Text(
+          "Apakah Anda yakin ingin menghapus data ini?",
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 15, color: Colors.black87),
+        ),
+      ]),
+      actionsAlignment: MainAxisAlignment.center,
+      actions: [
+        ElevatedButton(
+          onPressed: () => Navigator.pop(context, false),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFFFFF3D4),
+            foregroundColor: Colors.black,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+          child: const Text("Batal"),
+        ),
+        ElevatedButton(
+          onPressed: () => Navigator.pop(context, true),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.red,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+          child: const Text("Hapus"),
+        ),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(12),
-      child: Text(
-        text,
-        style: const TextStyle(
-          fontWeight: FontWeight.bold,
-          color: Color(0xFF2E7D32),
+    final totalPages = (_data.length / _itemsPerPage).ceil();
+    final startIndex = _currentPage * _itemsPerPage;
+    final endIndex = (_currentPage + 1) * _itemsPerPage > _data.length
+        ? _data.length
+        : (_currentPage + 1) * _itemsPerPage;
+    final pageItems = _data.sublist(startIndex, endIndex);
+
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF2E7D32)),
+          onPressed: () => context.go('/beranda/semua_menu'),
+        ),
+        title: const Text("Daftar Mutasi", style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF2E7D32))),
+        backgroundColor: Colors.white,
+        elevation: 0.5,
+      ),
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color.fromARGB(255, 255, 235, 188), Color.fromARGB(255, 181, 255, 183)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: _loading
+                ? const Center(child: CircularProgressIndicator())
+                : _data.isEmpty
+                    ? const Center(child: Text("Belum ada mutasi"))
+                    : Card(
+                        margin: const EdgeInsets.symmetric(horizontal: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        elevation: 6,
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            children: [
+                              ...pageItems.map((entry) {
+                                return Card(
+                                  elevation: 2,
+                                  margin: const EdgeInsets.only(bottom: 12),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  child: ListTile(
+                                    leading: CircleAvatar(
+                                      backgroundColor: primaryGreen.withOpacity(0.15),
+                                      child: Text(entry['no'], style: baseFont.copyWith(fontWeight: FontWeight.bold, color: primaryGreen)),
+                                    ),
+                                    title: Text("Keluarga: ${entry['nama_keluarga']}", style: baseFont.copyWith(fontWeight: FontWeight.bold)),
+                                    subtitle: Text(
+                                      "Jenis Mutasi: ${entry['jenis_mutasi']}\nTanggal: ${entry['tanggal']}\nAlasan: ${entry['alasan']}",
+                                      style: baseFont.copyWith(height: 1.3),
+                                    ),
+                                    trailing: PopupMenuButton<String>(
+                                      onSelected: (value) {
+                                        if (value == 'Edit') _editItem(entry);
+                                        if (value == 'Hapus') _deleteItem(entry);
+                                      },
+                                      itemBuilder: (context) => [
+                                        PopupMenuItem(value: 'Edit', child: Text('Edit', style: baseFont)),
+                                        PopupMenuItem(value: 'Hapus', child: Text('Hapus', style: baseFont)),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                              const SizedBox(height: 12),
+                              // Pagination
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  IconButton(
+                                    onPressed: _currentPage > 0 ? () => setState(() => _currentPage--) : null,
+                                    icon: const Icon(Icons.chevron_left),
+                                  ),
+                                  ...List.generate(totalPages, (index) {
+                                    final isCurrent = index == _currentPage;
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                                      child: GestureDetector(
+                                        onTap: () => setState(() => _currentPage = index),
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                          decoration: BoxDecoration(
+                                            color: isCurrent ? primaryGreen : Colors.grey[300],
+                                            borderRadius: BorderRadius.circular(6),
+                                          ),
+                                          child: Text("${index + 1}", style: TextStyle(color: isCurrent ? Colors.white : Colors.black)),
+                                        ),
+                                      ),
+                                    );
+                                  }),
+                                  IconButton(
+                                    onPressed: _currentPage < totalPages - 1 ? () => setState(() => _currentPage++) : null,
+                                    icon: const Icon(Icons.chevron_right),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+          ),
         ),
       ),
     );
-  }
-}
-
-class _DataCell extends StatelessWidget {
-  final Widget child;
-  const _DataCell(this.child);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(padding: const EdgeInsets.all(12), child: child);
   }
 }

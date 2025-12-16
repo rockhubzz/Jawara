@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:jawara/services/keluarga_service.dart';
 import '../../services/mutasi_service.dart';
+import 'daftar_page.dart'; // pastikan import ini benar
 
 class BuatMutasiKeluargaPage extends StatefulWidget {
   final int? id;
@@ -13,11 +14,19 @@ class BuatMutasiKeluargaPage extends StatefulWidget {
 
 class _BuatMutasiKeluargaPageState extends State<BuatMutasiKeluargaPage> {
   final _formKey = GlobalKey<FormState>();
-  String? selectedJenis;
-  int? selectedKeluargaId;
-  DateTime? selectedDate;
+  final jenisCtrl = TextEditingController();
+  final tanggalCtrl = TextEditingController();
   final alasanCtrl = TextEditingController();
 
+  int? selectedKeluargaId;
+
+  bool loading = false;
+  bool initialLoading = false;
+  late final bool isEdit = widget.id != null;
+
+  final Color primaryGreen = const Color(0xFF2E7D32);
+
+  List<Map<String, dynamic>> keluargaList = [];
   final jenisList = [
     'Pindah Keluar',
     'Pindah Masuk',
@@ -27,289 +36,327 @@ class _BuatMutasiKeluargaPageState extends State<BuatMutasiKeluargaPage> {
     'Lainnya',
   ];
 
-  bool loading = false;
-  bool initialLoading = false;
-
-  // Optional: fetch keluarga list from API later — for demo we keep it simple
-  List<Map<String, dynamic>> keluargaList = [];
-
   @override
   void initState() {
     super.initState();
-    if (widget.id != null) {
-      _loadForEdit(widget.id!);
-    }
-    _loadKeluargaSimple();
+    _loadKeluarga();
+    if (isEdit) _loadDetail(widget.id!);
   }
 
-  Future<void> _loadKeluargaSimple() async {
+  Future<void> _loadKeluarga() async {
     keluargaList = await KeluargaService.getKeluarga();
     setState(() {});
   }
 
-  Future<void> _loadForEdit(int id) async {
+  Future<void> _loadDetail(int id) async {
     setState(() => initialLoading = true);
     try {
       final res = await MutasiService.getById(id);
       if (res['success'] == true) {
         final d = res['data'] as Map<String, dynamic>;
         setState(() {
-          selectedJenis = d['jenis_mutasi'];
+          jenisCtrl.text = d['jenis_mutasi'] ?? '';
           selectedKeluargaId = d['keluarga_id'];
+          tanggalCtrl.text = d['tanggal'] ?? '';
           alasanCtrl.text = d['alasan'] ?? '';
-          if (d['tanggal'] != null) selectedDate = DateTime.parse(d['tanggal']);
         });
       }
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Gagal memuat data: $e')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Gagal memuat data: $e')));
     } finally {
       setState(() => initialLoading = false);
     }
   }
 
   Future<void> _pickDate() async {
+    DateTime initial = tanggalCtrl.text.isNotEmpty
+        ? DateTime.tryParse(tanggalCtrl.text) ?? DateTime.now()
+        : DateTime.now();
+
     final picked = await showDatePicker(
       context: context,
-      initialDate: selectedDate ?? DateTime.now(),
+      initialDate: initial,
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
     );
-    if (picked != null) setState(() => selectedDate = picked);
+
+    if (picked != null) {
+      tanggalCtrl.text =
+          "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
+    }
   }
 
-  Future<void> _save() async {
+  Future<void> save() async {
     if (!_formKey.currentState!.validate()) return;
-    if (selectedDate == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Pilih tanggal mutasi')));
+
+    if (selectedKeluargaId == null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Pilih keluarga')));
       return;
     }
 
     setState(() => loading = true);
 
-    final body = {
-      'keluarga_id': selectedKeluargaId,
-      'jenis_mutasi': selectedJenis,
-      'tanggal': "${selectedDate!.toIso8601String().split('T').first}",
-      'alasan': alasanCtrl.text,
+    final payload = {
+      "keluarga_id": selectedKeluargaId,
+      "jenis_mutasi": jenisCtrl.text,
+      "tanggal": tanggalCtrl.text,
+      "alasan": alasanCtrl.text,
     };
 
-    try {
-      if (widget.id == null) {
-        final res = await MutasiService.create(body);
-        if (res['success'] == true) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Mutasi berhasil ditambahkan'),
-              backgroundColor: Colors.green,
+    Map<String, dynamic> res;
+    if (isEdit) {
+      res = await MutasiService.update(widget.id!, payload);
+    } else {
+      res = await MutasiService.create(payload);
+    }
+
+    setState(() => loading = false);
+
+    if (res['success'] == true) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              isEdit ? 'Mutasi berhasil diperbarui' : 'Mutasi berhasil disimpan',
             ),
-          );
-          context.go('/mutasi'); // go back to daftar
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(res['message'] ?? 'Gagal menambah')),
-          );
-        }
-      } else {
-        final res = await MutasiService.update(widget.id!, body);
-        if (res['success'] == true) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Mutasi berhasil diupdate'),
-              backgroundColor: Colors.green,
-            ),
-          );
-          context.go('/mutasi');
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(res['message'] ?? 'Gagal update')),
-          );
-        }
+            backgroundColor: Colors.green,
+          ),
+        );
+        context.go('/mutasi_keluarga/daftar'); // arah ke daftar
       }
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error: $e')));
-    } finally {
-      setState(() => loading = false);
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(res['message'] ?? 'Gagal menyimpan data')),
+        );
+      }
     }
   }
 
   void _reset() {
     setState(() {
-      selectedJenis = null;
+      jenisCtrl.clear();
       selectedKeluargaId = null;
-      selectedDate = null;
+      tanggalCtrl.clear();
       alasanCtrl.clear();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final from =
-        GoRouterState.of(context).uri.queryParameters['from'] ?? 'tambah';
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            if (from == 'tambah') {
-              context.go('/beranda/tambah');
-            } else {
-              context.go('/beranda/semua_menu');
-            }
-          },
+          icon: const Icon(Icons.arrow_back_ios_new),
+          color: primaryGreen,
+          onPressed: () => context.go('/mutasi_keluarga/daftar'),
         ),
-
-        title: Text(widget.id == null ? 'Buat Mutasi Keluarga' : 'Edit Mutasi'),
+        title: Text(
+          isEdit ? 'Edit Mutasi' : 'Buat Mutasi Keluarga',
+          style: const TextStyle(
+              fontWeight: FontWeight.bold, color: Color(0xFF2E7D32)),
+        ),
         backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
+        elevation: 0.5,
       ),
-      body: initialLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 700),
-                  child: Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 6,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Jenis Mutasi',
-                            style: TextStyle(fontWeight: FontWeight.w600),
-                          ),
-                          const SizedBox(height: 8),
-                          DropdownButtonFormField<String>(
-                            value: selectedJenis,
-                            hint: const Text('-- Pilih Jenis Mutasi --'),
-                            items: jenisList
-                                .map(
-                                  (e) => DropdownMenuItem(
-                                    value: e,
-                                    child: Text(e),
-                                  ),
-                                )
-                                .toList(),
-                            onChanged: (v) => setState(() => selectedJenis = v),
-                            validator: (v) =>
-                                v == null ? 'Pilih jenis mutasi' : null,
-                          ),
-                          const SizedBox(height: 16),
-                          const Text(
-                            'Keluarga',
-                            style: TextStyle(fontWeight: FontWeight.w600),
-                          ),
-                          const SizedBox(height: 8),
-                          DropdownButtonFormField<int>(
-                            value: selectedKeluargaId,
-                            hint: const Text('-- Pilih Keluarga --'),
-                            items: keluargaList
-                                .map(
-                                  (k) => DropdownMenuItem(
-                                    value: k['id'] as int,
-                                    child: Text(k['nama_keluarga'] ?? '-'),
-                                  ),
-                                )
-                                .toList(),
-                            onChanged: (v) =>
-                                setState(() => selectedKeluargaId = v),
-                            validator: (v) =>
-                                v == null ? 'Pilih keluarga' : null,
-                          ),
-                          const SizedBox(height: 16),
-                          const Text(
-                            'Alasan Mutasi',
-                            style: TextStyle(fontWeight: FontWeight.w600),
-                          ),
-                          const SizedBox(height: 8),
-                          TextFormField(
-                            controller: alasanCtrl,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              border: OutlineInputBorder(),
-                              hintText: 'Masukkan alasan',
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          const Text(
-                            'Tanggal Mutasi',
-                            style: TextStyle(fontWeight: FontWeight.w600),
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: InkWell(
-                                  onTap: _pickDate,
-                                  child: InputDecorator(
-                                    decoration: InputDecoration(
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                    ),
-                                    child: Text(
-                                      selectedDate == null
-                                          ? '--/--/----'
-                                          : "${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}",
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              IconButton(
-                                onPressed: () =>
-                                    setState(() => selectedDate = null),
-                                icon: const Icon(Icons.clear),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 24),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              OutlinedButton(
-                                onPressed: _reset,
-                                child: const Text('Reset'),
-                              ),
-                              const SizedBox(width: 12),
-                              ElevatedButton(
-                                onPressed: loading ? null : _save,
-                                child: loading
-                                    ? const CircularProgressIndicator(
-                                        color: Colors.white,
-                                      )
-                                    : Text(
-                                        widget.id == null ? 'Simpan' : 'Update',
-                                      ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color.fromARGB(255, 255, 235, 188),
+              Color.fromARGB(255, 181, 255, 183),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: SafeArea(
+          child: initialLoading
+              ? const Center(child: CircularProgressIndicator())
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.all(24),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 900),
+                      child: _buildForm(),
                     ),
                   ),
                 ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildForm() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.15),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(20),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Jenis Mutasi Dropdown
+            DropdownButtonFormField<String>(
+              value: jenisCtrl.text.isEmpty ? null : jenisCtrl.text,
+              decoration: InputDecoration(
+                labelText: 'Jenis Mutasi',
+                filled: true,
+                fillColor: Colors.white,
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: primaryGreen, width: 2),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: primaryGreen, width: 2.2),
+                ),
               ),
+              hint: const Text('-- Pilih Jenis Mutasi --'),
+              items: jenisList
+                  .map((j) => DropdownMenuItem(value: j, child: Text(j)))
+                  .toList(),
+              onChanged: (v) => setState(() => jenisCtrl.text = v ?? ''),
+              validator: (v) =>
+                  v == null || v.isEmpty ? 'Pilih jenis mutasi' : null,
             ),
+            const SizedBox(height: 14),
+            // Keluarga Dropdown
+            DropdownButtonFormField<int>(
+              value: selectedKeluargaId,
+              decoration: InputDecoration(
+                labelText: 'Keluarga',
+                filled: true,
+                fillColor: Colors.white,
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: primaryGreen, width: 2),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: primaryGreen, width: 2.2),
+                ),
+              ),
+              hint: const Text('-- Pilih Keluarga --'),
+              items: keluargaList
+                  .map((k) => DropdownMenuItem(
+                        value: k['id'] as int,
+                        child: Text(k['nama_keluarga'] ?? '-'),
+                      ))
+                  .toList(),
+              onChanged: (v) => setState(() => selectedKeluargaId = v),
+              validator: (v) => v == null ? 'Pilih keluarga' : null,
+            ),
+            const SizedBox(height: 14),
+            _InputField(
+              controller: tanggalCtrl,
+              label: 'Tanggal Mutasi',
+              hint: 'Pilih tanggal',
+              readOnly: true,
+              onTap: _pickDate,
+              icon: Icons.date_range_outlined,
+            ),
+            const SizedBox(height: 14),
+            _InputField(
+              controller: alasanCtrl,
+              label: 'Alasan',
+              hint: 'Masukkan alasan mutasi',
+              maxLines: 3,
+              icon: Icons.description_outlined,
+            ),
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                OutlinedButton(
+                  onPressed: _reset,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: primaryGreen,
+                    side: BorderSide(color: primaryGreen, width: 2),
+                  ),
+                  child: const Text('Reset'),
+                ),
+                const SizedBox(width: 12),
+                ElevatedButton(
+                  onPressed: loading ? null : save,
+                   style: ElevatedButton.styleFrom(
+                      backgroundColor: primaryGreen,
+                      foregroundColor: Colors.white, 
+                    ),
+                    child: Text(
+                      loading
+                          ? (isEdit ? 'Memperbarui...' : 'Menyimpan...')
+                          : (isEdit ? 'Update' : 'Simpan'),
+                    ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _InputField extends StatelessWidget {
+  final TextEditingController controller;
+  final String label;
+  final String hint;
+  final IconData icon;
+  final bool readOnly;
+  final VoidCallback? onTap;
+  final int maxLines;
+
+  const _InputField({
+    super.key,
+    required this.controller,
+    required this.label,
+    required this.hint,
+    this.icon = Icons.edit,
+    this.readOnly = false,
+    this.onTap,
+    this.maxLines = 1,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    const primaryGreen = Color(0xFF2E7D32);
+    return TextFormField(
+      controller: controller,
+      readOnly: readOnly,
+      onTap: onTap,
+      maxLines: maxLines,
+      decoration: InputDecoration(
+        prefixIcon: Icon(icon, color: primaryGreen),
+        labelText: label,
+        hintText: hint,
+        filled: true,
+        fillColor: Colors.white,
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: primaryGreen, width: 2),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: primaryGreen, width: 2.2),
+        ),
+      ),
+      validator: (v) => (v == null || v.isEmpty) ? 'Wajib diisi' : null,
     );
   }
 }
