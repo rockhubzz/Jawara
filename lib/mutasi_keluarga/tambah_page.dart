@@ -41,6 +41,7 @@ class _BuatMutasiKeluargaPageState extends State<BuatMutasiKeluargaPage> {
 
   Future<void> _loadKeluargaSimple() async {
     keluargaList = await KeluargaService.getKeluarga();
+    if(!mounted) return;
     setState(() {});
   }
 

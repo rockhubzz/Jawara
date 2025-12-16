@@ -61,6 +61,8 @@ class _TambahWargaPageState extends State<TambahWargaPage> {
   }
 
   Future<void> save() async {
+    if (!_formKey.currentState!.validate()) return;
+
     final Map<String, dynamic> body = {
       "nama": nama.text,
       "nik": nik.text,
@@ -264,6 +266,15 @@ class _TambahWargaPageState extends State<TambahWargaPage> {
                         nik,
                         hint: "Masukkan NIK",
                         keyboard: TextInputType.number,
+                        validator: (v) {
+                          if (v == null || v.isEmpty) {
+                            return "NIK tidak boleh kosong";
+                          }
+                          if (v.length < 16) {
+                            return "NIK harus 16 digit";
+                          }
+                          return null;
+                        },
                       ),
                       const SizedBox(height: 16),
 
@@ -370,6 +381,7 @@ class _TambahWargaPageState extends State<TambahWargaPage> {
     TextEditingController controller, {
     String? hint,
     TextInputType keyboard = TextInputType.text,
+    String? Function(String?)? validator,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -386,7 +398,7 @@ class _TambahWargaPageState extends State<TambahWargaPage> {
             hintText: hint,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
           ),
-          validator: (v) =>
+          validator: validator ?? (v) =>
               v == null || v.isEmpty ? "$label tidak boleh kosong" : null,
         ),
       ],
