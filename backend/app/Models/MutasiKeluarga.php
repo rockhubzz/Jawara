@@ -13,6 +13,12 @@ class MutasiKeluarga extends Model
         'jenis_mutasi',
         'tanggal',
         'alasan',
+        'nama_keluarga',
+        'kepala_keluarga',
+        'alamat',
+        'kepemilikan',
+        'status_keluarga',
+        'rumah_id',
     ];
 
     public function keluarga()

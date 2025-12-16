@@ -20,10 +20,8 @@ class _BuatMutasiKeluargaPageState extends State<BuatMutasiKeluargaPage> {
 
   final jenisList = [
     'Pindah Keluar',
-    'Pindah Masuk',
     'Pindah Domisili',
     'Perubahan Status',
-    'Kematian',
     'Lainnya',
   ];
 
@@ -96,13 +94,14 @@ class _BuatMutasiKeluargaPageState extends State<BuatMutasiKeluargaPage> {
       if (widget.id == null) {
         final res = await MutasiService.create(body);
         if (res['success'] == true) {
+            await KeluargaService.deleteKeluarga(selectedKeluargaId!);
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Mutasi berhasil ditambahkan'),
               backgroundColor: Color(0xFF2E7D32),
             ),
           );
-          context.go('/mutasi');
+          context.go('/mutasi_keluarga/daftar'); // go back to daftar
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(res['message'] ?? 'Gagal menambah')),
@@ -117,7 +116,11 @@ class _BuatMutasiKeluargaPageState extends State<BuatMutasiKeluargaPage> {
               backgroundColor: Color(0xFF2E7D32),
             ),
           );
-          context.go('/mutasi');
+          context.go('/mutasi_keluarga/daftar');
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(res['message'] ?? 'Gagal update')),
+          );
         }
       }
     } finally {
