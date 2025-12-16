@@ -89,12 +89,16 @@ class KegiatanService {
         },
         body: json.encode(body),
       );
+
       if (resp.statusCode == 200 || resp.statusCode == 201) {
-        return jsonDecode(resp.body);
+        return {
+          "success": true,
+          "data": jsonDecode(resp.body),
+        };
       } else {
         return {
           "success": false,
-          "message": "Gagal menambahkan kegiatan",
+          "message": "Gagal memperbarui kegiatan",
           "status": resp.statusCode,
           "response": resp.body,
         };
@@ -103,6 +107,7 @@ class KegiatanService {
       return {"success": false, "message": "Error: $e"};
     }
   }
+
 
   // DELETE
   static Future<bool> delete(int id) async {
