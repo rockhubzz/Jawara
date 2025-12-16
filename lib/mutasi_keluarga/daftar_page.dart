@@ -129,23 +129,10 @@ class _DaftarPageState extends State<DaftarPage> {
     }
   }
 
-<<<<<<< HEAD
   void _openEditDialog(BuildContext context, Map data) {
     final jenisC = TextEditingController(text: data['jenis_mutasi']);
     final tanggalC = TextEditingController(text: data['tanggal']);
     final alasanC = TextEditingController(text: data['alasan']);
-=======
-  // ========= NAVIGASI DETAIL (API BELUM SIAP) ==========
-  // void _openDetail(Map<String, dynamic> item) {
-  //   // API backend detail belum siap
-  //   ScaffoldMessenger.of(context).showSnackBar(
-  //     const SnackBar(
-  //       content: Text("API detail belum tersedia"),
-  //       backgroundColor: Colors.orange,
-  //     ),
-  //   );
-  // }
->>>>>>> 8dbaedcca6e36c76cced676ff4d47254782b9e15
 
     showDialog(
       context: context,
@@ -163,81 +150,11 @@ class _DaftarPageState extends State<DaftarPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-<<<<<<< HEAD
                     _buildTextField("Jenis Mutasi", jenisC),
                     const SizedBox(height: 12),
                     _buildTextField("Tanggal", tanggalC, readOnly: true, showCalendar: true),
                     const SizedBox(height: 12),
                     _buildTextField("Alasan", alasanC),
-=======
-                    // ===== HEADER =====
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          "Daftar Mutasi Keluarga",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF2E7D32),
-                          ),
-                        ),
-                        // ElevatedButton.icon(
-                        //   onPressed: () => context.go('/mutasi/tambah'),
-                        //   icon: const Icon(Icons.add),
-                        //   label: const Text("Tambah"),
-                        //   style: ElevatedButton.styleFrom(
-                        //     backgroundColor: const Color(0xFF2E7D32),
-                        //     foregroundColor: Colors.white,
-                        //   ),
-                        // ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    if (isLoading)
-                      const Center(child: CircularProgressIndicator())
-                    else if (isMobile)
-                      _buildMobileCardView(data)
-                    else
-                      _buildTableView(data),
-
-                    const SizedBox(height: 20),
-
-                    // ===== PAGINATION =====
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.chevron_left),
-                          onPressed: currentPage > 1
-                              ? () => loadData(page: currentPage - 1)
-                              : null,
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF2E7D32),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            currentPage.toString(),
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.chevron_right),
-                          onPressed: currentPage < lastPage
-                              ? () => loadData(page: currentPage + 1)
-                              : null,
-                        ),
-                      ],
-                    ),
->>>>>>> 8dbaedcca6e36c76cced676ff4d47254782b9e15
                   ],
                 ),
               ),
@@ -247,7 +164,6 @@ class _DaftarPageState extends State<DaftarPage> {
                   onPressed: () => Navigator.pop(context),
                   child: Text("Batal", style: baseFont.copyWith(color: primaryGreen)),
                 ),
-<<<<<<< HEAD
                 ElevatedButton(
                   onPressed: () async {
                     Navigator.pop(context);
@@ -259,104 +175,6 @@ class _DaftarPageState extends State<DaftarPage> {
               ],
             );
           },
-=======
-
-                // ====== TITIK TIGA ======
-                _DataCell(
-                  PopupMenuButton<String>(
-                    icon: const Icon(Icons.more_vert),
-                    onSelected: (value) {
-                      // if (value == "detail") _openDetail(item);
-                      if (value == "edit") _openEdit(item);
-                      if (value == "hapus") _confirmDelete(item);
-                    },
-                    itemBuilder: (context) => const [
-                      // PopupMenuItem(value: "detail", child: Text("Detail")),
-                      PopupMenuItem(value: "edit", child: Text("Edit")),
-                      PopupMenuItem(value: "hapus", child: Text("Hapus")),
-                    ],
-                  ),
-                ),
-              ],
-            );
-          }),
-        ],
-      ),
-    );
-  }
-
-  // =============== MOBILE CARD VIEW =================
-  Widget _buildMobileCardView(List data) {
-    return Column(
-      children: data.map((item) {
-        final jenis = item['jenis_mutasi'] ?? "-";
-        final keluarga = item['keluarga']?['nama_keluarga'] ?? "-";
-
-        return Card(
-          margin: const EdgeInsets.symmetric(vertical: 6),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          elevation: 2,
-          child: Padding(
-            padding: const EdgeInsets.all(14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // NAMA KELUARGA
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      keluarga,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-
-                    // TITIK TIGA
-                    PopupMenuButton<String>(
-                      icon: const Icon(Icons.more_vert),
-                      onSelected: (value) {
-                        // if (value == "detail") _openDetail(item);
-                        if (value == "edit") _openEdit(item);
-                        if (value == "hapus") _confirmDelete(item);
-                      },
-                      itemBuilder: (context) => const [
-                        // PopupMenuItem(value: "detail", child: Text("Detail")),
-                        PopupMenuItem(value: "edit", child: Text("Edit")),
-                        PopupMenuItem(value: "hapus", child: Text("Hapus")),
-                      ],
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 6),
-
-                Row(
-                  children: [
-                    const Icon(Icons.calendar_today, size: 16),
-                    const SizedBox(width: 6),
-                    Text(item['tanggal'] ?? "-"),
-                  ],
-                ),
-
-                const SizedBox(height: 4),
-
-                Text(
-                  jenis,
-                  style: TextStyle(
-                    color: jenis == "Pindah Masuk"
-                        ? Colors.green
-                        : Colors.redAccent,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
->>>>>>> 8dbaedcca6e36c76cced676ff4d47254782b9e15
         );
       },
     );
@@ -393,7 +211,8 @@ class _DaftarPageState extends State<DaftarPage> {
           : null,
     );
   }
-
+  
+  // hapus
   Widget _deleteDialog() {
     return AlertDialog(
       backgroundColor: Colors.white,
@@ -507,7 +326,7 @@ class _DaftarPageState extends State<DaftarPage> {
                                 );
                               }).toList(),
                               const SizedBox(height: 12),
-                              // Pagination
+                              // Paginationn
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -548,3 +367,4 @@ class _DaftarPageState extends State<DaftarPage> {
     );
   }
 }
+ 
