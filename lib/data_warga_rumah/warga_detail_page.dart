@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class WargaDetailPage extends StatelessWidget {
   final Map<String, dynamic> warga;
@@ -36,6 +37,10 @@ class WargaDetailPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: primaryGreen),
+          onPressed: () => context.go('/data_warga_rumah/daftarWarga'),
+        ),
         title: const Text(
           "Detail Warga",
           style: TextStyle(fontWeight: FontWeight.bold, color: primaryGreen),
@@ -45,6 +50,8 @@ class WargaDetailPage extends StatelessWidget {
         iconTheme: const IconThemeData(color: primaryGreen),
       ),
       body: Container(
+        height: double.infinity,
+        width: double.infinity,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
