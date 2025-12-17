@@ -3,7 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:jawara/services/kegiatan_service.dart';
 
 class KegiatanDaftarPage extends StatefulWidget {
-  const KegiatanDaftarPage({super.key});
+  final String? when; // optional filter: overdue | today | upcoming
+  const KegiatanDaftarPage({super.key, this.when});
 
   @override
   State<KegiatanDaftarPage> createState() => _KegiatanDaftarPageState();
@@ -34,7 +35,10 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
     });
 
     try {
-      final items = await KegiatanService.getAll();
+      final items = widget.when != null
+          ? await KegiatanService.getFiltered(widget.when!)
+          : await KegiatanService.getAll();
+
       _data = items.asMap().entries.map((e) {
         final idx = e.key;
         final row = e.value;
@@ -286,9 +290,15 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
           icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF2E7D32)),
           onPressed: () => context.go('/beranda/semua_menu'),
         ),
-        title: const Text(
-          "Daftar Kegiatan",
-          style: TextStyle(
+        title: Text(
+          widget.when == null
+              ? "Daftar Kegiatan"
+              : (widget.when == 'overdue'
+                  ? 'Kegiatan - Sudah Lewat'
+                  : widget.when == 'today'
+                      ? 'Kegiatan - Hari Ini'
+                      : 'Kegiatan - Akan Datang'),
+          style: const TextStyle(
             fontWeight: FontWeight.bold,
             color: Color(0xFF2E7D32),
           ),

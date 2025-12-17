@@ -529,7 +529,7 @@ class _HomePageState extends State<HomePage> {
                       subtitle: "Informasi RT",
                       value: "Lihat",
                       icon: Icons.campaign,
-                      onTap: () => context.go('/broadcast'),
+                      onTap: () => context.go('/dashboard/kegiatan'),
                     ),
                   ],
                 ),

@@ -197,21 +197,25 @@ class _KegiatanPageState extends State<KegiatanPage> {
                   "Total Kegiatan",
                   _isLoading ? "..." : total.toString(),
                   Icons.event_available,
+                  onTap: () => context.go('/kegiatan/daftar'),
                 ),
                 _dashboardSmallCard(
                   "Sudah Lewat",
                   _isLoading ? "..." : sebelumHariIni.toString(),
                   Icons.history,
+                  onTap: () => context.go('/kegiatan/daftar?when=overdue'),
                 ),
                 _dashboardSmallCard(
                   "Hari Ini",
                   _isLoading ? "..." : hariIni.toString(),
                   Icons.today,
+                  onTap: () => context.go('/kegiatan/daftar?when=today'),
                 ),
                 _dashboardSmallCard(
                   "Akan Datang",
                   _isLoading ? "..." : setelahHariIni.toString(),
                   Icons.upcoming,
+                  onTap: () => context.go('/kegiatan/daftar?when=upcoming'),
                 ),
               ],
             ),
@@ -349,43 +353,52 @@ class _KegiatanPageState extends State<KegiatanPage> {
 
 // ===================== COMPONENTS ========================
 
-Widget _dashboardSmallCard(String title, String value, IconData icon) {
+Widget _dashboardSmallCard(
+  String title,
+  String value,
+  IconData icon, {
+  VoidCallback? onTap,
+}) {
   return SizedBox(
     width: 170,
-    child: Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        // color: Colors.white.withOpacity(0.9),
-        color: Colors.white.withOpacity(0.9), // sedikit transparan
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.white.withOpacity(0.3),
-            blurRadius: 12,
-            spreadRadius: 2,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, size: 32, color: Color(0xFF2E7D32)),
-          const SizedBox(height: 12),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF2E7D32),
+    child: InkWell(
+      borderRadius: BorderRadius.circular(14),
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          // color: Colors.white.withOpacity(0.9),
+          color: Colors.white.withOpacity(0.9), // sedikit transparan
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.white.withOpacity(0.3),
+              blurRadius: 12,
+              spreadRadius: 2,
+              offset: Offset(0, 4),
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            title,
-            style: const TextStyle(fontSize: 14, color: Colors.black87),
-          ),
-        ],
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, size: 32, color: Color(0xFF2E7D32)),
+            const SizedBox(height: 12),
+            Text(
+              value,
+              style: const TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF2E7D32),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              title,
+              style: const TextStyle(fontSize: 14, color: Colors.black87),
+            ),
+          ],
+        ),
       ),
     ),
   );
