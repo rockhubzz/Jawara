@@ -25,6 +25,18 @@ class _KegiatanTambahPageState extends State<KegiatanTambahPage> {
 
   final Color primaryGreen = const Color(0xFF2E7D32);
 
+  final List<String> kategoriList = [
+    'Sosial',
+    'Acara',
+    'Olahraga',
+    'Pendidikan',
+    'Keamanan',
+    'Keuangan',
+    'Lainnya',
+  ];
+
+  String? selectedKategori;
+
   @override
   void initState() {
     super.initState();
@@ -37,6 +49,7 @@ class _KegiatanTambahPageState extends State<KegiatanTambahPage> {
     setState(() {
       namaC.text = data['nama'] ?? '';
       kategoriC.text = data['kategori'] ?? '';
+      selectedKategori = data['kategori'];
       tanggalC.text = data['tanggal'] ?? '';
       lokasiC.text = data['lokasi'] ?? '';
       pjC.text = data['penanggung_jawab'] ?? '';
@@ -194,12 +207,43 @@ class _KegiatanTambahPageState extends State<KegiatanTambahPage> {
               icon: Icons.event_note_outlined,
             ),
             const SizedBox(height: 14),
-            _InputField(
-              controller: kategoriC,
-              label: "Kategori",
-              hint: "Masukkan kategori kegiatan...",
-              icon: Icons.category_outlined,
+
+            // Dropdown kategori
+            DropdownButtonFormField<String>(
+              value: selectedKategori,
+              decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.category_outlined,
+                    color: Color(0xFF2E7D32)),
+                labelText: "Kategori",
+                filled: true,
+                fillColor: Colors.white,
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: Color(0xFF2E7D32), width: 2),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide:
+                      const BorderSide(color: Color(0xFF2E7D32), width: 2.2),
+                ),
+              ),
+              hint: const Text("Pilih kategori kegiatan"),
+              items: kategoriList.map((kategori) {
+                return DropdownMenuItem(
+                  value: kategori,
+                  child: Text(kategori),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  selectedKategori = value;
+                  kategoriC.text = value ?? '';
+                });
+              },
+              validator: (value) =>
+                  value == null || value.isEmpty ? 'Wajib dipilih' : null,
             ),
+
             const SizedBox(height: 14),
             _InputField(
               controller: tanggalC,
