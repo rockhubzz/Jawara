@@ -148,6 +148,12 @@ class _TambahWargaPageState extends State<TambahWargaPage> {
           border: OutlineInputBorder(
             borderSide: BorderSide(color: Color(0xFF2E7D32)),
           ),
+          errorBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.red),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.red, width: 2),
+          ),
         ),
       ),
       child: Scaffold(
@@ -398,8 +404,10 @@ class _TambahWargaPageState extends State<TambahWargaPage> {
             hintText: hint,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
           ),
-          validator: validator ?? (v) =>
-              v == null || v.isEmpty ? "$label tidak boleh kosong" : null,
+          validator:
+              validator ??
+              (v) =>
+                  v == null || v.isEmpty ? "$label tidak boleh kosong" : null,
         ),
       ],
     );

@@ -142,6 +142,12 @@ class _TambahRumahPageState extends State<TambahRumahPage> {
           border: OutlineInputBorder(
             borderSide: BorderSide(color: Color(0xFF2E7D32)),
           ),
+          errorBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.red),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.red, width: 2),
+          ),
         ),
       ),
       child: Scaffold(
@@ -188,7 +194,7 @@ class _TambahRumahPageState extends State<TambahRumahPage> {
 
           child: SingleChildScrollView(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 120, 24, 24),
+              padding: const EdgeInsets.fromLTRB(24, 90, 24, 24),
 
               child: Center(
                 child: Container(
