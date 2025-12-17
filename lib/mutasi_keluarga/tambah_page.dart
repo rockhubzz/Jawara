@@ -62,8 +62,9 @@ class _BuatMutasiKeluargaPageState extends State<BuatMutasiKeluargaPage> {
         });
       }
     } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Gagal memuat data: $e')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Gagal memuat data: $e')));
     } finally {
       setState(() => initialLoading = false);
     }
@@ -91,8 +92,9 @@ class _BuatMutasiKeluargaPageState extends State<BuatMutasiKeluargaPage> {
     if (!_formKey.currentState!.validate()) return;
 
     if (selectedKeluargaId == null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Pilih keluarga')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Pilih keluarga')));
       return;
     }
 
@@ -119,7 +121,9 @@ class _BuatMutasiKeluargaPageState extends State<BuatMutasiKeluargaPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              isEdit ? 'Mutasi berhasil diperbarui' : 'Mutasi berhasil disimpan',
+              isEdit
+                  ? 'Mutasi berhasil diperbarui'
+                  : 'Mutasi berhasil disimpan',
             ),
             backgroundColor: Colors.green,
           ),
@@ -157,7 +161,9 @@ class _BuatMutasiKeluargaPageState extends State<BuatMutasiKeluargaPage> {
         title: Text(
           isEdit ? 'Edit Mutasi' : 'Buat Mutasi Keluarga',
           style: const TextStyle(
-              fontWeight: FontWeight.bold, color: Color(0xFF2E7D32)),
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF2E7D32),
+          ),
         ),
         backgroundColor: Colors.white,
         elevation: 0.5,
@@ -236,7 +242,7 @@ class _BuatMutasiKeluargaPageState extends State<BuatMutasiKeluargaPage> {
                   v == null || v.isEmpty ? 'Pilih jenis mutasi' : null,
             ),
             const SizedBox(height: 14),
-            // Keluarga Dropdown   
+            // Keluarga Dropdown
             DropdownButtonFormField<int>(
               value: selectedKeluargaId,
               decoration: InputDecoration(
@@ -254,10 +260,12 @@ class _BuatMutasiKeluargaPageState extends State<BuatMutasiKeluargaPage> {
               ),
               hint: const Text('-- Pilih Keluarga --'),
               items: keluargaList
-                  .map((k) => DropdownMenuItem(
-                        value: k['id'] as int,
-                        child: Text(k['nama_keluarga'] ?? '-'),
-                      ))
+                  .map(
+                    (k) => DropdownMenuItem(
+                      value: k['id'] as int,
+                      child: Text(k['nama_keluarga'] ?? '-'),
+                    ),
+                  )
                   .toList(),
               onChanged: (v) => setState(() => selectedKeluargaId = v),
               validator: (v) => v == null ? 'Pilih keluarga' : null,
@@ -294,15 +302,15 @@ class _BuatMutasiKeluargaPageState extends State<BuatMutasiKeluargaPage> {
                 const SizedBox(width: 12),
                 ElevatedButton(
                   onPressed: loading ? null : save,
-                   style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryGreen,
-                      foregroundColor: Colors.white, 
-                    ),
-                    child: Text(
-                      loading
-                          ? (isEdit ? 'Memperbarui...' : 'Menyimpan...')
-                          : (isEdit ? 'Update' : 'Simpan'),
-                    ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryGreen,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: Text(
+                    loading
+                        ? (isEdit ? 'Memperbarui...' : 'Menyimpan...')
+                        : (isEdit ? 'Update' : 'Simpan'),
+                  ),
                 ),
               ],
             ),
