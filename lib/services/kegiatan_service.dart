@@ -52,9 +52,12 @@ class KegiatanService {
     }
   }
 
-  static Future<List<Map<String, dynamic>>> getOverdue() async => getFiltered('overdue');
-  static Future<List<Map<String, dynamic>>> getToday() async => getFiltered('today');
-  static Future<List<Map<String, dynamic>>> getUpcoming() async => getFiltered('upcoming');
+  static Future<List<Map<String, dynamic>>> getOverdue() async =>
+      getFiltered('overdue');
+  static Future<List<Map<String, dynamic>>> getToday() async =>
+      getFiltered('today');
+  static Future<List<Map<String, dynamic>>> getUpcoming() async =>
+      getFiltered('upcoming');
 
   // GET by id
   static Future<Map<String, dynamic>> getById(int id) async {
@@ -116,10 +119,7 @@ class KegiatanService {
       );
 
       if (resp.statusCode == 200 || resp.statusCode == 201) {
-        return {
-          "success": true,
-          "data": jsonDecode(resp.body),
-        };
+        return {"success": true, "data": jsonDecode(resp.body)};
       } else {
         return {
           "success": false,
@@ -132,7 +132,6 @@ class KegiatanService {
       return {"success": false, "message": "Error: $e"};
     }
   }
-
 
   // DELETE
   static Future<bool> delete(int id) async {
