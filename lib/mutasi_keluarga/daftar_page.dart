@@ -11,363 +11,145 @@ class DaftarPage extends StatefulWidget {
 }
 
 class _DaftarPageState extends State<DaftarPage> {
+  final Color primaryGreen = const Color(0xFF2E7D32);
+
   List<Map<String, dynamic>> _data = [];
   List<Map<String, dynamic>> _keluargaList = [];
   bool _loading = true;
-  String? _error;
 
-  final Color primaryGreen = const Color(0xFF2E7D32);
-  final TextStyle baseFont = const TextStyle(fontFamily: "Poppins");
-
-  // Pagination
   int _currentPage = 0;
   final int _itemsPerPage = 5;
 
   @override
   void initState() {
     super.initState();
-    _loadKeluarga();
+    _loadAll();
   }
 
-  Future<void> _loadKeluarga() async {
-    setState(() => _loading = true);
+  Future<void> _loadAll() async {
     try {
-      // Ambil data keluarga dulu
       _keluargaList = await KeluargaService.getKeluarga();
-      await _loadData();
-    } catch (e) {
-      setState(() {
-        _loading = false;
-        _error = "Gagal memuat keluarga: $e";
-      });
-    }
-  }
-
-  Future<void> _loadData() async {
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
-
-    try {
       final res = await MutasiService.getAll();
-      final items = (res['data'] as List).map((e) => e as Map<String, dynamic>).toList();
 
-      _data = items.asMap().entries.map((e) {
-        final idx = e.key;
-        final row = e.value;
+      final items = (res['data'] as List)
+          .map((e) => e as Map<String, dynamic>)
+          .toList();
 
-        // Cari nama keluarga dari _keluargaList
-        final keluargaIdStr = row['keluarga_id'].toString();
-        final keluargaName = _keluargaList.firstWhere(
-          (k) => k['id'].toString() == keluargaIdStr,
+      _data = items.map((row) {
+        final keluarga = _keluargaList.firstWhere(
+          (k) => k['id'].toString() == row['keluarga_id'].toString(),
           orElse: () => {'nama_keluarga': '-'},
-        )['nama_keluarga'];
-
-        // Debug
-        print("Mutasi id: ${row['id']}, keluarga_id: ${row['keluarga_id']}, nama_keluarga: $keluargaName");
+        );
 
         return {
-          'no': (idx + 1).toString(),
           'id': row['id'],
-          'keluarga_id': row['keluarga_id'] ?? '-',
-          'nama_keluarga': keluargaName ?? '-',
+          'nama_keluarga': keluarga['nama_keluarga'] ?? '-',
           'jenis_mutasi': row['jenis_mutasi'] ?? '-',
           'tanggal': row['tanggal'] ?? '-',
           'alasan': row['alasan'] ?? '-',
         };
       }).toList();
-    } catch (e) {
-      _error = "Gagal memuat data: $e";
     } finally {
       if (mounted) setState(() => _loading = false);
     }
   }
 
-  Future<void> _deleteItem(Map item) async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => _deleteDialog(),
-    );
-
-    if (confirm == true) {
-      final success = await MutasiService.delete(item['id']);
-      if (success) {
-        _data.removeWhere((d) => d['id'] == item['id']);
-        if (mounted) setState(() {});
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Mutasi berhasil dihapus!"), backgroundColor: Colors.green),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Gagal menghapus data"), backgroundColor: Colors.red),
-        );
-      }
-    }
-  }
-
-  void _editItem(Map item) => _openEditDialog(context, item);
-
-  Future<void> _updateMutasi(Map item, String jenis, String tanggal, String alasan) async {
-    final result = await MutasiService.update(item['id'], {
-      "jenis_mutasi": jenis,
-      "tanggal": tanggal,
-      "alasan": alasan,
-    });
-
-    if (result['success'] == true) {
-      await _loadData();
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Mutasi berhasil diperbarui!"), backgroundColor: Colors.green),
-      );
-    } else {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Gagal memperbarui data: ${result['message']}"), backgroundColor: Colors.red),
-      );
-    }
-  }
-
-  void _openEditDialog(BuildContext context, Map data) {
-    final jenisC = TextEditingController(text: data['jenis_mutasi']);
-    final tanggalC = TextEditingController(text: data['tanggal']);
-    final alasanC = TextEditingController(text: data['alasan']);
+  void _editItem(Map item) {
+    final jenisC = TextEditingController(text: item['jenis_mutasi']);
+    final tanggalC = TextEditingController(text: item['tanggal']);
+    final alasanC = TextEditingController(text: item['alasan']);
 
     showDialog(
       context: context,
-      builder: (_) {
-        return StatefulBuilder(
-          builder: (context, setStateDialog) {
-            return AlertDialog(
-              backgroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-                side: BorderSide(color: primaryGreen),
-              ),
-              title: Text("Edit Mutasi", style: baseFont.copyWith(fontWeight: FontWeight.bold, color: primaryGreen)),
-              content: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildTextField("Jenis Mutasi", jenisC),
-                    const SizedBox(height: 12),
-                    _buildTextField("Tanggal", tanggalC, readOnly: true, showCalendar: true),
-                    const SizedBox(height: 12),
-                    _buildTextField("Alasan", alasanC),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // =============== TABLE VIEW (DEKSTOP) =================
-  Widget _buildTableView(List data) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Table(
-        columnWidths: const {
-          0: FlexColumnWidth(0.5),
-          1: FlexColumnWidth(1.5),
-          2: FlexColumnWidth(2),
-          3: FlexColumnWidth(1.5),
-          4: FlexColumnWidth(0.8),
-        },
-        border: TableBorder.all(color: Color(0xFFE0E0E0)),
-        children: [
-          const TableRow(
-            decoration: BoxDecoration(color: Color(0xFFE8F5E9)),
+      builder: (dialogCtx) {
+        return AlertDialog(
+          title: const Text("Edit Mutasi"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              _HeaderCell("NO"),
-              _HeaderCell("TANGGAL"),
-              _HeaderCell("KELUARGA"),
-              _HeaderCell("JENIS MUTASI"),
-              _HeaderCell("AKSI"),
+              TextField(
+                controller: jenisC,
+                decoration: const InputDecoration(labelText: "Jenis Mutasi"),
+              ),
+              TextField(
+                controller: tanggalC,
+                decoration: const InputDecoration(labelText: "Tanggal"),
+              ),
+              TextField(
+                controller: alasanC,
+                decoration: const InputDecoration(labelText: "Alasan"),
+              ),
             ],
           ),
-
-          // ==== DATA ROW ====
-          ...List.generate(data.length, (i) {
-            final item = data[i];
-            final no = ((currentPage - 1) * 10) + i + 1;
-
-            return TableRow(
-              children: [
-                _DataCell(Text(no.toString())),
-                _DataCell(Text(item['tanggal'] ?? '-')),
-                _DataCell(Text(item['nama_keluarga'] ?? '-')),
-                _DataCell(
-                  Text(
-                    item['jenis_mutasi'] ?? '-',
-                    style: TextStyle(
-                      color: (item['jenis_mutasi'] == "Pindah Masuk")
-                          ? Colors.green
-                          : Colors.red,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    Navigator.pop(context);
-                    await _updateMutasi(data, jenisC.text, tanggalC.text, alasanC.text);
-                  },
-                  style: ElevatedButton.styleFrom(backgroundColor: primaryGreen),
-                  child: Text("Simpan", style: baseFont.copyWith(color: Colors.white)),
-                ),
-              ],
-            );
-          },
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogCtx),
+              child: const Text("Batal"),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                await MutasiService.update(item['id'], {
+                  'jenis_mutasi': jenisC.text,
+                  'tanggal': tanggalC.text,
+                  'alasan': alasanC.text,
+                });
+                Navigator.pop(dialogCtx);
+                _loadAll();
+              },
+              child: const Text("Simpan"),
+            ),
+          ],
         );
       },
     );
   }
 
-  // =============== MOBILE CARD VIEW =================
-  Widget _buildMobileCardView(List data) {
-    return Column(
-      children: data.map((item) {
-        final jenis = item['jenis_mutasi'] ?? "-";
-        final keluarga = item['nama_keluarga'] ?? "-";
-
-        return Card(
-          margin: const EdgeInsets.symmetric(vertical: 6),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: const Text("Batal"),
-        ),
-        ElevatedButton(
-          onPressed: () => Navigator.pop(context, true),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.red,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          ),
-          child: const Text("Hapus"),
-        ),
-      ],
-    );
+  Future<void> _deleteItem(Map item) async {
+    await MutasiService.delete(item['id']);
+    _loadAll();
   }
 
   @override
   Widget build(BuildContext context) {
-    final totalPages = (_data.length / _itemsPerPage).ceil();
-    final startIndex = _currentPage * _itemsPerPage;
-    final endIndex = (_currentPage + 1) * _itemsPerPage > _data.length
+    final start = _currentPage * _itemsPerPage;
+    final end = (start + _itemsPerPage > _data.length)
         ? _data.length
-        : (_currentPage + 1) * _itemsPerPage;
-    final pageItems = _data.sublist(startIndex, endIndex);
+        : start + _itemsPerPage;
+    final pageItems = _data.sublist(start, end);
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
       appBar: AppBar(
+        title: const Text("Daftar Mutasi"),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF2E7D32)),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go('/beranda/semua_menu'),
         ),
-        title: const Text("Daftar Mutasi", style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF2E7D32))),
-        backgroundColor: Colors.white,
-        elevation: 0.5,
       ),
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color.fromARGB(255, 255, 235, 188), Color.fromARGB(255, 181, 255, 183)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: _loading
-                ? const Center(child: CircularProgressIndicator())
-                : _data.isEmpty
-                    ? const Center(child: Text("Belum ada mutasi"))
-                    : Card(
-                        margin: const EdgeInsets.symmetric(horizontal: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                        elevation: 6,
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            children: [
-                              ...pageItems.map((entry) {
-                                return Card(
-                                  elevation: 2,
-                                  margin: const EdgeInsets.only(bottom: 12),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                  child: ListTile(
-                                    leading: CircleAvatar(
-                                      backgroundColor: primaryGreen.withOpacity(0.15),
-                                      child: Text(entry['no'], style: baseFont.copyWith(fontWeight: FontWeight.bold, color: primaryGreen)),
-                                    ),
-                                    title: Text("Keluarga: ${entry['nama_keluarga']}", style: baseFont.copyWith(fontWeight: FontWeight.bold)),
-                                    subtitle: Text(
-                                      "Jenis Mutasi: ${entry['jenis_mutasi']}\nTanggal: ${entry['tanggal']}\nAlasan: ${entry['alasan']}",
-                                      style: baseFont.copyWith(height: 1.3),
-                                    ),
-                                    trailing: PopupMenuButton<String>(
-                                      onSelected: (value) {
-                                        if (value == 'Edit') _editItem(entry);
-                                        if (value == 'Hapus') _deleteItem(entry);
-                                      },
-                                      itemBuilder: (context) => [
-                                        PopupMenuItem(value: 'Edit', child: Text('Edit', style: baseFont)),
-                                        PopupMenuItem(value: 'Hapus', child: Text('Hapus', style: baseFont)),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              }).toList(),
-                              const SizedBox(height: 12),
-                              // Paginationn
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  IconButton(
-                                    onPressed: _currentPage > 0 ? () => setState(() => _currentPage--) : null,
-                                    icon: const Icon(Icons.chevron_left),
-                                  ),
-                                  ...List.generate(totalPages, (index) {
-                                    final isCurrent = index == _currentPage;
-                                    return Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                                      child: GestureDetector(
-                                        onTap: () => setState(() => _currentPage = index),
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                          decoration: BoxDecoration(
-                                            color: isCurrent ? primaryGreen : Colors.grey[300],
-                                            borderRadius: BorderRadius.circular(6),
-                                          ),
-                                          child: Text("${index + 1}", style: TextStyle(color: isCurrent ? Colors.white : Colors.black)),
-                                        ),
-                                      ),
-                                    );
-                                  }),
-                                  IconButton(
-                                    onPressed: _currentPage < totalPages - 1 ? () => setState(() => _currentPage++) : null,
-                                    icon: const Icon(Icons.chevron_right),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
+      body: _loading
+          ? const Center(child: CircularProgressIndicator())
+          : ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                ...pageItems.map(
+                  (item) => Card(
+                    child: ListTile(
+                      title: Text(item['nama_keluarga']),
+                      subtitle: Text(
+                        "${item['jenis_mutasi']}\n${item['tanggal']}\n${item['alasan']}",
                       ),
-          ),
-        ),
-      ),
+                      trailing: PopupMenuButton(
+                        onSelected: (v) =>
+                            v == 'edit' ? _editItem(item) : _deleteItem(item),
+                        itemBuilder: (_) => const [
+                          PopupMenuItem(value: 'edit', child: Text("Edit")),
+                          PopupMenuItem(value: 'delete', child: Text("Hapus")),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
     );
   }
 }
- 
