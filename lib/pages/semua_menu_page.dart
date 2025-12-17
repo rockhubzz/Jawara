@@ -147,23 +147,23 @@ class _SemuaMenuPageState extends State<SemuaMenuPage> {
           ),
         ],
       ),
-      MenuSection(
-        title: "MANAJEMEN PENGGUNA",
-        items: [
-          MenuItem(
-            "Daftar Pengguna",
-            Icons.manage_accounts,
-            Colors.green,
-            () => context.go('/user/daftar'),
-          ),
-          MenuItem(
-            "Tambah Pengguna",
-            Icons.person_add_alt_1,
-            Colors.teal,
-            () => context.go('/user/tambah?from=semua'),
-          ),
-        ],
-      ),
+      // MenuSection(
+      //   title: "MANAJEMEN PENGGUNA",
+      //   items: [
+      //     MenuItem(
+      //       "Daftar Pengguna",
+      //       Icons.manage_accounts,
+      //       Colors.green,
+      //       () => context.go('/user/daftar'),
+      //     ),
+      //     MenuItem(
+      //       "Tambah Pengguna",
+      //       Icons.person_add_alt_1,
+      //       Colors.teal,
+      //       () => context.go('/user/tambah?from=semua'),
+      //     ),
+      //   ],
+      // ),
       MenuSection(
         title: "CHANNEL TRANSFER",
         items: [

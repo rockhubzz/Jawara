@@ -29,7 +29,8 @@ class _EditMetodePembayaranPageState extends State<EditMetodePembayaranPage> {
   bool loading = false;
   bool loadingData = true;
 
-  final Color primaryGreen = const Color(0xFF2E7D32);
+  final Color kombuGreen = const Color(0xFF374426);
+  final Color softBg = const Color(0xFFF4F7F2);
 
   @override
   void initState() {
@@ -85,103 +86,108 @@ class _EditMetodePembayaranPageState extends State<EditMetodePembayaranPage> {
     if (!mounted) return;
 
     if (resp['success'] == true) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Berhasil diperbarui"),
-          backgroundColor: Colors.green,
-        ),
-      );
-      context.go('/channel_transfer/daftar');
+      _showSuccessDialog();
     }
+  }
+
+  void _showSuccessDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        title: const Icon(
+          Icons.check_circle,
+          color: Color(0xFF374426),
+          size: 48,
+        ),
+        content: const Text(
+          "Data telah di update",
+          textAlign: TextAlign.center,
+          style: TextStyle(fontWeight: FontWeight.w600),
+        ),
+        actionsAlignment: MainAxisAlignment.center,
+        actions: [
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: kombuGreen,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            onPressed: () {
+              Navigator.pop(context);
+              context.go('/channel_transfer/daftar');
+            },
+            child: const Text("OK"),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Theme(
       data: Theme.of(context).copyWith(
-        colorScheme: const ColorScheme.light(primary: Color(0xFF2E7D32)),
+        colorScheme: ColorScheme.light(primary: kombuGreen),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
           fillColor: Colors.white,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: primaryGreen),
-            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: kombuGreen),
+            borderRadius: BorderRadius.circular(12),
           ),
           focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: primaryGreen, width: 2),
-            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: kombuGreen, width: 2),
+            borderRadius: BorderRadius.circular(12),
           ),
         ),
       ),
       child: Scaffold(
-        backgroundColor: Colors.transparent,
+        backgroundColor: softBg,
         appBar: AppBar(
           backgroundColor: Colors.white,
-          elevation: 0.5,
+          elevation: 0.6,
+          centerTitle: true,
           leading: IconButton(
-            icon: const Icon(
-              Icons.arrow_back_ios_new,
-              color: Color(0xFF2E7D32),
-            ),
-            // onPressed: () => Navigator.pop(context),
-            onPressed: () {
-              context.go('/channel_transfer/daftar');
-            },
+            icon: Icon(Icons.arrow_back_ios_new, color: kombuGreen),
+            onPressed: () => context.go('/channel_transfer/daftar'),
           ),
-          title: const Text(
+          title: Text(
             "Edit Channel",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF2E7D32),
-            ),
+            style: TextStyle(fontWeight: FontWeight.bold, color: kombuGreen),
           ),
         ),
-        body: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Color.fromARGB(255, 255, 235, 188),
-                Color.fromARGB(255, 181, 255, 183),
-              ],
-            ),
-          ),
-
-          child: loadingData
-              ? const Center(child: CircularProgressIndicator())
-              : SingleChildScrollView(
-                  padding: const EdgeInsets.all(24),
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 500),
-                      child: Container(
+        body: loadingData
+            ? const Center(child: CircularProgressIndicator())
+            : SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 500),
+                    child: Card(
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Padding(
                         padding: const EdgeInsets.all(24),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.9),
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black12,
-                              blurRadius: 12,
-                              offset: Offset(0, 4),
-                            ),
-                          ],
-                        ),
                         child: Form(
                           key: _formKey,
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
+                              Text(
                                 "Ubah data channel transfer",
+                                textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.black54,
+                                  fontSize: 14,
+                                  color: Colors.grey[600],
                                 ),
                               ),
-                              const SizedBox(height: 16),
+                              const SizedBox(height: 24),
 
                               _input("Nama Channel", _namaController),
                               const SizedBox(height: 16),
@@ -235,12 +241,24 @@ class _EditMetodePembayaranPageState extends State<EditMetodePembayaranPage> {
                               const SizedBox(height: 28),
 
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
+                                  OutlinedButton(
+                                    onPressed: () =>
+                                        context.go('/channel_transfer/daftar'),
+                                    style: OutlinedButton.styleFrom(
+                                      side: BorderSide(color: kombuGreen),
+                                    ),
+                                    child: Text(
+                                      "Batal",
+                                      style: TextStyle(color: kombuGreen),
+                                    ),
+                                  ),
                                   ElevatedButton(
                                     onPressed: loading ? null : _submit,
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: primaryGreen,
+                                      backgroundColor: kombuGreen,
                                       foregroundColor: Colors.white,
                                     ),
                                     child: loading
@@ -254,20 +272,6 @@ class _EditMetodePembayaranPageState extends State<EditMetodePembayaranPage> {
                                           )
                                         : const Text("Update"),
                                   ),
-                                  const SizedBox(width: 12),
-                                  OutlinedButton(
-                                    // onPressed: () => Navigator.pop(context),
-                                    onPressed: () {
-                                      context.go('/channel_transfer/daftar');
-                                    },
-                                    style: OutlinedButton.styleFrom(
-                                      side: BorderSide(color: primaryGreen),
-                                    ),
-                                    child: Text(
-                                      "Batal",
-                                      style: TextStyle(color: primaryGreen),
-                                    ),
-                                  ),
                                 ],
                               ),
                             ],
@@ -277,7 +281,7 @@ class _EditMetodePembayaranPageState extends State<EditMetodePembayaranPage> {
                     ),
                   ),
                 ),
-        ),
+              ),
       ),
     );
   }
@@ -303,7 +307,7 @@ class _EditMetodePembayaranPageState extends State<EditMetodePembayaranPage> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: primaryGreen),
+              border: Border.all(color: kombuGreen),
             ),
             alignment: Alignment.center,
             child: selectedImage != null
@@ -315,7 +319,7 @@ class _EditMetodePembayaranPageState extends State<EditMetodePembayaranPage> {
                   )
                 : Text(
                     "Klik untuk pilih gambar",
-                    style: TextStyle(color: primaryGreen),
+                    style: TextStyle(color: kombuGreen),
                   ),
           ),
         ),
