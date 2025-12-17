@@ -9,10 +9,9 @@ class SemuaMenuPage extends StatefulWidget {
 }
 
 class _SemuaMenuPageState extends State<SemuaMenuPage> {
-  final Color primaryGreen = const Color(0xFF2E7D32);
+  final Color kombuGreen = const Color(0xFF374426);
   final TextEditingController searchController = TextEditingController();
 
-  // MenuSection untuk tiap kategori
   late List<MenuSection> allMenuSections;
 
   @override
@@ -27,31 +26,31 @@ class _SemuaMenuPageState extends State<SemuaMenuPage> {
             "Warga Daftar",
             Icons.people,
             Colors.green,
-            onTap: () => context.go('/data_warga_rumah/daftarWarga?from=semua'),
+            () => context.go('/data_warga_rumah/daftarWarga?from=semua'),
           ),
           MenuItem(
             "Warga Tambah",
             Icons.person_add,
             Colors.teal,
-            onTap: () => context.go('/data_warga_rumah/tambahWarga?from=semua'),
+            () => context.go('/data_warga_rumah/tambahWarga?from=semua'),
           ),
           MenuItem(
             "Rumah Daftar",
             Icons.house,
             Colors.blue,
-            onTap: () => context.go('/data_warga_rumah/daftarRumah?from=semua'),
+            () => context.go('/data_warga_rumah/daftarRumah?from=semua'),
           ),
           MenuItem(
             "Rumah Tambah",
             Icons.home_work,
             Colors.indigo,
-            onTap: () => context.go('/data_warga_rumah/tambahRumah?from=semua'),
+            () => context.go('/data_warga_rumah/tambahRumah?from=semua'),
           ),
           MenuItem(
             "Keluarga",
             Icons.family_restroom,
             Colors.orange,
-            onTap: () => context.go('/data_warga_rumah/keluarga'),
+            () => context.go('/data_warga_rumah/keluarga'),
           ),
         ],
       ),
@@ -62,31 +61,25 @@ class _SemuaMenuPageState extends State<SemuaMenuPage> {
             "Kategori Iuran",
             Icons.category,
             Colors.blue,
-            onTap: () => context.go('/pemasukan/kategori_iuran?from=semua'),
+            () => context.go('/pemasukan/kategori_iuran?from=semua'),
           ),
           MenuItem(
             "Tagih Iuran",
             Icons.request_page,
             Colors.green,
-            onTap: () => context.go('/pemasukan/tagih_iuran?from=semua'),
+            () => context.go('/pemasukan/tagih_iuran?from=semua'),
           ),
           MenuItem(
             "Tagihan",
             Icons.receipt_long,
             Colors.red,
-            onTap: () => context.go('/pemasukan/tagihan?from=semua'),
+            () => context.go('/pemasukan/tagihan?from=semua'),
           ),
           MenuItem(
-            "Daftar Pemasukan Lainnya",
+            "Pemasukan Lain",
             Icons.add_chart,
             Colors.purple,
-            onTap: () => context.go('/pemasukan/lain_daftar?from=semua'),
-          ),
-          MenuItem(
-            "Tambah Pemasukan Lainnya",
-            Icons.playlist_add,
-            Colors.teal,
-            onTap: () => context.go('/pemasukan/lain_tambah?from=semua'),
+            () => context.go('/pemasukan/lain_daftar?from=semua'),
           ),
         ],
       ),
@@ -94,53 +87,25 @@ class _SemuaMenuPageState extends State<SemuaMenuPage> {
         title: "KEGIATAN & BROADCAST",
         items: [
           MenuItem(
-            "Kegiatan Daftar",
+            "Kegiatan",
             Icons.event_note,
             Colors.blue,
-            onTap: () => context.go('/kegiatan/daftar?from=semua'),
+            () => context.go('/kegiatan/daftar?from=semua'),
           ),
           MenuItem(
-            "Kegiatan Tambah",
+            "Tambah Kegiatan",
             Icons.event_available,
             Colors.green,
-            onTap: () => context.go('/kegiatan/tambah/new?from=semua'),
+            () => context.go('/kegiatan/tambah/new?from=semua'),
           ),
           MenuItem(
-            "Broadcast Daftar",
+            "Broadcast",
             Icons.campaign,
             Colors.purple,
-            onTap: () => context.go('/kegiatan/daftar_broad'),
-          ),
-          MenuItem(
-            "Broadcast Tambah",
-            Icons.add_alert,
-            Colors.teal,
-            onTap: () => context.go('/kegiatan/tambah_broad?from=semua'),
+            () => context.go('/kegiatan/daftar_broad'),
           ),
         ],
       ),
-      // MenuSection(
-      //   title: "PESAN & ASPIRASI WARGA",
-      //   items: [
-      //     MenuItem(
-      //       "Informasi Aspirasi",
-      //       Icons.forum,
-      //       Colors.blue,
-      //       onTap: () => context.go('/pesan/informasi'),
-      //     ),
-      //   ],
-      // ),
-      // MenuSection(
-      //   title: "PENERIMAAN WARGA BARU",
-      //   items: [
-      //     MenuItem(
-      //       "Penerimaan Warga",
-      //       Icons.how_to_reg,
-      //       Colors.green,
-      //       onTap: () => context.go('/penerimaan/warga'),
-      //     ),
-      //   ],
-      // ),
       MenuSection(
         title: "MUTASI KELUARGA",
         items: [
@@ -148,49 +113,31 @@ class _SemuaMenuPageState extends State<SemuaMenuPage> {
             "Daftar Mutasi",
             Icons.list_alt,
             Colors.orange,
-            onTap: () => context.go('/mutasi_keluarga/daftar'),
+            () => context.go('/mutasi_keluarga/daftar'),
           ),
-
           MenuItem(
             "Tambah Mutasi",
             Icons.add_box,
             Colors.teal,
-            onTap: () => context.go('/mutasi/tambah?from=semua'),
+            () => context.go('/mutasi/tambah?from=semua'),
           ),
         ],
       ),
-      // MenuSection(
-      //   title: "LOG AKTIVITAS",
-      //   items: [
-      //     MenuItem(
-      //       "Semua Aktivitas",
-      //       Icons.list_alt,
-      //       Colors.blue,
-      //       onTap: () => context.go('/log_aktivitas/semua_aktivitas'),
-      //     ),
-      //   ],
-      // ),
       MenuSection(
         title: "LAPORAN KEUANGAN",
         items: [
           MenuItem(
-            "Semua Pemasukan",
+            "Pemasukan",
             Icons.attach_money,
             Colors.teal,
-            onTap: () => context.go('/laporan_keuangan/semua_pemasukan'),
+            () => context.go('/laporan_keuangan/semua_pemasukan'),
           ),
           MenuItem(
-            "Semua Pengeluaran",
-            Icons.money_off_csred,
-            Colors.orange,
-            onTap: () => context.go('/laporan_keuangan/semua_pengeluaran'),
+            "Pengeluaran",
+            Icons.money_off,
+            Colors.red,
+            () => context.go('/laporan_keuangan/semua_pengeluaran'),
           ),
-          // MenuItem(
-          //   "Cetak Laporan",
-          //   Icons.print,
-          //   Colors.red,
-          //   onTap: () => context.go('/laporan_keuangan/cetak_laporan'),
-          // ),
         ],
       ),
       MenuSection(
@@ -200,13 +147,13 @@ class _SemuaMenuPageState extends State<SemuaMenuPage> {
             "Daftar Pengguna",
             Icons.manage_accounts,
             Colors.green,
-            onTap: () => context.go('/user/daftar'),
+            () => context.go('/user/daftar'),
           ),
           MenuItem(
             "Tambah Pengguna",
             Icons.person_add_alt_1,
             Colors.teal,
-            onTap: () => context.go('/user/tambah?from=semua'),
+            () => context.go('/user/tambah?from=semua'),
           ),
         ],
       ),
@@ -217,13 +164,13 @@ class _SemuaMenuPageState extends State<SemuaMenuPage> {
             "Daftar Channel",
             Icons.tv,
             Colors.blue,
-            onTap: () => context.go('/channel_transfer/daftar'),
+            () => context.go('/channel_transfer/daftar'),
           ),
           MenuItem(
             "Tambah Channel",
             Icons.add_to_queue,
             Colors.purple,
-            onTap: () => context.go('/channel_transfer/tambah'),
+            () => context.go('/channel_transfer/tambah'),
           ),
         ],
       ),
@@ -233,121 +180,93 @@ class _SemuaMenuPageState extends State<SemuaMenuPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF4F7F2),
       appBar: AppBar(
         backgroundColor: Colors.white,
-        elevation: 0.5,
+        elevation: 0.6,
+        centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF2E7D32)),
+          icon: Icon(Icons.arrow_back_ios_new, color: kombuGreen),
           onPressed: () => context.go('/beranda'),
         ),
-        title: const Text(
+        title: Text(
           "Semua Menu",
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF2E7D32),
-          ),
+          style: TextStyle(color: kombuGreen, fontWeight: FontWeight.bold),
         ),
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color.fromARGB(255, 255, 235, 188),
-              Color.fromARGB(255, 181, 255, 183),
-            ],
-          ),
-        ),
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 🔍 SEARCH BAR
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: TextField(
-                  controller: searchController,
-                  onChanged: (query) {
-                    setState(() {});
-                  },
-                  decoration: const InputDecoration(
-                    hintText: "Pencarian...",
-                    border: InputBorder.none,
-                    icon: Icon(Icons.search),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Render tiap section
-              ...allMenuSections.map((section) {
-                final filteredItems = section.items
-                    .where(
-                      (item) => item.title.toLowerCase().contains(
-                        searchController.text.toLowerCase(),
-                      ),
-                    )
-                    .toList();
-
-                if (filteredItems.isEmpty) return Container();
-
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      section.title,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    buildMenuGrid(filteredItems),
-                    const SizedBox(height: 25),
-                  ],
-                );
-              }).toList(),
-            ],
-          ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: allMenuSections.map(_buildSectionCard).toList(),
         ),
       ),
     );
   }
 
-  Widget buildMenuGrid(List<MenuItem> items) {
-    return GridView.count(
-      crossAxisCount: 4,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      children: items.map((item) => buildMenuIcon(item)).toList(),
+  Widget _buildSectionCard(MenuSection section) {
+    final filteredItems = section.items.where((item) {
+      return item.title.toLowerCase().contains(
+        searchController.text.toLowerCase(),
+      );
+    }).toList();
+
+    if (filteredItems.isEmpty) return const SizedBox();
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 18),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            section.title,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+          ),
+          const SizedBox(height: 12),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: filteredItems.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 4,
+              mainAxisSpacing: 14,
+              crossAxisSpacing: 14,
+              childAspectRatio: 0.85,
+            ),
+            itemBuilder: (context, index) {
+              return _buildMenuItem(filteredItems[index]);
+            },
+          ),
+        ],
+      ),
     );
   }
 
-  Widget buildMenuIcon(MenuItem item) {
+  Widget _buildMenuItem(MenuItem item) {
     return InkWell(
       onTap: item.onTap,
-      borderRadius: BorderRadius.circular(100),
+      borderRadius: BorderRadius.circular(14),
       child: Column(
         children: [
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(26),
-                decoration: BoxDecoration(
-                  color: item.color.withOpacity(0.18),
-                  shape: BoxShape.circle,
-                ),
-              ),
-              Icon(item.icon, color: item.color, size: 26),
-            ],
+          Container(
+            height: 54,
+            width: 54,
+            decoration: BoxDecoration(
+              color: item.color.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(item.icon, color: item.color, size: 26),
           ),
           const SizedBox(height: 8),
           Text(
@@ -355,6 +274,7 @@ class _SemuaMenuPageState extends State<SemuaMenuPage> {
             textAlign: TextAlign.center,
             style: const TextStyle(fontSize: 11),
             maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -362,14 +282,14 @@ class _SemuaMenuPageState extends State<SemuaMenuPage> {
   }
 }
 
-// ---------------- MODEL ----------------
+// ================= MODEL =================
 class MenuItem {
   final String title;
   final IconData icon;
   final Color color;
-  final VoidCallback? onTap;
+  final VoidCallback onTap;
 
-  MenuItem(this.title, this.icon, this.color, {this.onTap});
+  MenuItem(this.title, this.icon, this.color, this.onTap);
 }
 
 class MenuSection {
