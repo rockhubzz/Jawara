@@ -525,8 +525,8 @@ class _HomePageState extends State<HomePage> {
                       onTap: () => context.go('/dashboard/kependudukan'),
                     ),
                     _summaryCard(
-                      title: "RT & Broadcast",
-                      subtitle: "Informasi RT",
+                      title: "Kegiatan",
+                      subtitle: "Kegiatan Warga",
                       value: "Lihat",
                       icon: Icons.campaign,
                       onTap: () => context.go('/dashboard/kegiatan'),

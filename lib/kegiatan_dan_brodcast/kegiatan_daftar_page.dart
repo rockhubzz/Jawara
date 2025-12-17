@@ -22,6 +22,17 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
   int _currentPage = 0;
   final int _itemsPerPage = 5;
 
+  // List kategori untuk dropdown
+  final List<String> kategoriList = [
+    'Sosial',
+    'Acara',
+    'Olahraga',
+    'Pendidikan',
+    'Keamanan',
+    'Keuangan',
+    'Lainnya',
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -136,6 +147,8 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
     final biayaC = TextEditingController(text: data['biaya'].toString());
     final lokasiC = TextEditingController(text: data['lokasi']);
 
+    String? selectedKategori = data['kategori'];
+
     showDialog(
       context: context,
       builder: (_) {
@@ -160,7 +173,33 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
                   children: [
                     _buildTextField("Nama", namaC),
                     const SizedBox(height: 12),
-                    _buildTextField("Kategori", kategoriC),
+                    // Dropdown kategori
+                    DropdownButtonFormField<String>(
+                      value: selectedKategori,
+                      decoration: InputDecoration(
+                        labelText: "Kategori",
+                        filled: true,
+                        fillColor: const Color(0xFFE8F5E9),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                      items: kategoriList.map((kategori) {
+                        return DropdownMenuItem(
+                          value: kategori,
+                          child: Text(kategori),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setStateDialog(() {
+                          selectedKategori = value;
+                          kategoriC.text = value ?? '';
+                        });
+                      },
+                      validator: (value) =>
+                          value == null || value.isEmpty ? 'Wajib dipilih' : null,
+                    ),
                     const SizedBox(height: 12),
                     _buildTextField("Penanggung Jawab", pjC),
                     const SizedBox(height: 12),
@@ -199,7 +238,7 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
                       kategoriC.text,
                       pjC.text,
                       tanggalC.text,
-                      int.parse(biayaC.text),
+                      int.tryParse(biayaC.text) ?? 0,
                       lokasiC.text,
                     );
                   },
