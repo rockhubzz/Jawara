@@ -77,6 +77,9 @@ Route::delete('/pemasukan/{id}', [PemasukanLainController::class, 'destroy']);
 
 use App\Http\Controllers\Api\KegiatanController;
 
+// Protected index (supports ?when=overdue|today|upcoming)
+Route::get('/kegiatan', [KegiatanController::class, 'index'])->middleware('auth:sanctum');
+
 Route::apiResource('kegiatan', KegiatanController::class);
 
 use App\Http\Controllers\Api\BroadcastController;

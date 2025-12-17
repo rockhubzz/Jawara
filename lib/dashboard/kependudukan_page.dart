@@ -39,6 +39,7 @@ class _KependudukanPageState extends State<KependudukanPage> {
       });
     } catch (e) {
       debugPrint("ERROR: $e");
+      if (!mounted) return;
       setState(() => loading = false);
     }
   }
@@ -121,14 +122,18 @@ class _KependudukanPageState extends State<KependudukanPage> {
                 runSpacing: 16,
                 children: [
                   _dashboardSmallCard(
+                    context,
                     "Total Keluarga",
                     loading ? "..." : totalKeluarga.toString(),
                     Icons.house_rounded,
+                    route: '/data_warga_rumah/keluarga',
                   ),
                   _dashboardSmallCard(
+                    context,
                     "Total Warga",
                     loading ? "..." : totalWarga.toString(),
                     Icons.people_alt_rounded,
+                    route: '/data_warga_rumah/daftarWarga',
                   ),
                 ],
               ),
@@ -240,42 +245,52 @@ class _KependudukanPageState extends State<KependudukanPage> {
 
 // =================== COMPONENTS ===================
 
-Widget _dashboardSmallCard(String title, String value, IconData icon) {
+Widget _dashboardSmallCard(
+  BuildContext context,
+  String title,
+  String value,
+  IconData icon, {
+  String? route,
+}) {
   return SizedBox(
     width: 200,
-    child: Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.9),
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.white.withOpacity(0.3),
-            blurRadius: 12,
-            spreadRadius: 2,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, size: 32, color: const Color(0xFF2E7D32)),
-          const SizedBox(height: 12),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF2E7D32),
+    child: InkWell(
+      onTap: route == null ? null : () => context.go(route),
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.9),
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.white.withOpacity(0.3),
+              blurRadius: 12,
+              spreadRadius: 2,
+              offset: const Offset(0, 4),
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            title,
-            style: const TextStyle(fontSize: 14, color: Colors.black87),
-          ),
-        ],
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, size: 32, color: const Color(0xFF2E7D32)),
+            const SizedBox(height: 12),
+            Text(
+              value,
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF2E7D32),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              title,
+              style: const TextStyle(fontSize: 14, color: Colors.black87),
+            ),
+          ],
+        ),
       ),
     ),
   );

@@ -4,6 +4,7 @@ import 'package:jawara/channel_transfer/edit_channel_page.dart';
 import 'package:jawara/channel_transfer/detail_channel_page.dart';
 import 'package:jawara/data_warga_rumah/tambahRumah_page.dart';
 import 'package:jawara/kegiatan_dan_brodcast/kegiatan_daftar_page.dart';
+import 'package:jawara/kegiatan_dan_brodcast/kegiatan_filtered_page.dart';
 import 'package:jawara/kegiatan_dan_brodcast/kegiatan_tambah_page.dart';
 import 'package:jawara/kegiatan_dan_brodcast/broadcast_daftar_page.dart';
 import 'package:jawara/kegiatan_dan_brodcast/broadcast_tambah_page.dart';
@@ -179,7 +180,17 @@ class MyApp extends StatelessWidget {
         ),
         GoRoute(
           path: '/kegiatan/daftar',
-          builder: (context, state) => const KegiatanDaftarPage(),
+          builder: (context, state) {
+            final when = state.uri.queryParameters['when'];
+            return KegiatanDaftarPage(when: when);
+          },
+        ),
+        GoRoute(
+          path: '/kegiatan/filtered',
+          builder: (context, state) {
+            final when = state.uri.queryParameters['when'] ?? 'upcoming';
+            return KegiatanFilteredPage(when: when);
+          },
         ),
         GoRoute(
           path: '/kegiatan/tambah/:id', // id bisa "new" atau angka

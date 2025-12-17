@@ -6,14 +6,33 @@ use App\Http\Controllers\Controller;
 use App\Models\Kegiatan;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Carbon\Carbon;
 
 class KegiatanController extends Controller
 {
     // GET /api/kegiatan
-    public function index()
+    // Supports optional query parameter `when`: overdue | today | upcoming
+    public function index(Request $r)
     {
-        // return list — default latest first
-        $items = Kegiatan::orderBy('id', 'ASC')->get(); // ASC so your UI numbering matches
+        $when = $r->query('when');
+        $query = Kegiatan::query();
+
+        if ($when) {
+            $today = Carbon::today()->toDateString();
+            if ($when === 'overdue') {
+                $query->whereDate('tanggal', '<', $today);
+            } elseif ($when === 'today') {
+                $query->whereDate('tanggal', '=', $today);
+            } elseif ($when === 'upcoming') {
+                $query->whereDate('tanggal', '>', $today);
+            }
+
+            $items = $query->orderBy('tanggal', 'ASC')->get();
+        } else {
+            // default list — keep original ordering
+            $items = $query->orderBy('id', 'ASC')->get(); // ASC so your UI numbering matches
+        }
+
         return response()->json($items);
     }
 
