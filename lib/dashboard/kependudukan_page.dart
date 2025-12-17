@@ -52,10 +52,7 @@ class _KependudukanPageState extends State<KependudukanPage> {
     return jenisKelamin.map((e) {
       final jk = e['jenis_kelamin']?.toString() ?? "Unknown";
       final isLaki = jk.toLowerCase().startsWith('l');
-
-      Color color = isLaki ? Colors.blue : Colors.pinkAccent;
-
-      return _legend(jk, color);
+      return _legend(jk, isLaki ? Colors.blue : Colors.pinkAccent);
     }).toList();
   }
 
@@ -67,10 +64,7 @@ class _KependudukanPageState extends State<KependudukanPage> {
     return domisili.map((e) {
       final status = e['status_domisili']?.toString() ?? "Unknown";
       final isAktif = status.toLowerCase() == "aktif";
-
-      Color color = isAktif ? Colors.green : Colors.red;
-
-      return _legend(status, color);
+      return _legend(status, isAktif ? Colors.green : Colors.red);
     }).toList();
   }
 
@@ -82,14 +76,14 @@ class _KependudukanPageState extends State<KependudukanPage> {
         backgroundColor: Colors.white,
         elevation: 0.5,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF2E7D32)),
+          icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF374426)),
           onPressed: () => context.go('/beranda'),
         ),
         title: const Text(
           "Data Kependudukan",
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: Color(0xFF2E7D32),
+            color: Color(0xFF374426),
             fontSize: 20,
           ),
         ),
@@ -100,47 +94,36 @@ class _KependudukanPageState extends State<KependudukanPage> {
 
   Widget _buildBody() {
     return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color.fromARGB(255, 255, 235, 188),
-            Color.fromARGB(255, 181, 255, 183),
-          ],
-        ),
-      ),
+      // ✅ BACKGROUND PUTIH KEHIJAUAN LEMBUT
+      color: const Color(0xFFF4F7F2),
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            // =================== SMALL CARDS ===================
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Wrap(
-                spacing: 16,
-                runSpacing: 16,
-                children: [
-                  _dashboardSmallCard(
-                    context,
-                    "Total Keluarga",
-                    loading ? "..." : totalKeluarga.toString(),
-                    Icons.house_rounded,
-                    route: '/data_warga_rumah/keluarga',
-                  ),
-                  _dashboardSmallCard(
-                    context,
-                    "Total Warga",
-                    loading ? "..." : totalWarga.toString(),
-                    Icons.people_alt_rounded,
-                    route: '/data_warga_rumah/daftarWarga',
-                  ),
-                ],
-              ),
+            // ================= SMALL CARDS =================
+            Wrap(
+              spacing: 16,
+              runSpacing: 16,
+              children: [
+                _dashboardSmallCard(
+                  context,
+                  "Total Keluarga",
+                  loading ? "..." : totalKeluarga.toString(),
+                  Icons.house_rounded,
+                  route: '/data_warga_rumah/keluarga',
+                ),
+                _dashboardSmallCard(
+                  context,
+                  "Total Warga",
+                  loading ? "..." : totalWarga.toString(),
+                  Icons.people_alt_rounded,
+                  route: '/data_warga_rumah/daftarWarga',
+                ),
+              ],
             ),
             const SizedBox(height: 24),
 
-            // =================== CHART CARDS ===================
+            // ================= CHART CARDS =================
             _dashboardBigCard(
               title: "Status Domisili",
               icon: Icons.verified_user_rounded,
@@ -234,8 +217,6 @@ class _KependudukanPageState extends State<KependudukanPage> {
                 ],
               ),
             ),
-
-            const SizedBox(height: 40),
           ],
         ),
       ),
@@ -243,7 +224,7 @@ class _KependudukanPageState extends State<KependudukanPage> {
   }
 }
 
-// =================== COMPONENTS ===================
+// ================= COMPONENTS =================
 
 Widget _dashboardSmallCard(
   BuildContext context,
@@ -253,61 +234,42 @@ Widget _dashboardSmallCard(
   String? route,
 }) {
   return SizedBox(
-    width: 200,
+    width: 180,
     child: InkWell(
       onTap: route == null ? null : () => context.go(route),
       borderRadius: BorderRadius.circular(14),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.9),
+          color: Colors.white, // ✅ PUTIH BERSIH
           borderRadius: BorderRadius.circular(14),
-          boxShadow: [
+          boxShadow: const [
             BoxShadow(
-              color: Colors.white.withOpacity(0.3),
-              blurRadius: 12,
-              spreadRadius: 2,
-              offset: const Offset(0, 4),
+              color: Colors.black12,
+              blurRadius: 8,
+              offset: Offset(0, 4),
             ),
           ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, size: 32, color: const Color(0xFF2E7D32)),
+            Icon(icon, size: 32, color: Color(0xFF374426)),
             const SizedBox(height: 12),
             Text(
               value,
               style: const TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF2E7D32),
+                color: Color(0xFF374426),
               ),
             ),
             const SizedBox(height: 4),
-            Text(
-              title,
-              style: const TextStyle(fontSize: 14, color: Colors.black87),
-            ),
+            Text(title),
           ],
         ),
       ),
     ),
-  );
-}
-
-Widget _legend(String label, Color color) {
-  return Row(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      Container(
-        width: 14,
-        height: 14,
-        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-      ),
-      const SizedBox(width: 6),
-      Text(label, style: const TextStyle(fontSize: 13)),
-    ],
   );
 }
 
@@ -321,15 +283,10 @@ Widget _dashboardBigCard({
     padding: const EdgeInsets.all(18),
     margin: const EdgeInsets.symmetric(vertical: 8),
     decoration: BoxDecoration(
-      color: Colors.white.withOpacity(0.9),
+      color: Colors.white, // ✅ PUTIH BERSIH
       borderRadius: BorderRadius.circular(14),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.white.withOpacity(0.3),
-          blurRadius: 12,
-          spreadRadius: 2,
-          offset: const Offset(0, 4),
-        ),
+      boxShadow: const [
+        BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 4)),
       ],
     ),
     child: Column(
@@ -337,14 +294,14 @@ Widget _dashboardBigCard({
       children: [
         Row(
           children: [
-            Icon(icon, color: const Color(0xFF2E7D32)),
+            Icon(icon, color: Color(0xFF374426)),
             const SizedBox(width: 8),
             Text(
               title,
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF2E7D32),
+                color: Color(0xFF374426),
               ),
             ),
           ],
@@ -353,5 +310,20 @@ Widget _dashboardBigCard({
         child,
       ],
     ),
+  );
+}
+
+Widget _legend(String label, Color color) {
+  return Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Container(
+        width: 12,
+        height: 12,
+        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+      ),
+      const SizedBox(width: 6),
+      Text(label, style: const TextStyle(fontSize: 13)),
+    ],
   );
 }
