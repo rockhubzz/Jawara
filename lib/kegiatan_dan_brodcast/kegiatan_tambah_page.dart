@@ -131,7 +131,9 @@ class _KegiatanTambahPageState extends State<KegiatanTambahPage> {
         title: Text(
           isEdit ? "Edit Kegiatan" : "Tambah Kegiatan",
           style: const TextStyle(
-              fontWeight: FontWeight.bold, color: Color(0xFF2E7D32)),
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF2E7D32),
+          ),
         ),
         backgroundColor: Colors.white,
         elevation: 0.5,
