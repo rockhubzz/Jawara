@@ -11,7 +11,7 @@ class AppDrawer extends StatelessWidget {
     required this.body,
     required this.currentIndex,
     required this.username,
-  }); 
+  });
 
   // Warna utama hijau tua
   static const Color primaryGreen = Color(0xFF2E7D32);
