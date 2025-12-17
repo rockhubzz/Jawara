@@ -50,6 +50,8 @@ class _KeluargaDetailPageState extends State<KeluargaDetailPage> {
         ),
       ),
       body: Container(
+        height: double.infinity,
+        width: double.infinity,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
@@ -103,7 +105,9 @@ class _KeluargaDetailPageState extends State<KeluargaDetailPage> {
                                 "Kepala Keluarga: ${data['kepala_keluarga'] ?? '-'}",
                               ),
                               Text("Alamat: ${data['alamat'] ?? '-'}"),
-                              Text("Kode Rumah: ${data['rumah']?['kode'] ?? '-'}"),
+                              Text(
+                                "Kode Rumah: ${data['rumah']?['kode'] ?? '-'}",
+                              ),
                               Text(
                                 "Kepemilikan: ${data['kepemilikan'] ?? '-'}",
                               ),
@@ -128,7 +132,10 @@ class _KeluargaDetailPageState extends State<KeluargaDetailPage> {
                                 style: TextStyle(color: Colors.grey),
                               )
                             : Column(
-                                children: anggota.map((item) {
+                                children: anggota.asMap().entries.map((entry) {
+                                  final index = entry.key;
+                                  final item = entry.value;
+
                                   return Container(
                                     margin: const EdgeInsets.only(bottom: 12),
                                     padding: const EdgeInsets.all(16),
@@ -143,24 +150,52 @@ class _KeluargaDetailPageState extends State<KeluargaDetailPage> {
                                         ),
                                       ],
                                     ),
-                                    child: Column(
+                                    child: Row(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Text(
-                                          item["nama"] ?? "-",
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
+                                        /// NOMOR BULAT
+                                        CircleAvatar(
+                                          radius: 16,
+                                          backgroundColor: const Color(
+                                            0xFFE8F5E9,
+                                          ),
+                                          child: Text(
+                                            (index + 1).toString(),
+                                            style: const TextStyle(
+                                              color: primaryGreen,
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                           ),
                                         ),
-                                        const SizedBox(height: 6),
-                                        Text("NIK: ${item['nik'] ?? '-'}"),
-                                        Text(
-                                          "Jenis Kelamin: ${item['jenis_kelamin'] ?? '-'}",
-                                        ),
-                                        Text(
-                                          "Status Domisili: ${item['status_domisili'] ?? '-'}",
+
+                                        const SizedBox(width: 12),
+
+                                        /// DATA ANGGOTA
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                item["nama"] ?? "-",
+                                                style: const TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 6),
+                                              Text(
+                                                "NIK: ${item['nik'] ?? '-'}",
+                                              ),
+                                              Text(
+                                                "Jenis Kelamin: ${item['jenis_kelamin'] ?? '-'}",
+                                              ),
+                                              Text(
+                                                "Status Domisili: ${item['status_domisili'] ?? '-'}",
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       ],
                                     ),
