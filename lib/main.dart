@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:jawara/channel_transfer/edit_channel_page.dart';
+import 'package:jawara/channel_transfer/detail_channel_page.dart';
 import 'package:jawara/data_warga_rumah/tambahRumah_page.dart';
 import 'package:jawara/kegiatan_dan_brodcast/kegiatan_daftar_page.dart';
 import 'package:jawara/kegiatan_dan_brodcast/kegiatan_tambah_page.dart';
@@ -231,6 +232,26 @@ class MyApp extends StatelessWidget {
           builder: (context, state) {
             final idStr = state.pathParameters['id']!;
             return EditMetodePembayaranPage(id: int.parse(idStr));
+          },
+        ),
+        GoRoute(
+          path:
+              '/channel/detail/:id', // id opsional untuk keperluan fetch/detail
+          name: 'channel-detail',
+          builder: (context, state) {
+            // Ambil data yang dikirim lewat extra
+            final data = state.extra as Map<String, dynamic>?;
+
+            if (data == null) {
+              return Scaffold(
+                body: Center(child: Text("Data channel tidak tersedia")),
+              );
+            }
+
+            return ChannelDetailPage(
+              channel: data['channel'],
+              cleanUrl: data['cleanUrl'],
+            );
           },
         ),
         GoRoute(
