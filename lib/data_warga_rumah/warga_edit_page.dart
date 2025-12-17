@@ -191,6 +191,8 @@ class _WargaEditPageState extends State<WargaEditPage> {
           ),
         ),
         body: Container(
+          height: double.infinity,
+          width: double.infinity,
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,

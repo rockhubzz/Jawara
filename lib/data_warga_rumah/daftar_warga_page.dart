@@ -16,6 +16,18 @@ class _WargaListPageState extends State<WargaListPage> {
   List<Map<String, dynamic>> warga = [];
   bool loading = true;
 
+  int currentPage = 1;
+  final int perPage = 6;
+
+  List<Map<String, dynamic>> get paginatedWarga {
+    final start = (currentPage - 1) * perPage;
+    final end = start + perPage;
+    if (start >= warga.length) return [];
+    return warga.sublist(start, end > warga.length ? warga.length : end);
+  }
+
+  int get totalPages => (warga.length / perPage).ceil();
+
   @override
   void initState() {
     super.initState();
@@ -25,17 +37,26 @@ class _WargaListPageState extends State<WargaListPage> {
   Future<void> loadWarga() async {
     setState(() => loading = true);
     warga = await WargaService.getAll();
-    setState(() => loading = false);
+    setState(() {
+      loading = false;
+      currentPage = 1;
+    });
   }
 
-  void confirmDelete(int id) {
+  void _openEdit(Map<String, dynamic> w) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => WargaEditPage(wargaId: w['id'])),
+    ).then((_) => loadWarga());
+  }
+
+  void _confirmDelete(int id) {
+    const Color lightGreen = Color(0xFFE0F2F1);
+    const Color primaryGreen = Color(0xFF2E7D32);
+
     showDialog(
       context: context,
       builder: (ctx) {
-        // warna custom
-        const Color lightGreen = Color(0xFFE0F2F1);
-        const Color primaryGreen = Color(0xFF2E7D32);
-
         return AlertDialog(
           backgroundColor: lightGreen,
           shape: RoundedRectangleBorder(
@@ -46,19 +67,17 @@ class _WargaListPageState extends State<WargaListPage> {
             style: TextStyle(fontWeight: FontWeight.bold, color: primaryGreen),
           ),
           content: const Text(
-            "Yakin ingin menghapus data ini?",
+            "Yakin ingin menghapus data warga ini?",
             style: TextStyle(color: Colors.black87, fontSize: 14),
           ),
           actionsPadding: const EdgeInsets.only(bottom: 10, right: 10),
           actions: [
             TextButton(
               style: TextButton.styleFrom(foregroundColor: primaryGreen),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+              onPressed: () => Navigator.of(ctx).pop(),
               child: const Text(
                 "Batal",
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
             Container(
@@ -68,7 +87,7 @@ class _WargaListPageState extends State<WargaListPage> {
               ),
               child: TextButton(
                 onPressed: () async {
-                  Navigator.of(context).pop();
+                  Navigator.of(ctx).pop();
                   await WargaService.delete(id);
                   loadWarga();
                 },
@@ -76,7 +95,6 @@ class _WargaListPageState extends State<WargaListPage> {
                   "Hapus",
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 14,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -88,14 +106,112 @@ class _WargaListPageState extends State<WargaListPage> {
     );
   }
 
+  Widget _buildCard(Map<String, dynamic> w, int index) {
+    const primaryGreen = Color(0xFF2E7D32);
+
+    return Card(
+      color: Colors.white,
+      surfaceTintColor: Colors.white,
+      margin: const EdgeInsets.only(bottom: 14),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      elevation: 3,
+      shadowColor: Colors.black12,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CircleAvatar(
+              radius: 16,
+              backgroundColor: const Color(0xFFE8F5E9),
+              child: Text(
+                (index + 1).toString(),
+                style: const TextStyle(
+                  color: primaryGreen,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+
+            const SizedBox(width: 12),
+
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    w['nama'],
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    "NIK: ${w['nik']}",
+                    style: const TextStyle(fontSize: 13),
+                  ),
+                ],
+              ),
+            ),
+
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.more_vert, color: primaryGreen),
+              onSelected: (value) {
+                if (value == 'detail') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => WargaDetailPage(warga: w),
+                    ),
+                  );
+                } else if (value == 'edit') {
+                  _openEdit(w);
+                } else if (value == 'hapus') {
+                  _confirmDelete(w['id']);
+                }
+              },
+              itemBuilder: (context) => const [
+                PopupMenuItem(
+                  value: 'detail',
+                  child: Row(
+                    children: [
+                      Icon(Icons.visibility, size: 18),
+                      SizedBox(width: 8),
+                      Text('Detail'),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'edit',
+                  child: Row(
+                    children: [
+                      Icon(Icons.edit, size: 18),
+                      SizedBox(width: 8),
+                      Text('Edit'),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'hapus',
+                  child: Row(
+                    children: [
+                      Icon(Icons.delete, size: 18, color: Colors.red),
+                      SizedBox(width: 8),
+                      Text('Hapus'),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    String from = 'semua';
-    try {
-      from = GoRouterState.of(context).uri?.queryParameters?['from'] ?? 'semua';
-    } catch (e) {
-      from = 'semua';
-    }
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
@@ -103,13 +219,7 @@ class _WargaListPageState extends State<WargaListPage> {
         elevation: 0.5,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF2E7D32)),
-          onPressed: () {
-            if (from == 'beranda') {
-              context.go('/beranda');
-            } else {
-              context.go('/beranda/semua_menu');
-            }
-          },
+          onPressed: () => context.go('/beranda/semua_menu'),
         ),
         title: const Text(
           "Daftar Warga",
@@ -119,50 +229,17 @@ class _WargaListPageState extends State<WargaListPage> {
           ),
         ),
       ),
-      floatingActionButton: Container(
-        width: 60,
-        height: 60,
-        decoration: BoxDecoration(
-          color: Colors.white, // background putih
-          borderRadius: BorderRadius.circular(
-            8,
-          ), // bentuk kotak dengan sudut membulat tipis
-          border: Border.all(
-            color: const Color(0xFF2E7D32), // garis hijau
-            width: 2,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black26,
-              blurRadius: 6,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(8),
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const TambahWargaPage()),
-            ).then((_) => loadWarga()),
-            child: const Center(
-              child: Icon(Icons.add, color: Color(0xFF2E7D32), size: 30),
-            ),
-          ),
-        ),
-      ),
-
       body: Container(
+        height: double.infinity,
+        width: double.infinity,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
             colors: [
               Color.fromARGB(255, 255, 235, 188),
               Color.fromARGB(255, 181, 255, 183),
             ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
         ),
         child: loading
@@ -173,132 +250,72 @@ class _WargaListPageState extends State<WargaListPage> {
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 500),
                     child: Column(
-                      children: warga.map((w) {
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black12,
-                                blurRadius: 8,
-                                offset: const Offset(0, 4),
+                      children: [
+                        ...paginatedWarga
+                            .asMap()
+                            .entries
+                            .map(
+                              (e) => _buildCard(
+                                e.value,
+                                e.key + ((currentPage - 1) * perPage),
                               ),
-                            ],
-                          ),
-                          child: ListTile(
-                            title: Text(
-                              w['nama'],
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                              ),
+                            )
+                            .toList(),
+
+                        const SizedBox(height: 16),
+
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.chevron_left),
+                              onPressed: currentPage > 1
+                                  ? () => setState(() => currentPage--)
+                                  : null,
                             ),
-                            subtitle: Text("NIK: ${w['nik']}"),
-                            onTap: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => WargaDetailPage(warga: w),
-                              ),
-                            ),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                // ICON EDIT
-                                Container(
-                                  width: 32, // ukuran container lebih kecil
-                                  height: 32,
+                            ...List.generate(totalPages, (i) {
+                              final page = i + 1;
+                              final active = page == currentPage;
+                              return GestureDetector(
+                                onTap: () => setState(() => currentPage = page),
+                                child: Container(
+                                  margin: const EdgeInsets.symmetric(
+                                    horizontal: 4,
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 6,
+                                  ),
                                   decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
+                                    color: active
+                                        ? const Color(0xFF2E7D32)
+                                        : Colors.white,
+                                    borderRadius: BorderRadius.circular(6),
                                     border: Border.all(
-                                      color: Colors.orange,
-                                      width: 1.5,
+                                      color: const Color(0xFF2E7D32),
                                     ),
                                   ),
-                                  child: IconButton(
-                                    padding: EdgeInsets
-                                        .zero, // hilangkan padding default
-                                    iconSize: 18, // ubah ukuran ikon
-                                    icon: const Icon(
-                                      Icons.edit,
-                                      color: Colors.orange,
+                                  child: Text(
+                                    page.toString(),
+                                    style: TextStyle(
+                                      color: active
+                                          ? Colors.white
+                                          : const Color(0xFF2E7D32),
+                                      fontWeight: FontWeight.bold,
                                     ),
-                                    onPressed: () => Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) =>
-                                            WargaEditPage(wargaId: w['id']),
-                                      ),
-                                    ).then((_) => loadWarga()),
                                   ),
                                 ),
-                                // Container(
-                                //   width: 32, // ukuran container lebih kecil
-                                //   height: 32,
-                                //   decoration: BoxDecoration(
-                                //     shape: BoxShape.circle,
-                                //     border: Border.all(
-                                //       color: Colors.orange,
-                                //       width: 1.5,
-                                //     ),
-                                //   ),
-                                //   child: IconButton(
-                                //     icon: const Icon(
-                                //       Icons.edit,
-                                //       color: Colors.orange,
-                                //     ),
-                                //     onPressed: () => Navigator.push(
-                                //       context,
-                                //       MaterialPageRoute(
-                                //         builder: (_) =>
-                                //             WargaEditPage(wargaId: w['id']),
-                                //       ),
-                                //     ).then((_) => loadWarga()),
-                                //   ),
-                                // ),
-                                const SizedBox(width: 8),
-                                // ICON DELETE
-                                Container(
-                                  width: 32,
-                                  height: 32,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: Colors.red,
-                                      width: 1.5,
-                                    ),
-                                  ),
-                                  child: IconButton(
-                                    padding: EdgeInsets.zero,
-                                    iconSize: 18,
-                                    icon: const Icon(
-                                      Icons.delete,
-                                      color: Colors.red,
-                                    ),
-                                    onPressed: () => confirmDelete(w['id']),
-                                  ),
-                                ),
-                                // Container(
-                                //   decoration: BoxDecoration(
-                                //     shape: BoxShape.circle,
-                                //     border: Border.all(
-                                //       color: Colors.red,
-                                //       width: 1.5,
-                                //     ),
-                                //   ),
-                                //   child: IconButton(
-                                //     icon: const Icon(
-                                //       Icons.delete,
-                                //       color: Colors.red,
-                                //     ),
-                                //     onPressed: () => confirmDelete(w['id']),
-                                //   ),
-                                // ),
-                              ],
+                              );
+                            }),
+                            IconButton(
+                              icon: const Icon(Icons.chevron_right),
+                              onPressed: currentPage < totalPages
+                                  ? () => setState(() => currentPage++)
+                                  : null,
                             ),
-                          ),
-                        );
-                      }).toList(),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ),
