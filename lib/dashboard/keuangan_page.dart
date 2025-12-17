@@ -121,16 +121,21 @@ class _KeuanganPageState extends State<KeuanganPage> {
                 runSpacing: 16,
                 children: [
                   _dashboardSmallCard(
+                    context,
                     "Total Pemasukan",
                     loading ? "..." : formatRupiah(pemasukanLain + iuran),
                     Icons.account_balance_wallet_outlined,
+                    route: '/laporan_keuangan/semua_pemasukan',
                   ),
                   _dashboardSmallCard(
+                    context,
                     "Total Pengeluaran",
                     loading ? "..." : formatRupiah(pengeluaran),
                     Icons.money_off_outlined,
+                    route: '/laporan_keuangan/semua_pengeluaran',
                   ),
                   _dashboardSmallCard(
+                    context,
                     "Saldo Akhir",
                     loading ? "..." : formatRupiah(saldo),
                     Icons.savings_outlined,
@@ -240,43 +245,53 @@ class _KeuanganPageState extends State<KeuanganPage> {
 // ===============  COMPONENTS ===
 // ======================================================
 
-Widget _dashboardSmallCard(String title, String value, IconData icon) {
+Widget _dashboardSmallCard(
+  BuildContext context,
+  String title,
+  String value,
+  IconData icon, {
+  String? route,
+}) {
   return SizedBox(
     width: 200,
-    child: Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.9),
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.white.withOpacity(0.3),
-            blurRadius: 12,
-            spreadRadius: 2,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, size: 32, color: const Color(0xFF2E7D32)),
-          const SizedBox(height: 12),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF2E7D32),
+    child: InkWell(
+      onTap: route == null ? null : () => context.go(route),
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.9),
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.white.withOpacity(0.3),
+              blurRadius: 12,
+              spreadRadius: 2,
+              offset: const Offset(0, 4),
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            title,
-            style: const TextStyle(fontSize: 14, color: Colors.black87),
-          ),
-        ],
+          ],
+        ),
+
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, size: 32, color: const Color(0xFF2E7D32)),
+            const SizedBox(height: 12),
+            Text(
+              value,
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF2E7D32),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              title,
+              style: const TextStyle(fontSize: 14, color: Colors.black87),
+            ),
+          ],
+        ),
       ),
     ),
   );

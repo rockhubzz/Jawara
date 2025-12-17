@@ -31,6 +31,34 @@ class KegiatanService {
     }
   }
 
+  // GET filtered kegiatan by `when` query param: overdue|today|upcoming
+  static Future<List<Map<String, dynamic>>> getFiltered(String when) async {
+    final token = await _getToken();
+    final uri = Uri.parse("${baseUrl}/kegiatan?when=$when");
+
+    final resp = await http.get(
+      uri,
+      headers: {
+        'Accept': 'application/json',
+        if (token != null) 'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (resp.statusCode == 200) {
+      final List data = json.decode(resp.body);
+      return data.map((e) => Map<String, dynamic>.from(e)).toList();
+    } else {
+      throw Exception("Failed to load kegiatan ($when): ${resp.statusCode}");
+    }
+  }
+
+  static Future<List<Map<String, dynamic>>> getOverdue() async =>
+      getFiltered('overdue');
+  static Future<List<Map<String, dynamic>>> getToday() async =>
+      getFiltered('today');
+  static Future<List<Map<String, dynamic>>> getUpcoming() async =>
+      getFiltered('upcoming');
+
   // GET by id
   static Future<Map<String, dynamic>> getById(int id) async {
     final token = await _getToken();
@@ -91,10 +119,7 @@ class KegiatanService {
       );
 
       if (resp.statusCode == 200 || resp.statusCode == 201) {
-        return {
-          "success": true,
-          "data": jsonDecode(resp.body),
-        };
+        return {"success": true, "data": jsonDecode(resp.body)};
       } else {
         return {
           "success": false,
@@ -107,7 +132,6 @@ class KegiatanService {
       return {"success": false, "message": "Error: $e"};
     }
   }
-
 
   // DELETE
   static Future<bool> delete(int id) async {

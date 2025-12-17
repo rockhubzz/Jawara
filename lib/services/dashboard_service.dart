@@ -75,4 +75,51 @@ class DashboardService {
       throw Exception('Gagal mengambil saldo: ${resp.statusCode}');
     }
   }
+
+  // GET rekap keuangan and return only the current month's entry
+  static Future<Map<String, dynamic>> getRekapKeuanganCurrentMonth() async {
+    final token = await _getToken();
+
+    final resp = await http.get(
+      Uri.parse('$baseUrl/glance/rekap-keuangan'),
+      headers: {
+        'Accept': 'application/json',
+        if (token != null) 'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (resp.statusCode == 200) {
+      final data = json.decode(resp.body);
+      final List<dynamic> list = data['data'] ?? [];
+
+      final now = DateTime.now();
+      final String monthStr =
+          '${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}';
+
+      final matched = list.firstWhere(
+        (e) => (e['bulan'] as String).startsWith(monthStr),
+        orElse: () => null,
+      );
+
+      if (matched != null) {
+        final m = Map<String, dynamic>.from(matched);
+        // normalize totals to integers
+        final int pemasukan = int.tryParse(m['total_pemasukan']?.toString() ?? '') ?? 0;
+        final int pengeluaran = int.tryParse(m['total_pengeluaran']?.toString() ?? '') ?? 0;
+        return {
+          'bulan': m['bulan'],
+          'total_pemasukan': pemasukan,
+          'total_pengeluaran': pengeluaran,
+        };
+      } else {
+        return {
+          'bulan': monthStr,
+          'total_pemasukan': 0,
+          'total_pengeluaran': 0,
+        };
+      }
+    } else {
+      throw Exception('Gagal mengambil rekap keuangan: ${resp.statusCode}');
+    }
+  }
 }

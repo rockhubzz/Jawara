@@ -3,7 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:jawara/services/kegiatan_service.dart';
 
 class KegiatanDaftarPage extends StatefulWidget {
-  const KegiatanDaftarPage({super.key});
+  final String? when; // optional filter: overdue | today | upcoming
+  const KegiatanDaftarPage({super.key, this.when});
 
   @override
   State<KegiatanDaftarPage> createState() => _KegiatanDaftarPageState();
@@ -45,7 +46,10 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
     });
 
     try {
-      final items = await KegiatanService.getAll();
+      final items = widget.when != null
+          ? await KegiatanService.getFiltered(widget.when!)
+          : await KegiatanService.getAll();
+
       _data = items.asMap().entries.map((e) {
         final idx = e.key;
         final row = e.value;
@@ -80,14 +84,16 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
         if (mounted) setState(() {});
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text("Kegiatan berhasil dihapus!"),
-              backgroundColor: Colors.green),
+            content: Text("Kegiatan berhasil dihapus!"),
+            backgroundColor: Colors.green,
+          ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text("Gagal menghapus data"),
-              backgroundColor: Colors.red),
+            content: Text("Gagal menghapus data"),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     }
@@ -95,8 +101,15 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
 
   void _editItem(Map item) => showEditDialog(context, item);
 
-  Future<void> editKegiatan(int id, String nama, String kategori, String pj,
-      String tanggal, int biaya, String lokasi) async {
+  Future<void> editKegiatan(
+    int id,
+    String nama,
+    String kategori,
+    String pj,
+    String tanggal,
+    int biaya,
+    String lokasi,
+  ) async {
     final result = await KegiatanService.update(id, {
       "nama": nama,
       "kategori": kategori,
@@ -111,15 +124,17 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text("Kegiatan berhasil diperbarui!"),
-            backgroundColor: Colors.green),
+          content: Text("Kegiatan berhasil diperbarui!"),
+          backgroundColor: Colors.green,
+        ),
       );
     } else {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text("Gagal memperbarui data: ${result['message']}"),
-            backgroundColor: Colors.red),
+          content: Text("Gagal memperbarui data: ${result['message']}"),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -182,17 +197,25 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
                           kategoriC.text = value ?? '';
                         });
                       },
-                      validator: (value) =>
-                          value == null || value.isEmpty ? 'Wajib dipilih' : null,
+                      validator: (value) => value == null || value.isEmpty
+                          ? 'Wajib dipilih'
+                          : null,
                     ),
                     const SizedBox(height: 12),
                     _buildTextField("Penanggung Jawab", pjC),
                     const SizedBox(height: 12),
-                    _buildTextField("Tanggal", tanggalC,
-                        readOnly: true, showCalendar: true),
+                    _buildTextField(
+                      "Tanggal",
+                      tanggalC,
+                      readOnly: true,
+                      showCalendar: true,
+                    ),
                     const SizedBox(height: 12),
-                    _buildTextField("Biaya", biayaC,
-                        keyboardType: TextInputType.number),
+                    _buildTextField(
+                      "Biaya",
+                      biayaC,
+                      keyboardType: TextInputType.number,
+                    ),
                     const SizedBox(height: 12),
                     _buildTextField("Lokasi", lokasiC),
                   ],
@@ -220,7 +243,9 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
                       lokasiC.text,
                     );
                   },
-                  style: ElevatedButton.styleFrom(backgroundColor: primaryGreen),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryGreen,
+                  ),
                   child: Text(
                     "Simpan",
                     style: baseFont.copyWith(color: Colors.white),
@@ -234,10 +259,13 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller,
-      {bool readOnly = false,
-      bool showCalendar = false,
-      TextInputType? keyboardType}) {
+  Widget _buildTextField(
+    String label,
+    TextEditingController controller, {
+    bool readOnly = false,
+    bool showCalendar = false,
+    TextInputType? keyboardType,
+  }) {
     return TextField(
       controller: controller,
       readOnly: readOnly,
@@ -273,37 +301,42 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
     return AlertDialog(
       backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      content: Column(mainAxisSize: MainAxisSize.min, children: const [
-        Icon(Icons.warning_rounded, color: Colors.red, size: 60),
-        SizedBox(height: 12),
-        Text(
-          "Apakah Anda yakin ingin menghapus data ini?",
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 15, color: Colors.black87),
-        ),
-      ]),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: const [
+          Icon(Icons.warning_rounded, color: Colors.red, size: 60),
+          SizedBox(height: 12),
+          Text(
+            "Apakah Anda yakin ingin menghapus data ini?",
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 15, color: Colors.black87),
+          ),
+        ],
+      ),
       actionsAlignment: MainAxisAlignment.center,
       actions: [
         ElevatedButton(
           onPressed: () => Navigator.pop(context, false),
           style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFFFF3D4),
-              foregroundColor: Colors.black,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10))),
+            backgroundColor: const Color(0xFFFFF3D4),
+            foregroundColor: Colors.black,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
           child: const Text("Batal"),
         ),
         ElevatedButton(
           onPressed: () => Navigator.pop(context, true),
           style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10))),
+            backgroundColor: Colors.red,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
           child: const Text("Hapus"),
         ),
       ],
@@ -324,11 +357,17 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF2E7D32)),
-          onPressed: () => context.go('/beranda/semua_menu'),
+          onPressed: () => context.go(widget.when == null ? '/beranda/semua_menu' : '/dashboard/kegiatan'),
         ),
-        title: const Text(
-          "Daftar Kegiatan",
-          style: TextStyle(
+        title: Text(
+          widget.when == null
+              ? "Daftar Kegiatan"
+              : (widget.when == 'overdue'
+                    ? 'Kegiatan - Sudah Lewat'
+                    : widget.when == 'today'
+                    ? 'Kegiatan - Hari Ini'
+                    : 'Kegiatan - Akan Datang'),
+          style: const TextStyle(
             fontWeight: FontWeight.bold,
             color: Color(0xFF2E7D32),
           ),
@@ -355,109 +394,121 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
             child: _loading
                 ? const Center(child: CircularProgressIndicator())
                 : _data.isEmpty
-                    ? const Center(child: Text("Belum ada kegiatan"))
-                    : Card(
-                        margin: const EdgeInsets.symmetric(horizontal: 16),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16)),
-                        elevation: 6,
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
+                ? const Center(child: Text("Belum ada kegiatan"))
+                : Card(
+                    margin: const EdgeInsets.symmetric(horizontal: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    elevation: 6,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        children: [
+                          ...pageItems.map((entry) {
+                            return Card(
+                              elevation: 2,
+                              margin: const EdgeInsets.only(bottom: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: ListTile(
+                                leading: CircleAvatar(
+                                  backgroundColor: primaryGreen.withOpacity(
+                                    0.15,
+                                  ),
+                                  child: Text(
+                                    entry['no'],
+                                    style: baseFont.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: primaryGreen,
+                                    ),
+                                  ),
+                                ),
+                                title: Text(
+                                  entry['nama'],
+                                  style: baseFont.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  "Kategori: ${entry['kategori']}\nPenanggung Jawab: ${entry['pj']}\nTanggal: ${entry['tanggal']}\nBiaya: ${entry['biaya']}\nLokasi: ${entry['lokasi']}",
+                                  style: baseFont.copyWith(height: 1.3),
+                                ),
+                                trailing: PopupMenuButton<String>(
+                                  onSelected: (value) {
+                                    if (value == 'Edit') _editItem(entry);
+                                    if (value == 'Hapus') _deleteItem(entry);
+                                  },
+                                  itemBuilder: (context) => [
+                                    PopupMenuItem(
+                                      value: 'Edit',
+                                      child: Text('Edit', style: baseFont),
+                                    ),
+                                    PopupMenuItem(
+                                      value: 'Hapus',
+                                      child: Text('Hapus', style: baseFont),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                          const SizedBox(height: 12),
+                          // Pagination
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              ...pageItems.map((entry) {
-                                return Card(
-                                  elevation: 2,
-                                  margin: const EdgeInsets.only(bottom: 12),
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12)),
-                                  child: ListTile(
-                                    leading: CircleAvatar(
-                                      backgroundColor:
-                                          primaryGreen.withOpacity(0.15),
-                                      child: Text(entry['no'],
-                                          style: baseFont.copyWith(
-                                              fontWeight: FontWeight.bold,
-                                              color: primaryGreen)),
-                                    ),
-                                    title: Text(entry['nama'],
-                                        style: baseFont.copyWith(
-                                            fontWeight: FontWeight.bold)),
-                                    subtitle: Text(
-                                      "Kategori: ${entry['kategori']}\nPenanggung Jawab: ${entry['pj']}\nTanggal: ${entry['tanggal']}\nBiaya: ${entry['biaya']}\nLokasi: ${entry['lokasi']}",
-                                      style: baseFont.copyWith(height: 1.3),
-                                    ),
-                                    trailing: PopupMenuButton<String>(
-                                      onSelected: (value) {
-                                        if (value == 'Edit') _editItem(entry);
-                                        if (value == 'Hapus') _deleteItem(entry);
-                                      },
-                                      itemBuilder: (context) => [
-                                        PopupMenuItem(
-                                            value: 'Edit',
-                                            child:
-                                                Text('Edit', style: baseFont)),
-                                        PopupMenuItem(
-                                            value: 'Hapus',
-                                            child:
-                                                Text('Hapus', style: baseFont)),
-                                      ],
+                              IconButton(
+                                onPressed: _currentPage > 0
+                                    ? () => setState(() => _currentPage--)
+                                    : null,
+                                icon: const Icon(Icons.chevron_left),
+                              ),
+                              ...List.generate(totalPages, (index) {
+                                final isCurrent = index == _currentPage;
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 4.0,
+                                  ),
+                                  child: GestureDetector(
+                                    onTap: () =>
+                                        setState(() => _currentPage = index),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 6,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: isCurrent
+                                            ? primaryGreen
+                                            : Colors.grey[300],
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Text(
+                                        "${index + 1}",
+                                        style: TextStyle(
+                                          color: isCurrent
+                                              ? Colors.white
+                                              : Colors.black,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 );
-                              }).toList(),
-                              const SizedBox(height: 12),
-                              // Pagination
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  IconButton(
-                                    onPressed: _currentPage > 0
-                                        ? () => setState(() => _currentPage--)
-                                        : null,
-                                    icon: const Icon(Icons.chevron_left),
-                                  ),
-                                  ...List.generate(totalPages, (index) {
-                                    final isCurrent = index == _currentPage;
-                                    return Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 4.0),
-                                      child: GestureDetector(
-                                        onTap: () =>
-                                            setState(() => _currentPage = index),
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 12, vertical: 6),
-                                          decoration: BoxDecoration(
-                                            color: isCurrent
-                                                ? primaryGreen
-                                                : Colors.grey[300],
-                                            borderRadius:
-                                                BorderRadius.circular(6),
-                                          ),
-                                          child: Text(
-                                            "${index + 1}",
-                                            style: TextStyle(
-                                                color: isCurrent
-                                                    ? Colors.white
-                                                    : Colors.black),
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  }),
-                                  IconButton(
-                                    onPressed: _currentPage < totalPages - 1
-                                        ? () => setState(() => _currentPage++)
-                                        : null,
-                                    icon: const Icon(Icons.chevron_right),
-                                  ),
-                                ],
+                              }),
+                              IconButton(
+                                onPressed: _currentPage < totalPages - 1
+                                    ? () => setState(() => _currentPage++)
+                                    : null,
+                                icon: const Icon(Icons.chevron_right),
                               ),
                             ],
                           ),
-                        ),
+                        ],
                       ),
+                    ),
+                  ),
           ),
         ),
       ),

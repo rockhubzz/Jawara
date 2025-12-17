@@ -451,7 +451,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _loadRekapBulanan() async {
     try {
-      final data = await KeuanganService.getRekapBulanan();
+      final data = await DashboardService.getRekapKeuanganCurrentMonth();
       if (!mounted) return;
 
       setState(() {
@@ -622,7 +622,7 @@ class _HomePageState extends State<HomePage> {
           _menuItem(
             Icons.swap_horiz,
             "Mutasi",
-            () => context.go('/mutasi?from=beranda'),
+            () => context.go('/mutasi_keluarga/daftar'),
           ),
           _menuItem(
             Icons.event,
