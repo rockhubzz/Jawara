@@ -197,8 +197,9 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
                           kategoriC.text = value ?? '';
                         });
                       },
-                      validator: (value) =>
-                          value == null || value.isEmpty ? 'Wajib dipilih' : null,
+                      validator: (value) => value == null || value.isEmpty
+                          ? 'Wajib dipilih'
+                          : null,
                     ),
                     const SizedBox(height: 12),
                     _buildTextField("Penanggung Jawab", pjC),
@@ -356,7 +357,7 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF2E7D32)),
-          onPressed: () => context.go('/beranda/semua_menu'),
+          onPressed: () => context.go(widget.when == null ? '/beranda/semua_menu' : '/dashboard/kegiatan'),
         ),
         title: Text(
           widget.when == null

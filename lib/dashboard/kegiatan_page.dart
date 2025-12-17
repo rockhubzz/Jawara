@@ -77,6 +77,7 @@ class _KegiatanPageState extends State<KegiatanPage> {
       });
     } catch (e) {
       debugPrint('Error: $e');
+      if (!mounted) return;
       setState(() => _isLoading = false);
     }
   }
@@ -197,7 +198,7 @@ class _KegiatanPageState extends State<KegiatanPage> {
                   "Total Kegiatan",
                   _isLoading ? "..." : total.toString(),
                   Icons.event_available,
-                  onTap: () => context.go('/kegiatan/daftar'),
+                  onTap: () => context.go('/kegiatan/daftar?when=all'),
                 ),
                 _dashboardSmallCard(
                   "Sudah Lewat",
