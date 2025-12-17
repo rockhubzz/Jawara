@@ -152,4 +152,4 @@ class _DaftarPageState extends State<DaftarPage> {
             ),
     );
   }
-}
+} 
