@@ -13,7 +13,23 @@ class DaftarPenggunaPage extends StatefulWidget {
 }
 
 class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
+  int currentPage = 1;
+  final int perPage = 6;
+
   List<dynamic> users = [];
+
+  // PAGINATED DATA
+  List<dynamic> get paginatedUsers {
+    final start = (currentPage - 1) * perPage;
+    final end = start + perPage;
+
+    if (start >= users.length) return [];
+
+    return users.sublist(start, end > users.length ? users.length : end);
+  }
+
+  int get totalPages => (users.length / perPage).ceil();
+
   bool isLoading = true;
   bool isError = false;
 
@@ -29,6 +45,7 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
       final result = await UserService.getUsers();
       setState(() {
         users = result;
+        currentPage = 1;
         isLoading = false;
         isError = false;
       });
@@ -112,45 +129,87 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
   }
 
   Widget _buildCard(Map<String, dynamic> user, int index) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Colors.white, // <--- ini bikin card tetap putih
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 4)),
-        ],
-      ),
-      child: ListTile(
-        title: Text(
-          user['name'] ?? '',
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
-        subtitle: Text(user['email'] ?? ''),
-        isThreeLine: true,
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
+    const Color primaryGreen = Color(0xFF2E7D32);
+
+    return Card(
+      color: Colors.white,
+      margin: const EdgeInsets.only(bottom: 14),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      elevation: 3,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.orange, width: 1.5),
-              ),
-              child: IconButton(
-                icon: const Icon(Icons.edit, color: Colors.orange),
-                onPressed: () => _openEdit(user),
+            // NOMOR
+            CircleAvatar(
+              radius: 16,
+              backgroundColor: const Color(0xFFE8F5E9),
+              child: Text(
+                (index + 1).toString(),
+                style: const TextStyle(
+                  color: primaryGreen,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-            const SizedBox(width: 8),
-            Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.red, width: 1.5),
+
+            const SizedBox(width: 12),
+
+            // INFO USER
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    user['name'] ?? '-',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      color: Color.fromARGB(255, 21, 44, 22),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    user['email'] ?? '-',
+                    style: const TextStyle(fontSize: 13),
+                  ),
+                ],
               ),
-              child: IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
-                onPressed: () => _deleteUser(user['id']),
-              ),
+            ),
+
+            // TITIK 3
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.more_vert, color: primaryGreen),
+              onSelected: (value) {
+                if (value == 'edit') {
+                  _openEdit(user);
+                } else if (value == 'hapus') {
+                  _deleteUser(user['id']);
+                }
+              },
+              itemBuilder: (context) => const [
+                PopupMenuItem(
+                  value: 'edit',
+                  child: Row(
+                    children: [
+                      Icon(Icons.edit, size: 18),
+                      SizedBox(width: 8),
+                      Text('Edit'),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'hapus',
+                  child: Row(
+                    children: [
+                      Icon(Icons.delete, size: 18, color: Colors.red),
+                      SizedBox(width: 8),
+                      Text('Hapus'),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -176,48 +235,8 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
         ),
         backgroundColor: Colors.white,
         elevation: 0.5,
-        //tombol reload, sementara di nonaktifin
-        // actions: [
-        //   IconButton(
-        //     icon: const Icon(Icons.refresh, color: Color(0xFF2E7D32)),
-        //     onPressed: loadData,
-        //   ),
-        // ],
       ),
-      floatingActionButton: Container(
-        width: 60,
-        height: 60,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: const Color(0xFF2E7D32), width: 2),
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.black26,
-              blurRadius: 6,
-              offset: Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(8),
-            onTap: () async {
-              final added = await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const TambahAkunPenggunaPage(),
-                ),
-              );
-              if (added == true) loadData();
-            },
-            child: const Center(
-              child: Icon(Icons.add, color: Color(0xFF2E7D32), size: 30),
-            ),
-          ),
-        ),
-      ),
+
       body: SizedBox(
         height: double.infinity,
         width: double.infinity,
@@ -241,12 +260,81 @@ class _DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
                   child: Center(
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 500),
+
                       child: Column(
-                        children: users
-                            .asMap()
-                            .entries
-                            .map((entry) => _buildCard(entry.value, entry.key))
-                            .toList(),
+                        children: [
+                          ...paginatedUsers
+                              .asMap()
+                              .entries
+                              .map(
+                                (entry) => _buildCard(
+                                  entry.value,
+                                  entry.key + ((currentPage - 1) * perPage),
+                                ),
+                              )
+                              .toList(),
+
+                          const SizedBox(height: 16),
+
+                          // ===== PAGINATION =====
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.chevron_left),
+                                color: const Color(0xFF2E7D32),
+                                onPressed: currentPage > 1
+                                    ? () => setState(() => currentPage--)
+                                    : null,
+                              ),
+
+                              ...List.generate(totalPages, (index) {
+                                final page = index + 1;
+                                final isActive = page == currentPage;
+
+                                return GestureDetector(
+                                  onTap: () =>
+                                      setState(() => currentPage = page),
+                                  child: Container(
+                                    margin: const EdgeInsets.symmetric(
+                                      horizontal: 4,
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: isActive
+                                          ? const Color(0xFF2E7D32)
+                                          : Colors.white,
+                                      borderRadius: BorderRadius.circular(6),
+                                      border: Border.all(
+                                        color: const Color(0xFF2E7D32),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      page.toString(),
+                                      style: TextStyle(
+                                        color: isActive
+                                            ? Colors.white
+                                            : const Color(0xFF2E7D32),
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }),
+
+                              IconButton(
+                                icon: const Icon(Icons.chevron_right),
+                                color: const Color(0xFF2E7D32),
+                                onPressed: currentPage < totalPages
+                                    ? () => setState(() => currentPage++)
+                                    : null,
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                   ),
