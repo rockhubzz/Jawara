@@ -104,6 +104,13 @@ class _SemuaMenuPageState extends State<SemuaMenuPage> {
             Colors.purple,
             () => context.go('/kegiatan/daftar_broad'),
           ),
+          // ✅ TAMBAH BROADCAST (DIPERBAIKI)
+          MenuItem(
+            "Tambah Broadcast",
+            Icons.add_alert,
+            Colors.orange,
+            () => context.go('/kegiatan/tambah_broad?from=semua'),
+          ),
         ],
       ),
       MenuSection(
@@ -197,7 +204,29 @@ class _SemuaMenuPageState extends State<SemuaMenuPage> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
-          children: allMenuSections.map(_buildSectionCard).toList(),
+          children: [
+            // 🔍 SEARCH BAR (DIPERBAIKI)
+            Container(
+              margin: const EdgeInsets.only(bottom: 18),
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: kombuGreen),
+              ),
+              child: TextField(
+                controller: searchController,
+                onChanged: (_) => setState(() {}),
+                decoration: InputDecoration(
+                  hintText: "Cari menu...",
+                  border: InputBorder.none,
+                  icon: Icon(Icons.search, color: kombuGreen),
+                ),
+              ),
+            ),
+
+            ...allMenuSections.map(_buildSectionCard).toList(),
+          ],
         ),
       ),
     );
