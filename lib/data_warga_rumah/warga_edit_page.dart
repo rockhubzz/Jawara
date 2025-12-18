@@ -399,7 +399,7 @@ class _WargaEditPageState extends State<WargaEditPage> {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              context.go('/data_warga_rumah/detail/${widget.wargaId}');
+              context.go('/data_warga_rumah/daftarWarga');
             },
             child: const Text("OK"),
           ),
