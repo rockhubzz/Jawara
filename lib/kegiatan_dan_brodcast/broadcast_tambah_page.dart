@@ -21,6 +21,7 @@ class _BroadcastFormPageState extends State<BroadcastFormPage> {
   late final bool isEdit = widget.id != null;
 
   final Color primaryGreen = const Color(0xFF2E7D32);
+  final Color bgSoft = const Color(0xFFEFF4EC);
 
   @override
   void initState() {
@@ -83,9 +84,11 @@ class _BroadcastFormPageState extends State<BroadcastFormPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(isEdit
-                ? 'Broadcast berhasil diperbarui'
-                : 'Broadcast berhasil disimpan'),
+            content: Text(
+              isEdit
+                  ? 'Broadcast berhasil diperbarui'
+                  : 'Broadcast berhasil disimpan',
+            ),
             backgroundColor: Colors.green,
           ),
         );
@@ -106,7 +109,7 @@ class _BroadcastFormPageState extends State<BroadcastFormPage> {
         GoRouterState.of(context).uri.queryParameters['from'] ?? 'tambah';
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: bgSoft, // Background hijau soft
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios_new, color: primaryGreen),
@@ -121,37 +124,26 @@ class _BroadcastFormPageState extends State<BroadcastFormPage> {
         title: Text(
           isEdit ? "Edit Broadcast" : "Tambah Broadcast",
           style: TextStyle(
-              fontWeight: FontWeight.bold, color: primaryGreen, fontSize: 20),
+            fontWeight: FontWeight.bold,
+            color: primaryGreen,
+            fontSize: 20,
+          ),
         ),
         backgroundColor: Colors.white,
         elevation: 0.5,
       ),
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color.fromARGB(255, 255, 235, 188),
-              Color.fromARGB(255, 181, 255, 183),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: SafeArea(
-          child: loading && isEdit
-              ? const Center(child: CircularProgressIndicator())
-              : SingleChildScrollView(
-                  padding: const EdgeInsets.all(24),
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 900),
-                      child: _buildForm(context),
-                    ),
+      body: SafeArea(
+        child: loading && isEdit
+            ? const Center(child: CircularProgressIndicator())
+            : SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 900),
+                    child: _buildForm(context),
                   ),
                 ),
-        ),
+              ),
       ),
     );
   }
@@ -159,7 +151,7 @@ class _BroadcastFormPageState extends State<BroadcastFormPage> {
   Widget _buildForm(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.white, // Card tetap putih
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
@@ -258,7 +250,7 @@ class _InputField extends StatelessWidget {
         labelText: label,
         hintText: hint,
         filled: true,
-        fillColor: Colors.white,
+        fillColor: Colors.white, // Input field putih
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Color(0xFF2E7D32), width: 2),
@@ -280,8 +272,8 @@ class _TextAreaField extends StatelessWidget {
   final IconData icon;
 
   const _TextAreaField({
-    super.key,
-    required this.controller,
+    super.keyt,
+    required his.controller,
     required this.label,
     required this.hint,
     required this.icon,
@@ -297,7 +289,7 @@ class _TextAreaField extends StatelessWidget {
         labelText: label,
         hintText: hint,
         filled: true,
-        fillColor: Colors.white,
+        fillColor: Colors.white, // Input field putih
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Color(0xFF2E7D32), width: 2),
