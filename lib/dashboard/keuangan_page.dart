@@ -183,7 +183,8 @@ class _KeuanganPageState extends State<KeuanganPage> {
                               showTitles: true,
                               reservedSize: 60,
                               getTitlesWidget: (value, _) {
-                                final rounded = (value / 1000000).round() * 1000000;
+                                final rounded =
+                                    (value / 1000000).round() * 1000000;
                                 return Text(
                                   rounded.toString().replaceAllMapped(
                                     RegExp(r'\B(?=(\d{3})+(?!\d))'),
