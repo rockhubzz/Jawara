@@ -1,236 +1,402 @@
 import 'package:flutter/material.dart';
+import 'package:jawara/services/keluarga_service.dart';
 import 'package:jawara/services/rumah_service.dart';
 
-class RumahFormPage extends StatefulWidget {
+class KeluargaFormPage extends StatefulWidget {
   final Map<String, dynamic>? data;
 
-  const RumahFormPage({super.key, this.data});
+  const KeluargaFormPage({super.key, this.data});
 
   @override
-  State<RumahFormPage> createState() => _RumahFormPageState();
+  State<KeluargaFormPage> createState() => _KeluargaFormPageState();
 }
 
-class _RumahFormPageState extends State<RumahFormPage> {
-  final formKey = GlobalKey<FormState>();
+class _KeluargaFormPageState extends State<KeluargaFormPage> {
+  final _formKey = GlobalKey<FormState>();
 
-  final kodeCtrl = TextEditingController();
-  final alamatCtrl = TextEditingController();
-  final statusCtrl = TextEditingController();
+  final namaCtrl = TextEditingController();
+  final kepalaCtrl = TextEditingController();
+  final kepemilikanCtrl = TextEditingController();
 
-  String? selectedStatus;
+  String? status;
+  int? selectedRumahId;
 
-  static const Color kombu = Color(0xFF374426);
-  static const Color bgSoft = Color(0xFFF1F5EE);
+  bool isLoadingSubmit = false;
+  bool isLoadingRumah = true;
+
+  List<Map<String, dynamic>> rumahList = [];
 
   @override
   void initState() {
     super.initState();
 
     if (widget.data != null) {
-      kodeCtrl.text = widget.data!['kode'];
-      alamatCtrl.text = widget.data!['alamat'];
-      selectedStatus = widget.data!['status'];
-      statusCtrl.text = widget.data!['status'];
+      namaCtrl.text = widget.data!['nama_keluarga'] ?? '';
+      kepalaCtrl.text = widget.data!['kepala_keluarga'] ?? '';
+      kepemilikanCtrl.text = widget.data!['kepemilikan'] ?? '';
+      status = widget.data!['status'];
+      selectedRumahId = widget.data!['rumah_id'];
+    }
+
+    loadRumah();
+  }
+
+  Future<void> loadRumah() async {
+    try {
+      final data = await RumahService.getAll();
+
+      final filtered = data.where((r) => r['status'] == 'Tersedia').toList();
+
+      if (selectedRumahId != null) {
+        final current = data.firstWhere(
+          (r) => r['id'] == selectedRumahId,
+          orElse: () => {},
+        );
+        if (current.isNotEmpty &&
+            !filtered.any((r) => r['id'] == selectedRumahId)) {
+          filtered.add(current);
+        }
+      }
+
+      setState(() {
+        rumahList = filtered;
+        isLoadingRumah = false;
+      });
+    } catch (_) {
+      setState(() => isLoadingRumah = false);
     }
   }
 
-  Future<void> save() async {
-    if (!formKey.currentState!.validate()) return;
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => isLoadingSubmit = true);
 
     final payload = {
-      "kode": kodeCtrl.text,
-      "alamat": alamatCtrl.text,
-      "status": statusCtrl.text,
+      "nama_keluarga": namaCtrl.text,
+      "kepala_keluarga": kepalaCtrl.text,
+      "kepemilikan": kepemilikanCtrl.text,
+      "status": status,
+      "rumah_id": selectedRumahId,
     };
 
-    final ok = await RumahService.update(widget.data!['id'], payload);
+    bool ok;
+    if (widget.data == null) {
+      ok = await KeluargaService.createKeluarga(payload);
+    } else {
+      ok = await KeluargaService.updateKeluarga(widget.data!['id'], payload);
+    }
+
+    setState(() => isLoadingSubmit = false);
+
+    if (!mounted) return;
 
     if (ok) {
-      await showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: const Text(
-            "Berhasil",
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          content: const Text("Data rumah berhasil diperbarui."),
-          actions: [
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: kombu),
-              onPressed: () {
-                Navigator.pop(context);
-                Navigator.pop(context, true);
-              },
-              child: const Text("OK"),
-            ),
-          ],
-        ),
-      );
+      Navigator.pop(context, true);
     } else {
-      await showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Gagal menyimpan data")));
+    }
+  }
+
+  Widget _buildTextField(
+    String label,
+    TextEditingController controller, {
+    String? hint,
+    TextInputType keyboard = TextInputType.text,
+    bool required = false,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
           ),
-          title: const Text(
-            "Gagal",
-            style: TextStyle(fontWeight: FontWeight.bold),
+          const SizedBox(height: 8),
+          TextFormField(
+            controller: controller,
+            keyboardType: keyboard,
+            decoration: InputDecoration(
+              hintText: hint ?? label,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            validator: required
+                ? (v) => v == null || v.isEmpty
+                      ? "$label tidak boleh kosong"
+                      : null
+                : null,
           ),
-          content: const Text("Gagal menyimpan data rumah."),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Tutup"),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatusDropdown() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Status",
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 8),
+          DropdownButtonFormField<String>(
+            value: status,
+            decoration: InputDecoration(
+              hintText: "-- Pilih Status --",
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            items: const [
+              DropdownMenuItem(value: "Aktif", child: Text("Aktif")),
+              DropdownMenuItem(
+                value: "Tidak Aktif",
+                child: Text("Tidak Aktif"),
+              ),
+            ],
+            onChanged: (v) => setState(() => status = v),
+            validator: (v) => v == null ? "Pilih status" : null,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRumahDropdown() {
+    if (isLoadingRumah) {
+      // Tampilkan dropdown disabled sementara loading
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Rumah",
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<int?>(
+              items: [],
+              onChanged: null,
+              hint: const Text("Memuat..."),
             ),
           ],
         ),
       );
     }
+
+    // Setelah data siap
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Rumah",
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 8),
+          DropdownButtonFormField<int?>(
+            value: selectedRumahId,
+            decoration: InputDecoration(
+              hintText: "-- Pilih Rumah --",
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            items: [
+              const DropdownMenuItem<int?>(
+                value: null,
+                child: Text("Tidak ada rumah"),
+              ),
+              ...rumahList.map(
+                (r) => DropdownMenuItem<int?>(
+                  value: r['id'],
+                  child: Text("${r['kode']} - ${r['alamat']}"),
+                ),
+              ),
+            ],
+            onChanged: (v) => setState(() => selectedRumahId = v),
+          ),
+        ],
+      ),
+    );
   }
 
+  // ==================== UI ====================
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: bgSoft,
+    const primaryGreen = Color(0xFF2E7D32);
 
-      /// APP BAR
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0.5,
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: kombu),
-          onPressed: () => Navigator.pop(context),
+    return Theme(
+      data: Theme.of(context).copyWith(
+        colorScheme: const ColorScheme.light(
+          primary: primaryGreen,
+          error: Colors.red,
         ),
-        title: const Text(
-          "Edit Rumah",
-          style: TextStyle(color: kombu, fontWeight: FontWeight.w600),
+        inputDecorationTheme: InputDecorationTheme(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: primaryGreen),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: primaryGreen),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: primaryGreen, width: 2),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Colors.red),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Colors.red, width: 2),
+          ),
         ),
       ),
-
-      /// BODY
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 500),
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 8,
-                    offset: Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Form(
-                key: formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "Form Edit Rumah",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: kombu,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    /// KODE RUMAH
-                    TextFormField(
-                      controller: kodeCtrl,
-                      decoration: _inputDecoration("No Rumah"),
-                      validator: (v) =>
-                          v == null || v.isEmpty ? "Wajib diisi" : null,
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    /// ALAMAT
-                    TextFormField(
-                      controller: alamatCtrl,
-                      decoration: _inputDecoration("Alamat"),
-                      validator: (v) =>
-                          v == null || v.isEmpty ? "Wajib diisi" : null,
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    /// STATUS
-                    DropdownButtonFormField<String>(
-                      value: selectedStatus,
-                      decoration: _inputDecoration("Status Rumah"),
-                      items: const [
-                        DropdownMenuItem(
-                          value: 'Tersedia',
-                          child: Text('Tersedia'),
-                        ),
-                        DropdownMenuItem(
-                          value: 'Ditempati',
-                          child: Text('Ditempati'),
-                        ),
-                        DropdownMenuItem(
-                          value: 'Nonaktif',
-                          child: Text('Nonaktif'),
-                        ),
-                      ],
-                      onChanged: (value) {
-                        setState(() {
-                          selectedStatus = value;
-                          statusCtrl.text = value ?? '';
-                        });
-                      },
-                      validator: (value) =>
-                          value == null ? "Status wajib dipilih" : null,
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    /// BUTTON
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: kombu,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 32,
-                            vertical: 12,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        onPressed: save,
-                        child: const Text(
-                          "Update",
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0.5,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new, color: primaryGreen),
+            onPressed: () => Navigator.pop(context),
+          ),
+          title: Text(
+            widget.data == null ? "Tambah Keluarga" : "Edit Keluarga",
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: primaryGreen,
+            ),
+          ),
+        ),
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color.fromARGB(255, 255, 235, 188),
+                Color.fromARGB(255, 181, 255, 183),
+              ],
+            ),
+          ),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
+            child: Center(
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: 500),
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.9),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.white.withOpacity(0.3),
+                      blurRadius: 12,
+                      spreadRadius: 2,
+                      offset: const Offset(0, 4),
                     ),
                   ],
+                ),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.data == null
+                            ? "Isi data keluarga baru"
+                            : "Ubah data keluarga",
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Colors.black54,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+
+                      _buildTextField(
+                        "Nama Keluarga",
+                        namaCtrl,
+                        required: true,
+                      ),
+                      _buildTextField(
+                        "Kepala Keluarga",
+                        kepalaCtrl,
+                        required: true,
+                      ),
+                      _buildTextField("Kepemilikan", kepemilikanCtrl),
+                      _buildRumahDropdown(),
+                      _buildStatusDropdown(),
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          ElevatedButton(
+                            onPressed: isLoadingSubmit ? null : _submit,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: primaryGreen,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 12,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            child: isLoadingSubmit
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : Text(
+                                    widget.data == null ? "Submit" : "Update",
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                          ),
+                          const SizedBox(width: 12),
+                          OutlinedButton(
+                            onPressed: () => Navigator.pop(context),
+                            style: OutlinedButton.styleFrom(
+                              side: BorderSide(color: primaryGreen),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 12,
+                              ),
+                            ),
+                            child: const Text("Batal"),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
         ),
       ),
-    );
-  }
-
-  InputDecoration _inputDecoration(String label) {
-    return InputDecoration(
-      labelText: label,
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
     );
   }
 }

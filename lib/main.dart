@@ -145,10 +145,10 @@ class MyApp extends StatelessWidget {
           path: '/data_warga_rumah/tambahRumah',
           builder: (context, state) => const TambahRumahPage(),
         ),
-        // GoRoute(
-        //   path: '/data_warga_rumah/keluarga',
-        //   builder: (context, state) => const DataKeluargaPage(),
-        // ),
+        GoRoute(
+          path: '/data_warga_rumah/keluarga',
+          builder: (context, state) => const DataKeluargaPage(),
+        ),
         GoRoute(
           path: '/data_warga_rumah/daftarRumah',
           builder: (context, state) => const RumahListPage(),
