@@ -193,10 +193,156 @@ class _DataKeluargaPageState extends State<DataKeluargaPage> {
     );
   }
 
+  // @override
+  // Widget build(BuildContext context) {
+  //   return Scaffold(
+  //     backgroundColor: Colors.transparent,
+  //     appBar: AppBar(
+  //       backgroundColor: Colors.white,
+  //       elevation: 0.5,
+  //       leading: IconButton(
+  //         icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF2E7D32)),
+  //         onPressed: () => context.go('/beranda/semua_menu'),
+  //       ),
+  //       title: const Text(
+  //         "Data Keluarga",
+  //         style: TextStyle(
+  //           fontWeight: FontWeight.bold,
+  //           color: Color(0xFF2E7D32),
+  //         ),
+  //       ),
+  //     ),
+  //     floatingActionButton: Container(
+  //       width: 60,
+  //       height: 60,
+  //       decoration: BoxDecoration(
+  //         color: Colors.white, // background putih
+  //         borderRadius: BorderRadius.circular(8),
+  //         border: Border.all(color: const Color(0xFF2E7D32), width: 2),
+  //         boxShadow: const [
+  //           BoxShadow(
+  //             color: Colors.black26,
+  //             blurRadius: 6,
+  //             offset: Offset(0, 3),
+  //           ),
+  //         ],
+  //       ),
+  //       child: Material(
+  //         color: Colors.transparent,
+  //         child: InkWell(
+  //           borderRadius: BorderRadius.circular(8),
+  //           onTap: () async {
+  //             final added = await Navigator.push(
+  //               context,
+  //               MaterialPageRoute(builder: (_) => const KeluargaFormPage()),
+  //             );
+  //             if (added == true) loadKeluarga();
+  //           },
+  //           child: const Center(
+  //             child: Icon(Icons.add, color: Color(0xFF2E7D32), size: 30),
+  //           ),
+  //         ),
+  //       ),
+  //     ),
+  //     body: Container(
+  //       height: double.infinity,
+  //       width: double.infinity,
+  //       decoration: const BoxDecoration(
+  //         gradient: LinearGradient(
+  //           colors: [
+  //             Color.fromARGB(255, 255, 235, 188),
+  //             Color.fromARGB(255, 181, 255, 183),
+  //           ],
+  //           begin: Alignment.topLeft,
+  //           end: Alignment.bottomRight,
+  //         ),
+  //       ),
+  //       child: loading
+  //           ? const Center(child: CircularProgressIndicator())
+  //           : SingleChildScrollView(
+  //               padding: const EdgeInsets.all(24),
+  //               child: Center(
+  //                 child: ConstrainedBox(
+  //                   constraints: const BoxConstraints(maxWidth: 500),
+  //                   child: Column(
+  //                     children: [
+  //                       ...paginatedKeluarga
+  //                           .asMap()
+  //                           .entries
+  //                           .map(
+  //                             (e) => _buildCard(
+  //                               e.value,
+  //                               e.key + ((currentPage - 1) * perPage),
+  //                             ),
+  //                           )
+  //                           .toList(),
+
+  //                       const SizedBox(height: 16),
+
+  //                       /// Pagination
+  //                       Row(
+  //                         mainAxisAlignment: MainAxisAlignment.center,
+  //                         children: [
+  //                           IconButton(
+  //                             icon: const Icon(Icons.chevron_left),
+  //                             onPressed: currentPage > 1
+  //                                 ? () => setState(() => currentPage--)
+  //                                 : null,
+  //                           ),
+  //                           ...List.generate(totalPages, (i) {
+  //                             final page = i + 1;
+  //                             final active = page == currentPage;
+  //                             return GestureDetector(
+  //                               onTap: () => setState(() => currentPage = page),
+  //                               child: Container(
+  //                                 margin: const EdgeInsets.symmetric(
+  //                                   horizontal: 4,
+  //                                 ),
+  //                                 padding: const EdgeInsets.symmetric(
+  //                                   horizontal: 10,
+  //                                   vertical: 6,
+  //                                 ),
+  //                                 decoration: BoxDecoration(
+  //                                   color: active
+  //                                       ? const Color(0xFF2E7D32)
+  //                                       : Colors.white,
+  //                                   borderRadius: BorderRadius.circular(6),
+  //                                   border: Border.all(
+  //                                     color: const Color(0xFF2E7D32),
+  //                                   ),
+  //                                 ),
+  //                                 child: Text(
+  //                                   page.toString(),
+  //                                   style: TextStyle(
+  //                                     color: active
+  //                                         ? Colors.white
+  //                                         : const Color(0xFF2E7D32),
+  //                                     fontWeight: FontWeight.bold,
+  //                                   ),
+  //                                 ),
+  //                               ),
+  //                             );
+  //                           }),
+  //                           IconButton(
+  //                             icon: const Icon(Icons.chevron_right),
+  //                             onPressed: currentPage < totalPages
+  //                                 ? () => setState(() => currentPage++)
+  //                                 : null,
+  //                           ),
+  //                         ],
+  //                       ),
+  //                     ],
+  //                   ),
+  //                 ),
+  //               ),
+  //             ),
+  //     ),
+  //   );
+  // }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: const Color(0xFFF1F5EE), // sama seperti daftar rumah
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0.5,
@@ -216,7 +362,7 @@ class _DataKeluargaPageState extends State<DataKeluargaPage> {
         width: 60,
         height: 60,
         decoration: BoxDecoration(
-          color: Colors.white, // background putih
+          color: Colors.white,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(color: const Color(0xFF2E7D32), width: 2),
           boxShadow: const [
@@ -244,99 +390,98 @@ class _DataKeluargaPageState extends State<DataKeluargaPage> {
           ),
         ),
       ),
-      body: Container(
-        height: double.infinity,
-        width: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color.fromARGB(255, 255, 235, 188),
-              Color.fromARGB(255, 181, 255, 183),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: loading
-            ? const Center(child: CircularProgressIndicator())
-            : SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 500),
-                    child: Column(
-                      children: [
-                        ...paginatedKeluarga
-                            .asMap()
-                            .entries
-                            .map(
-                              (e) => _buildCard(
-                                e.value,
-                                e.key + ((currentPage - 1) * perPage),
-                              ),
-                            )
-                            .toList(),
+      body: loading
+          ? const Center(child: CircularProgressIndicator())
+          : ListView.builder(
+              padding: const EdgeInsets.all(20),
+              itemCount: paginatedKeluarga.length,
+              itemBuilder: (context, index) {
+                final k = paginatedKeluarga[index];
 
-                        const SizedBox(height: 16),
-
-                        /// Pagination
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 14),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 14,
+                    horizontal: 16,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 8,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 18,
+                        backgroundColor: const Color(0xFF374426),
+                        child: Text(
+                          "${index + ((currentPage - 1) * perPage) + 1}",
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            IconButton(
-                              icon: const Icon(Icons.chevron_left),
-                              onPressed: currentPage > 1
-                                  ? () => setState(() => currentPage--)
-                                  : null,
+                            Text(
+                              k['nama_keluarga'],
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF374426),
+                              ),
                             ),
-                            ...List.generate(totalPages, (i) {
-                              final page = i + 1;
-                              final active = page == currentPage;
-                              return GestureDetector(
-                                onTap: () => setState(() => currentPage = page),
-                                child: Container(
-                                  margin: const EdgeInsets.symmetric(
-                                    horizontal: 4,
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 6,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: active
-                                        ? const Color(0xFF2E7D32)
-                                        : Colors.white,
-                                    borderRadius: BorderRadius.circular(6),
-                                    border: Border.all(
-                                      color: const Color(0xFF2E7D32),
-                                    ),
-                                  ),
-                                  child: Text(
-                                    page.toString(),
-                                    style: TextStyle(
-                                      color: active
-                                          ? Colors.white
-                                          : const Color(0xFF2E7D32),
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }),
-                            IconButton(
-                              icon: const Icon(Icons.chevron_right),
-                              onPressed: currentPage < totalPages
-                                  ? () => setState(() => currentPage++)
-                                  : null,
+                            const SizedBox(height: 4),
+                            Text(
+                              "Kepala: ${k['kepala_keluarga']}\nAlamat: ${k['alamat']}",
+                              style: const TextStyle(color: Colors.black54),
                             ),
                           ],
                         ),
-                      ],
-                    ),
+                      ),
+                      PopupMenuButton<String>(
+                        onSelected: (v) {
+                          switch (v) {
+                            case 'detail':
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      KeluargaDetailPage(id: k['id']),
+                                ),
+                              );
+                              break;
+                            case 'edit':
+                              _openEdit(k);
+                              break;
+                            case 'hapus':
+                              _confirmDelete(k['id']);
+                              break;
+                          }
+                        },
+                        itemBuilder: (_) => const [
+                          PopupMenuItem(value: 'detail', child: Text("Detail")),
+                          PopupMenuItem(value: 'edit', child: Text("Edit")),
+                          PopupMenuItem(
+                            value: 'hapus',
+                            child: Text(
+                              "Hapus",
+                              style: TextStyle(color: Colors.red),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                ),
-              ),
-      ),
+                );
+              },
+            ),
     );
   }
 }
