@@ -163,11 +163,14 @@ class _KegiatanTambahPageState extends State<KegiatanTambahPage> {
         GoRouterState.of(context).uri.queryParameters['from'] ?? 'tambah';
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: const Color(0xFFF1F5EE), // bgSoft sama seperti KategoriIuranPage
+
       appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0.5,
+        centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new),
-          color: primaryGreen,
+          icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF2E7D32)), // kombu
           onPressed: () {
             if (from == 'tambah') {
               context.go('/beranda/tambah');
@@ -179,40 +182,23 @@ class _KegiatanTambahPageState extends State<KegiatanTambahPage> {
         title: Text(
           isEdit ? "Edit Kegiatan" : "Tambah Kegiatan",
           style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF2E7D32),
+            color: Color(0xFF2E7D32), // kombu
+            fontWeight: FontWeight.w600,
           ),
         ),
-        backgroundColor: Colors.white,
-        elevation: 0.5,
       ),
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color.fromARGB(255, 255, 235, 188),
-              Color.fromARGB(255, 181, 255, 183),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: SafeArea(
-          child: loading && isEdit
-              ? const Center(child: CircularProgressIndicator())
-              : SingleChildScrollView(
-                  padding: const EdgeInsets.all(24),
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 900),
-                      child: _buildForm(context),
-                    ),
-                  ),
+
+      body: loading && isEdit
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 500),
+                  child: _buildForm(context),
                 ),
-        ),
-      ),
+              ),
+            ),
     );
   }
 
