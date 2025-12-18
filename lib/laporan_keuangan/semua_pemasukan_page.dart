@@ -11,10 +11,23 @@ class SemuaPemasukan extends StatefulWidget {
 }
 
 class _SemuaPemasukanState extends State<SemuaPemasukan> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
   List<Map<String, dynamic>> pemasukanList = [];
   bool loading = true;
+
+  int currentPage = 1;
+  final int perPage = 4;
+
+  List<Map<String, dynamic>> get paginatedPemasukan {
+    final start = (currentPage - 1) * perPage;
+    final end = start + perPage;
+    if (start >= pemasukanList.length) return [];
+    return pemasukanList.sublist(
+      start,
+      end > pemasukanList.length ? pemasukanList.length : end,
+    );
+  }
+
+  int get totalPages => (pemasukanList.length / perPage).ceil();
 
   @override
   void initState() {
@@ -56,168 +69,195 @@ class _SemuaPemasukanState extends State<SemuaPemasukan> {
     setState(() {
       pemasukanList = combined;
       loading = false;
+      currentPage = 1;
     });
+  }
+
+  Widget _buildCard(Map<String, dynamic> item, int index) {
+    const primaryGreen = Color(0xFF2E7D32);
+
+    return Card(
+      color: Colors.white,
+      margin: const EdgeInsets.only(bottom: 14),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      elevation: 3,
+      shadowColor: Colors.black12,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // Nomor urut
+            CircleAvatar(
+              radius: 22,
+              backgroundColor: Color(0xFFE8F5E9),
+              child: Text(
+                (index + 1).toString(),
+                style: const TextStyle(
+                  color: Color(0xFF2E7D32),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+
+            const SizedBox(width: 14),
+
+            // Kolom 1: Jenis & Tanggal
+            Expanded(
+              flex: 2,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item["nama"] ?? "-",
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    "Jenis: ${item["jenis"]}",
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                  Text(
+                    "Tanggal: ${item["tanggal"]}",
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                ],
+              ),
+            ),
+
+            // Kolom 2: Nominal
+            Expanded(
+              flex: 1,
+              child: Text(
+                item["nominal"],
+                textAlign: TextAlign.right,
+                style: const TextStyle(
+                  fontSize: 18, // lebih besar
+                  fontWeight: FontWeight.bold,
+                  color: primaryGreen,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
-      backgroundColor: const Color(0xFFF4F6F8),
+      backgroundColor: Colors.transparent,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0.5,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF2E7D32)),
+          onPressed: () => context.go('/beranda/semua_menu'),
+        ),
+        title: const Text(
+          "Laporan Pemasukan",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF2E7D32),
+          ),
+        ),
+      ),
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color.fromARGB(255, 255, 235, 188),
+              Color.fromARGB(255, 181, 255, 183),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: loading
+            ? const Center(child: CircularProgressIndicator())
+            : SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 500),
+                    child: Column(
+                      children: [
+                        ...paginatedPemasukan
+                            .asMap()
+                            .entries
+                            .map(
+                              (e) => _buildCard(
+                                e.value,
+                                e.key + ((currentPage - 1) * perPage),
+                              ),
+                            )
+                            .toList(),
 
-      body: Stack(
-        children: [
-          if (loading)
-            const Center(
-              child: CircularProgressIndicator(color: Color(0xFF2E7D32)),
-            ),
+                        const SizedBox(height: 16),
 
-          if (!loading)
-            Padding(
-              padding: const EdgeInsets.only(
-                top: 90,
-                left: 16,
-                right: 16,
-                bottom: 16,
-              ),
-              child: Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(18.0),
-
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // ================= HEADER =================
-                      const Center(
-                        child: Text(
-                          "Laporan Pemasukan",
-                          style: TextStyle(
-                            color: Color(0xFF2E7D32),
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      // ================= LIST =================
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: pemasukanList.length,
-                          itemBuilder: (context, index) {
-                            final item = pemasukanList[index];
-
-                            return Container(
-                              margin: const EdgeInsets.symmetric(vertical: 6),
-
-                              child: Card(
-                                elevation: 2,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(14),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16.0),
-
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      // ICON LINGKARAN
-                                      Container(
-                                        width: 45,
-                                        height: 45,
-                                        decoration: BoxDecoration(
-                                          color: const Color(
-                                            0xFF2E7D32,
-                                          ).withOpacity(0.15),
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: const Icon(
-                                          Icons.attach_money,
-                                          color: Color(0xFF2E7D32),
-                                          size: 26,
-                                        ),
-                                      ),
-
-                                      const SizedBox(width: 14),
-
-                                      // DATA UTAMA
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              item["nama"] ?? "-",
-                                              style: const TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-
-                                            const SizedBox(height: 4),
-
-                                            Text(
-                                              "Jenis: ${item["jenis"]}",
-                                              style: const TextStyle(
-                                                color: Colors.black87,
-                                                fontSize: 14,
-                                              ),
-                                            ),
-
-                                            Text(
-                                              "Tanggal: ${item["tanggal"]}",
-                                              style: const TextStyle(
-                                                color: Colors.black87,
-                                                fontSize: 14,
-                                              ),
-                                            ),
-
-                                            const SizedBox(height: 4),
-
-                                            Text(
-                                              item["nominal"],
-                                              style: const TextStyle(
-                                                color: Color(0xFF2E7D32),
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-
-                                      // TITIK TIGA
-                                      const Icon(Icons.more_vert),
-                                    ],
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.chevron_left),
+                              onPressed: currentPage > 1
+                                  ? () => setState(() => currentPage--)
+                                  : null,
+                            ),
+                            ...List.generate(totalPages, (i) {
+                              final page = i + 1;
+                              final active = page == currentPage;
+                              return GestureDetector(
+                                onTap: () => setState(() => currentPage = page),
+                                child: Container(
+                                  margin: const EdgeInsets.symmetric(
+                                    horizontal: 4,
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: active
+                                        ? const Color(0xFF2E7D32)
+                                        : Colors.white,
+                                    borderRadius: BorderRadius.circular(6),
+                                    border: Border.all(
+                                      color: const Color(0xFF2E7D32),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    page.toString(),
+                                    style: TextStyle(
+                                      color: active
+                                          ? Colors.white
+                                          : const Color(0xFF2E7D32),
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            );
-                          },
+                              );
+                            }),
+                            IconButton(
+                              icon: const Icon(Icons.chevron_right),
+                              onPressed: currentPage < totalPages
+                                  ? () => setState(() => currentPage++)
+                                  : null,
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-
-          // BACK BUTTON
-          Positioned(
-            top: 22,
-            left: 16,
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.black, size: 28),
-              onPressed: () => context.go('/beranda/semua_menu'),
-            ),
-          ),
-        ],
       ),
     );
   }
