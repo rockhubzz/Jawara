@@ -18,6 +18,7 @@ class _RumahListPageState extends State<RumahListPage> {
   static const Color kombu = Color(0xFF374426);
   static const Color bgSoft = Color(0xFFF1F5EE);
 
+  //update
   @override
   void initState() {
     super.initState();
