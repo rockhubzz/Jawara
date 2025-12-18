@@ -136,7 +136,7 @@ class _RumahListPageState extends State<RumahListPage> {
                             ),
                             const SizedBox(width: 14),
 
-                            /// DATA
+                            /// DATA Rumah
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
