@@ -56,7 +56,7 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
     });
 
     try {
-      final items = await KegiatanService.getAll(); // ambil semua dulu
+      final items = await KegiatanService.getAll();
       final mappedData = items.asMap().entries.map((e) {
         final idx = e.key;
         final row = e.value;
@@ -82,7 +82,6 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
 
   List<Map<String, dynamic>> _filterDataByDate(List<Map<String, dynamic>> data, String? when) {
     if (when == null) return data;
-
     final now = DateTime.now();
 
     return data.where((item) {
@@ -108,28 +107,18 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
   }
 
   Future<void> _deleteItem(Map item) async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => _deleteDialog(),
-    );
-
+    final confirm = await showDialog<bool>(context: context, builder: (_) => _deleteDialog());
     if (confirm == true) {
       final success = await KegiatanService.delete(item['id']);
-      if (success == true) {
+      if (success) {
         _data.removeWhere((d) => d['id'] == item['id']);
         if (mounted) setState(() {});
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Kegiatan berhasil dihapus!"),
-            backgroundColor: Colors.green,
-          ),
+          const SnackBar(content: Text("Kegiatan berhasil dihapus!"), backgroundColor: Colors.green),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Gagal menghapus data"),
-            backgroundColor: Colors.red,
-          ),
+          const SnackBar(content: Text("Gagal menghapus data"), backgroundColor: Colors.red),
         );
       }
     }
@@ -159,18 +148,12 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
       await _loadData();
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Kegiatan berhasil diperbarui!"),
-          backgroundColor: Colors.green,
-        ),
+        const SnackBar(content: Text("Kegiatan berhasil diperbarui!"), backgroundColor: Colors.green),
       );
     } else {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Gagal memperbarui data: ${result['message']}"),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text("Gagal memperbarui data: ${result['message']}"), backgroundColor: Colors.red),
       );
     }
   }
@@ -185,101 +168,69 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
     final pageItems = _data.sublist(startIndex, endIndex);
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: const Color(0xFFF1F5EE),
       appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0.5,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF2E7D32)),
           onPressed: () => context.go(widget.when == null ? '/beranda/semua_menu' : '/dashboard/kegiatan'),
         ),
-        title: Text(
-          "Daftar Kegiatan",
-          style: baseFont.copyWith(
-            fontWeight: FontWeight.bold,
-            color: primaryGreen,
-          ),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0.5,
+        title: Text("Daftar Kegiatan", style: baseFont.copyWith(fontWeight: FontWeight.bold, color: primaryGreen)),
       ),
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color.fromARGB(255, 255, 235, 188),
-              Color.fromARGB(255, 181, 255, 183),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: Column(
-          children: [
-            // ===== Filter Dropdown =====
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: primaryGreen),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: selectedFilter,
-                    hint: Text("Pilih Filter", style: baseFont.copyWith(color: primaryGreen)),
-                    items: filterOptions.entries.map((entry) {
-                      return DropdownMenuItem<String>(
-                        value: entry.key,
-                        child: Text(entry.value, style: baseFont),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        selectedFilter = value;
-                        _currentPage = 0; // reset pagination
-                      });
-                      _loadData();
-                    },
-                  ),
+      body: Column(
+        children: [
+          // Filter Dropdown
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: primaryGreen),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: selectedFilter,
+                  hint: Text("Pilih Filter", style: baseFont.copyWith(color: primaryGreen)),
+                  items: filterOptions.entries.map((entry) {
+                    return DropdownMenuItem(
+                      value: entry.key,
+                      child: Text(entry.value, style: baseFont),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedFilter = value;
+                      _currentPage = 0;
+                    });
+                    _loadData();
+                  },
                 ),
               ),
             ),
-
-            // ===== Data List =====
-            Expanded(
-              child: _loading
-                  ? const Center(child: CircularProgressIndicator())
-                  : _data.isEmpty
-                      ? const Center(child: Text("Belum ada kegiatan"))
-                      : SingleChildScrollView(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            children: [
-                              ...pageItems.map((entry) {
-                                return Card(
+          ),
+          // List & Pagination
+          Expanded(
+            child: _loading
+                ? const Center(child: CircularProgressIndicator())
+                : _data.isEmpty
+                    ? const Center(child: Text("Belum ada kegiatan"))
+                    : SingleChildScrollView(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          children: [
+                            ...pageItems.map((entry) => Card(
                                   elevation: 2,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                   margin: const EdgeInsets.only(bottom: 12),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
                                   child: ListTile(
                                     leading: CircleAvatar(
                                       backgroundColor: primaryGreen.withOpacity(0.15),
-                                      child: Text(
-                                        entry['no'],
-                                        style: baseFont.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                          color: primaryGreen,
-                                        ),
-                                      ),
+                                      child: Text(entry['no'], style: baseFont.copyWith(fontWeight: FontWeight.bold, color: primaryGreen)),
                                     ),
-                                    title: Text(
-                                      entry['nama'],
-                                      style: baseFont.copyWith(fontWeight: FontWeight.bold),
-                                    ),
+                                    title: Text(entry['nama'], style: baseFont.copyWith(fontWeight: FontWeight.bold)),
                                     subtitle: Text(
                                       "Kategori: ${entry['kategori']}\nPenanggung Jawab: ${entry['pj']}\nTanggal: ${entry['tanggal']}\nBiaya: ${entry['biaya']}\nLokasi: ${entry['lokasi']}",
                                       style: baseFont.copyWith(height: 1.3),
@@ -289,66 +240,50 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
                                         if (value == 'Edit') _editItem(entry);
                                         if (value == 'Hapus') _deleteItem(entry);
                                       },
-                                      itemBuilder: (context) => [
-                                        PopupMenuItem(
-                                          value: 'Edit',
-                                          child: Text('Edit', style: baseFont),
-                                        ),
-                                        PopupMenuItem(
-                                          value: 'Hapus',
-                                          child: Text('Hapus', style: baseFont),
-                                        ),
+                                      itemBuilder: (_) => [
+                                        PopupMenuItem(value: 'Edit', child: Text('Edit', style: baseFont)),
+                                        PopupMenuItem(value: 'Hapus', child: Text('Hapus', style: baseFont)),
                                       ],
                                     ),
                                   ),
-                                );
-                              }).toList(),
-
-                              const SizedBox(height: 12),
-                              // Pagination
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  IconButton(
-                                    onPressed: _currentPage > 0
-                                        ? () => setState(() => _currentPage--)
-                                        : null,
-                                    icon: const Icon(Icons.chevron_left),
-                                  ),
-                                  ...List.generate(totalPages, (index) {
-                                    final isCurrent = index == _currentPage;
-                                    return Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                                      child: GestureDetector(
-                                        onTap: () => setState(() => _currentPage = index),
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                          decoration: BoxDecoration(
-                                            color: isCurrent ? primaryGreen : Colors.grey[300],
-                                            borderRadius: BorderRadius.circular(6),
-                                          ),
-                                          child: Text(
-                                            "${index + 1}",
-                                            style: TextStyle(color: isCurrent ? Colors.white : Colors.black),
-                                          ),
+                                )),
+                            const SizedBox(height: 12),
+                            // Pagination
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                IconButton(
+                                  onPressed: _currentPage > 0 ? () => setState(() => _currentPage--) : null,
+                                  icon: const Icon(Icons.chevron_left),
+                                ),
+                                ...List.generate(totalPages, (index) {
+                                  final isCurrent = index == _currentPage;
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                                    child: GestureDetector(
+                                      onTap: () => setState(() => _currentPage = index),
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                        decoration: BoxDecoration(
+                                          color: isCurrent ? primaryGreen : Colors.grey[300],
+                                          borderRadius: BorderRadius.circular(6),
                                         ),
+                                        child: Text("${index + 1}", style: TextStyle(color: isCurrent ? Colors.white : Colors.black)),
                                       ),
-                                    );
-                                  }),
-                                  IconButton(
-                                    onPressed: _currentPage < totalPages - 1
-                                        ? () => setState(() => _currentPage++)
-                                        : null,
-                                    icon: const Icon(Icons.chevron_right),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
+                                    ),
+                                  );
+                                }),
+                                IconButton(
+                                  onPressed: _currentPage < totalPages - 1 ? () => setState(() => _currentPage++) : null,
+                                  icon: const Icon(Icons.chevron_right),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
-            ),
-          ],
-        ),
+                      ),
+          ),
+        ],
       ),
     );
   }
@@ -363,11 +298,7 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
         children: const [
           Icon(Icons.warning_rounded, color: Colors.red, size: 60),
           SizedBox(height: 12),
-          Text(
-            "Apakah Anda yakin ingin menghapus data ini?",
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 15, color: Colors.black87),
-          ),
+          Text("Apakah Anda yakin ingin menghapus data ini?", textAlign: TextAlign.center, style: TextStyle(fontSize: 15, color: Colors.black87)),
         ],
       ),
       actionsAlignment: MainAxisAlignment.center,
@@ -378,9 +309,7 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
             backgroundColor: const Color(0xFFFFF3D4),
             foregroundColor: Colors.black,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           ),
           child: const Text("Batal"),
         ),
@@ -390,9 +319,7 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
             backgroundColor: Colors.red,
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           ),
           child: const Text("Hapus"),
         ),
@@ -400,13 +327,8 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
     );
   }
 
-  Widget _buildTextField(
-    String label,
-    TextEditingController controller, {
-    bool readOnly = false,
-    bool showCalendar = false,
-    TextInputType? keyboardType,
-  }) {
+  Widget _buildTextField(String label, TextEditingController controller,
+      {bool readOnly = false, bool showCalendar = false, TextInputType? keyboardType}) {
     return TextField(
       controller: controller,
       readOnly: readOnly,
@@ -415,10 +337,7 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
         labelText: label,
         filled: true,
         fillColor: const Color(0xFFE8F5E9),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
         suffixIcon: showCalendar ? const Icon(Icons.calendar_today) : null,
       ),
       onTap: showCalendar
@@ -429,9 +348,7 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
                 firstDate: DateTime(2000),
                 lastDate: DateTime(2100),
               );
-              if (picked != null) {
-                controller.text = picked.toIso8601String().split('T').first;
-              }
+              if (picked != null) controller.text = picked.toIso8601String().split('T').first;
             }
           : null,
     );
@@ -453,17 +370,8 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
           builder: (context, setStateDialog) {
             return AlertDialog(
               backgroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-                side: BorderSide(color: primaryGreen),
-              ),
-              title: Text(
-                "Edit Kegiatan",
-                style: baseFont.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: primaryGreen,
-                ),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: BorderSide(color: primaryGreen)),
+              title: Text("Edit Kegiatan", style: baseFont.copyWith(fontWeight: FontWeight.bold, color: primaryGreen)),
               content: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -476,17 +384,9 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
                         labelText: "Kategori",
                         filled: true,
                         fillColor: const Color(0xFFE8F5E9),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
-                        ),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                       ),
-                      items: kategoriList.map((kategori) {
-                        return DropdownMenuItem(
-                          value: kategori,
-                          child: Text(kategori),
-                        );
-                      }).toList(),
+                      items: kategoriList.map((kategori) => DropdownMenuItem(value: kategori, child: Text(kategori))).toList(),
                       onChanged: (value) {
                         setStateDialog(() {
                           selectedKategori = value;
@@ -507,10 +407,7 @@ class _KegiatanDaftarPageState extends State<KegiatanDaftarPage> {
               ),
               actionsAlignment: MainAxisAlignment.center,
               actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text("Batal", style: baseFont.copyWith(color: primaryGreen)),
-                ),
+                TextButton(onPressed: () => Navigator.pop(context), child: Text("Batal", style: baseFont.copyWith(color: primaryGreen))),
                 ElevatedButton(
                   onPressed: () async {
                     Navigator.pop(context);
