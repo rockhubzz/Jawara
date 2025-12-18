@@ -1,7 +1,13 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:jawara/services/keluarga_service.dart';
-import 'package:jawara/services/warga_service.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
+
+import '../services/keluarga_service.dart';
+import '../services/warga_service.dart';
 
 class TambahWargaPage extends StatefulWidget {
   const TambahWargaPage({super.key});
@@ -24,6 +30,11 @@ class _TambahWargaPageState extends State<TambahWargaPage> {
   bool isLoading = false;
   List<Map<String, dynamic>> keluargaList = [];
 
+  // Image picker for age detection
+  XFile? _pickedImage;
+  final ImagePicker _picker = ImagePicker();
+  bool analyzing = false;
+
   static const Color kombu = Color(0xFF374426);
   static const Color bgSoft = Color(0xFFEFF4EC);
 
@@ -36,6 +47,117 @@ class _TambahWargaPageState extends State<TambahWargaPage> {
   Future<void> loadKeluarga() async {
     keluargaList = await KeluargaService.getKeluarga();
     setState(() {});
+  }
+
+  Future<void> _pickImage() async {
+    try {
+      final XFile? picked = await _picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 85,
+      );
+      if (picked != null) {
+        setState(() => _pickedImage = picked);
+      }
+    } catch (e) {
+      // ignore errors
+    }
+  }
+
+  Future<void> _analyzeImage() async {
+    if (_pickedImage == null) return;
+
+    setState(() => analyzing = true);
+
+    try {
+      final uri = Uri.parse(
+        'https://raki46-faceage-detection.hf.space/predict',
+      );
+
+      final request = http.MultipartRequest('POST', uri);
+      // many endpoints expect the file under 'file' or 'image' - use 'file'
+      request.files.add(
+        await http.MultipartFile.fromPath('image', _pickedImage!.path),
+      );
+
+      final streamed = await request.send();
+      final respStr = await streamed.stream.bytesToString();
+
+      final decoded = json.decode(respStr);
+
+      Map<String, dynamic>? result;
+
+      // If response directly contains keys
+      if (decoded is Map &&
+          decoded.containsKey('confidence') &&
+          decoded.containsKey('predicted_age')) {
+        result = Map<String, dynamic>.from(decoded);
+      } else if (decoded is Map && decoded.containsKey('data')) {
+        // Some services wrap results inside 'data' array
+        final d = decoded['data'];
+        if (d is List && d.isNotEmpty && d[0] is Map) {
+          result = Map<String, dynamic>.from(d[0]);
+        }
+      }
+
+      if (result != null &&
+          result.containsKey('confidence') &&
+          result.containsKey('predicted_age')) {
+        final confRaw = result['confidence'];
+        final pred = result['predicted_age'];
+        final confNum = (confRaw is num)
+            ? confRaw.toDouble()
+            : double.tryParse(confRaw.toString()) ?? 0.0;
+        final confPct = '${(confNum * 100).toStringAsFixed(1)}%';
+        if (!mounted) return;
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: const Text('Hasil Deteksi Usia'),
+            content: Text('Predicted age: $pred\nConfidence: $confPct'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+      } else {
+        if (!mounted) return;
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: const Text('Tidak ada hasil'),
+            content: const Text('Tidak ditemukan hasil deteksi pada gambar.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Tutup'),
+              ),
+            ],
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text('Error'),
+          content: Text('Gagal melakukan analisis: $e'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Tutup'),
+            ),
+          ],
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => analyzing = false);
+    }
   }
 
   Future<void> save() async {
@@ -100,7 +222,7 @@ class _TambahWargaPageState extends State<TambahWargaPage> {
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: kombu),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => context.go('/beranda/semua_menu'),
         ),
         title: const Text(
           "Tambah Warga",
@@ -210,6 +332,80 @@ class _TambahWargaPageState extends State<TambahWargaPage> {
                     ],
                     onChanged: (v) => setState(() => statusHidup = v),
                     validator: (v) => v == null ? "Pilih status" : null,
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Image upload and analyze
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Foto Warga',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: kombu,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 120,
+                        height: 120,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: kombu),
+                          borderRadius: BorderRadius.circular(8),
+                          color: Colors.grey[200],
+                        ),
+                        child: _pickedImage == null
+                            ? IconButton(
+                                icon: const Icon(
+                                  Icons.camera_alt,
+                                  color: kombu,
+                                ),
+                                onPressed: _pickImage,
+                              )
+                            : ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.file(
+                                  File(_pickedImage!.path),
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                      ),
+                      const SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          OutlinedButton.icon(
+                            onPressed: _pickImage,
+                            icon: const Icon(Icons.upload_file),
+                            label: const Text('Pilih Foto'),
+                          ),
+                          const SizedBox(height: 8),
+                          ElevatedButton.icon(
+                            onPressed: (_pickedImage == null || analyzing)
+                                ? null
+                                : _analyzeImage,
+                            icon: analyzing
+                                ? const SizedBox(
+                                    height: 16,
+                                    width: 16,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Icon(Icons.search),
+                            label: const Text('Analisis Foto'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: kombu,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 28),
 
