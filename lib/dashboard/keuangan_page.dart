@@ -75,7 +75,7 @@ class _KeuanganPageState extends State<KeuanganPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: const Color(0xFFF4F7F2),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0.5,
@@ -136,75 +136,108 @@ class _KeuanganPageState extends State<KeuanganPage> {
             _dashboardBigCard(
               title: "Grafik Pemasukan & Pengeluaran",
               icon: Icons.show_chart,
-              child: SizedBox(
-                height: 240,
-                child: LineChart(
-                  LineChartData(
-                    gridData: FlGridData(show: false),
-                    titlesData: FlTitlesData(
-                      topTitles: AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                      rightTitles: AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                      leftTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 60,
-                          getTitlesWidget: (value, _) {
-                            final rounded = (value / 1000000).round() * 1000000;
-                            return Text(
-                              rounded.toString().replaceAllMapped(
-                                RegExp(r'\B(?=(\d{3})+(?!\d))'),
-                                (m) => '.',
-                              ),
-                              style: const TextStyle(fontSize: 10),
-                            );
-                          },
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Legend
+                  Row(
+                    children: [
+                      Container(
+                        width: 12,
+                        height: 12,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF374426),
+                          borderRadius: BorderRadius.circular(2),
                         ),
                       ),
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          getTitlesWidget: (value, _) {
-                            if (value.toInt() < bulanLabels.length) {
-                              return Text(
-                                bulanLabels[value.toInt()],
-                                style: const TextStyle(fontSize: 10),
-                              );
-                            }
-                            return const SizedBox.shrink();
-                          },
+                      const SizedBox(width: 8),
+                      const Text('Pemasukan'),
+                      const SizedBox(width: 16),
+                      Container(
+                        width: 12,
+                        height: 12,
+                        decoration: BoxDecoration(
+                          color: Colors.red[700],
+                          borderRadius: BorderRadius.circular(2),
                         ),
                       ),
-                    ),
-                    lineBarsData: [
-                      LineChartBarData(
-                        isCurved: true,
-                        color: const Color(0xFF374426),
-                        barWidth: 3,
-                        dotData: FlDotData(show: true),
-                        spots: pemasukanSpots,
-                        belowBarData: BarAreaData(
-                          show: true,
-                          color: const Color(0xFF374426).withOpacity(0.15),
-                        ),
-                      ),
-                      LineChartBarData(
-                        isCurved: true,
-                        color: Colors.red[700],
-                        barWidth: 3,
-                        dotData: FlDotData(show: true),
-                        spots: pengeluaranSpots,
-                        belowBarData: BarAreaData(
-                          show: true,
-                          color: Colors.red[700]!.withOpacity(0.15),
-                        ),
-                      ),
+                      const SizedBox(width: 8),
+                      const Text('Pengeluaran'),
                     ],
                   ),
-                ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    height: 240,
+                    child: LineChart(
+                      LineChartData(
+                        gridData: FlGridData(show: false),
+                        titlesData: FlTitlesData(
+                          topTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
+                          rightTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
+                          leftTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              reservedSize: 60,
+                              getTitlesWidget: (value, _) {
+                                final rounded =
+                                    (value / 1000000).round() * 1000000;
+                                return Text(
+                                  rounded.toString().replaceAllMapped(
+                                    RegExp(r'\B(?=(\d{3})+(?!\d))'),
+                                    (m) => '.',
+                                  ),
+                                  style: const TextStyle(fontSize: 10),
+                                );
+                              },
+                            ),
+                          ),
+                          bottomTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              getTitlesWidget: (value, _) {
+                                if (value.toInt() < bulanLabels.length) {
+                                  return Text(
+                                    bulanLabels[value.toInt()],
+                                    style: const TextStyle(fontSize: 10),
+                                  );
+                                }
+                                return const SizedBox.shrink();
+                              },
+                            ),
+                          ),
+                        ),
+                        lineBarsData: [
+                          LineChartBarData(
+                            isCurved: true,
+                            color: const Color(0xFF374426),
+                            barWidth: 3,
+                            dotData: FlDotData(show: true),
+                            spots: pemasukanSpots,
+                            belowBarData: BarAreaData(
+                              show: true,
+                              color: const Color(0xFF374426).withOpacity(0.15),
+                            ),
+                          ),
+                          LineChartBarData(
+                            isCurved: true,
+                            color: Colors.red[700],
+                            barWidth: 3,
+                            dotData: FlDotData(show: true),
+                            spots: pengeluaranSpots,
+                            belowBarData: BarAreaData(
+                              show: true,
+                              color: Colors.red[700]!.withOpacity(0.15),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
