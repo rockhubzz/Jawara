@@ -15,6 +15,7 @@ class _BroadcastDaftarPageState extends State<BroadcastDaftarPage> {
   String? _error;
 
   final Color primaryGreen = const Color(0xFF2E7D32);
+  final Color bgSoft = const Color(0xFFEFF4EC);
   final TextStyle baseFont = const TextStyle(fontFamily: "Poppins");
 
   // Pagination
@@ -37,7 +38,6 @@ class _BroadcastDaftarPageState extends State<BroadcastDaftarPage> {
       final res = await BroadcastService.getAll();
       final List list = res['data'] ?? [];
 
-      // Jangan reversed, biar item baru tetap di bawah
       _data = list.map((row) {
         return {
           'id': row['id'],
@@ -71,7 +71,7 @@ class _BroadcastDaftarPageState extends State<BroadcastDaftarPage> {
       final success = await BroadcastService.delete(item['id']);
       if (success == true) {
         _data.removeWhere((d) => d['id'] == item['id']);
-        _updateNumbers(); // update nomor urut
+        _updateNumbers();
         if (mounted) setState(() {});
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -93,7 +93,12 @@ class _BroadcastDaftarPageState extends State<BroadcastDaftarPage> {
   void _editItem(Map item) => showEditDialog(context, item);
 
   Future<void> editBroadcast(
-      int id, String title, String body, String sender, String date) async {
+    int id,
+    String title,
+    String body,
+    String sender,
+    String date,
+  ) async {
     final result = await BroadcastService.update(id, {
       "title": title,
       "body": body,
@@ -141,7 +146,9 @@ class _BroadcastDaftarPageState extends State<BroadcastDaftarPage> {
               title: Text(
                 "Edit Broadcast",
                 style: baseFont.copyWith(
-                    fontWeight: FontWeight.bold, color: primaryGreen),
+                  fontWeight: FontWeight.bold,
+                  color: primaryGreen,
+                ),
                 textAlign: TextAlign.center,
               ),
               content: SingleChildScrollView(
@@ -154,8 +161,12 @@ class _BroadcastDaftarPageState extends State<BroadcastDaftarPage> {
                     const SizedBox(height: 12),
                     _buildTextField("Pengirim", senderC),
                     const SizedBox(height: 12),
-                    _buildTextField("Tanggal", dateC,
-                        readOnly: true, showCalendar: true),
+                    _buildTextField(
+                      "Tanggal",
+                      dateC,
+                      readOnly: true,
+                      showCalendar: true,
+                    ),
                   ],
                 ),
               ),
@@ -171,10 +182,17 @@ class _BroadcastDaftarPageState extends State<BroadcastDaftarPage> {
                 ElevatedButton(
                   onPressed: () async {
                     Navigator.pop(context);
-                    await editBroadcast(data['id'], titleC.text, bodyC.text,
-                        senderC.text, dateC.text);
+                    await editBroadcast(
+                      data['id'],
+                      titleC.text,
+                      bodyC.text,
+                      senderC.text,
+                      dateC.text,
+                    );
                   },
-                  style: ElevatedButton.styleFrom(backgroundColor: primaryGreen),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryGreen,
+                  ),
                   child: Text(
                     "Simpan",
                     style: baseFont.copyWith(color: Colors.white),
@@ -188,8 +206,13 @@ class _BroadcastDaftarPageState extends State<BroadcastDaftarPage> {
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller,
-      {bool readOnly = false, bool showCalendar = false, int maxLines = 1}) {
+  Widget _buildTextField(
+    String label,
+    TextEditingController controller, {
+    bool readOnly = false,
+    bool showCalendar = false,
+    int maxLines = 1,
+  }) {
     return TextField(
       controller: controller,
       readOnly: readOnly,
@@ -213,9 +236,8 @@ class _BroadcastDaftarPageState extends State<BroadcastDaftarPage> {
                 firstDate: DateTime(2000),
                 lastDate: DateTime(2100),
               );
-              if (picked != null) {
+              if (picked != null)
                 controller.text = picked.toIso8601String().split('T').first;
-              }
             }
           : null,
     );
@@ -225,37 +247,42 @@ class _BroadcastDaftarPageState extends State<BroadcastDaftarPage> {
     return AlertDialog(
       backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      content: Column(mainAxisSize: MainAxisSize.min, children: const [
-        Icon(Icons.warning_rounded, color: Colors.red, size: 60),
-        SizedBox(height: 12),
-        Text(
-          "Apakah Anda yakin ingin menghapus data ini?",
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 15, color: Colors.black87),
-        ),
-      ]),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: const [
+          Icon(Icons.warning_rounded, color: Colors.red, size: 60),
+          SizedBox(height: 12),
+          Text(
+            "Apakah Anda yakin ingin menghapus data ini?",
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 15, color: Colors.black87),
+          ),
+        ],
+      ),
       actionsAlignment: MainAxisAlignment.center,
       actions: [
         ElevatedButton(
           onPressed: () => Navigator.pop(context, false),
           style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFFFF3D4),
-              foregroundColor: Colors.black,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10))),
+            backgroundColor: const Color(0xFFFFF3D4),
+            foregroundColor: Colors.black,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
           child: const Text("Batal"),
         ),
         ElevatedButton(
           onPressed: () => Navigator.pop(context, true),
           style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10))),
+            backgroundColor: Colors.red,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
           child: const Text("Hapus"),
         ),
       ],
@@ -272,7 +299,7 @@ class _BroadcastDaftarPageState extends State<BroadcastDaftarPage> {
     final pageItems = _data.sublist(startIndex, endIndex);
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: bgSoft, // background soft seperti TambahWargaPage
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios_new, color: primaryGreen),
@@ -281,134 +308,138 @@ class _BroadcastDaftarPageState extends State<BroadcastDaftarPage> {
         title: Text(
           "Daftar Broadcast",
           style: baseFont.copyWith(
-              fontWeight: FontWeight.bold, color: primaryGreen),
+            fontWeight: FontWeight.bold,
+            color: primaryGreen,
+          ),
         ),
         backgroundColor: Colors.white,
         elevation: 0.5,
       ),
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color.fromARGB(255, 255, 235, 188),
-              Color.fromARGB(255, 181, 255, 183),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: _loading
-                ? const Center(child: CircularProgressIndicator())
-                : _data.isEmpty
-                    ? const Center(child: Text("Belum ada broadcast"))
-                    : Card(
-                        margin: const EdgeInsets.symmetric(horizontal: 16),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16)),
-                        elevation: 6,
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            children: [
-                              ...pageItems.map((item) {
-                                return Card(
-                                  elevation: 2,
-                                  margin: const EdgeInsets.only(bottom: 12),
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12)),
-                                  child: ListTile(
-                                    leading: CircleAvatar(
-                                      backgroundColor:
-                                          primaryGreen.withOpacity(0.15),
-                                      child: Text(item['no'],
-                                          style: baseFont.copyWith(
-                                              fontWeight: FontWeight.bold,
-                                              color: primaryGreen)),
-                                    ),
-                                    title: Text(item['title'],
-                                        style: baseFont.copyWith(
-                                            fontWeight: FontWeight.bold)),
-                                    subtitle: Text(
-                                      "Deskripsi: ${item['body']}\nPengirim: ${item['sender']}\nTanggal: ${item['date']}",
-                                      style: baseFont.copyWith(height: 1.3),
-                                    ),
-                                    trailing: PopupMenuButton<String>(
-                                      onSelected: (value) {
-                                        if (value == 'Edit') _editItem(item);
-                                        if (value == 'Hapus') _deleteItem(item);
-                                      },
-                                      itemBuilder: (context) => [
-                                        PopupMenuItem(
-                                            value: 'Edit',
-                                            child:
-                                                Text('Edit', style: baseFont)),
-                                        PopupMenuItem(
-                                            value: 'Hapus',
-                                            child:
-                                                Text('Hapus', style: baseFont)),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              }).toList(),
-                              const SizedBox(height: 12),
-                              // Pagination
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  IconButton(
-                                    onPressed: _currentPage > 0
-                                        ? () => setState(() => _currentPage--)
-                                        : null,
-                                    icon: const Icon(Icons.chevron_left),
-                                  ),
-                                  ...List.generate(totalPages, (index) {
-                                    final isCurrent = index == _currentPage;
-                                    return Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 4.0),
-                                      child: GestureDetector(
-                                        onTap: () =>
-                                            setState(() => _currentPage = index),
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 12, vertical: 6),
-                                          decoration: BoxDecoration(
-                                            color: isCurrent
-                                                ? primaryGreen
-                                                : Colors.grey[300],
-                                            borderRadius:
-                                                BorderRadius.circular(6),
-                                          ),
-                                          child: Text(
-                                            "${index + 1}",
-                                            style: TextStyle(
-                                                color: isCurrent
-                                                    ? Colors.white
-                                                    : Colors.black),
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  }),
-                                  IconButton(
-                                    onPressed: _currentPage < totalPages - 1
-                                        ? () => setState(() => _currentPage++)
-                                        : null,
-                                    icon: const Icon(Icons.chevron_right),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: _loading
+              ? const Center(child: CircularProgressIndicator())
+              : _data.isEmpty
+              ? const Center(child: Text("Belum ada broadcast"))
+              : Container(
+                  constraints: const BoxConstraints(maxWidth: 600),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white, // card utama putih
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 10,
+                        offset: Offset(0, 4),
                       ),
-          ),
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      ...pageItems.map((item) {
+                        return Card(
+                          elevation: 2,
+                          margin: const EdgeInsets.only(bottom: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          color: Colors.white, // setiap item card putih
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: primaryGreen.withOpacity(0.15),
+                              child: Text(
+                                item['no'],
+                                style: baseFont.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: primaryGreen,
+                                ),
+                              ),
+                            ),
+                            title: Text(
+                              item['title'],
+                              style: baseFont.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            subtitle: Text(
+                              "Deskripsi: ${item['body']}\nPengirim: ${item['sender']}\nTanggal: ${item['date']}",
+                              style: baseFont.copyWith(height: 1.3),
+                            ),
+                            trailing: PopupMenuButton<String>(
+                              onSelected: (value) {
+                                if (value == 'Edit') _editItem(item);
+                                if (value == 'Hapus') _deleteItem(item);
+                              },
+                              itemBuilder: (context) => [
+                                PopupMenuItem(
+                                  value: 'Edit',
+                                  child: Text('Edit', style: baseFont),
+                                ),
+                                PopupMenuItem(
+                                  value: 'Hapus',
+                                  child: Text('Hapus', style: baseFont),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                      const SizedBox(height: 12),
+                      // Pagination
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          IconButton(
+                            onPressed: _currentPage > 0
+                                ? () => setState(() => _currentPage--)
+                                : null,
+                            icon: const Icon(Icons.chevron_left),
+                          ),
+                          ...List.generate(totalPages, (index) {
+                            final isCurrent = index == _currentPage;
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 4.0,
+                              ),
+                              child: GestureDetector(
+                                onTap: () =>
+                                    setState(() => _currentPage = index),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: isCurrent
+                                        ? primaryGreen
+                                        : Colors.grey[300],
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Text(
+                                    "${index + 1}",
+                                    style: TextStyle(
+                                      color: isCurrent
+                                          ? Colors.white
+                                          : Colors.black,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          }),
+                          IconButton(
+                            onPressed: _currentPage < totalPages - 1
+                                ? () => setState(() => _currentPage++)
+                                : null,
+                            icon: const Icon(Icons.chevron_right),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
         ),
       ),
     );
