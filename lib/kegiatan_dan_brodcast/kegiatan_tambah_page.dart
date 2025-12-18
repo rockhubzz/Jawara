@@ -106,7 +106,11 @@ class _KegiatanTambahPageState extends State<KegiatanTambahPage> {
       setState(() => loading = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Biaya melebihi saldo tersedia (${saldo.toString()})')),
+          SnackBar(
+            content: Text(
+              'Biaya melebihi saldo tersedia (${saldo.toString()})',
+            ),
+          ),
         );
       }
       return;
@@ -243,27 +247,31 @@ class _KegiatanTambahPageState extends State<KegiatanTambahPage> {
             DropdownButtonFormField<String>(
               value: selectedKategori,
               decoration: InputDecoration(
-                prefixIcon: const Icon(Icons.category_outlined,
-                    color: Color(0xFF2E7D32)),
+                prefixIcon: const Icon(
+                  Icons.category_outlined,
+                  color: Color(0xFF2E7D32),
+                ),
                 labelText: "Kategori",
                 filled: true,
                 fillColor: Colors.white,
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: Color(0xFF2E7D32), width: 2),
+                  borderSide: const BorderSide(
+                    color: Color(0xFF2E7D32),
+                    width: 2,
+                  ),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide:
-                      const BorderSide(color: Color(0xFF2E7D32), width: 2.2),
+                  borderSide: const BorderSide(
+                    color: Color(0xFF2E7D32),
+                    width: 2.2,
+                  ),
                 ),
               ),
               hint: const Text("Pilih kategori kegiatan"),
               items: kategoriList.map((kategori) {
-                return DropdownMenuItem(
-                  value: kategori,
-                  child: Text(kategori),
-                );
+                return DropdownMenuItem(value: kategori, child: Text(kategori));
               }).toList(),
               onChanged: (value) {
                 setState(() {
@@ -302,7 +310,8 @@ class _KegiatanTambahPageState extends State<KegiatanTambahPage> {
                 // Hanya ambil angka dari input untuk parsing (mengabaikan pemisah ribuan)
                 final digits = v.replaceAll(RegExp(r'[^0-9]'), '');
                 final parsed = int.tryParse(digits) ?? 0;
-                if (parsed > saldo) return 'Biaya melebihi saldo tersedia (${saldo.toString()})';
+                if (parsed > saldo)
+                  return 'Biaya melebihi saldo tersedia (${saldo.toString()})';
                 return null;
               },
             ),
@@ -379,7 +388,8 @@ class _InputField extends StatelessWidget {
           borderSide: const BorderSide(color: Color(0xFF2E7D32), width: 2.2),
         ),
       ),
-      validator: validator ?? (v) => (v == null || v.isEmpty) ? 'Wajib diisi' : null,
+      validator:
+          validator ?? (v) => (v == null || v.isEmpty) ? 'Wajib diisi' : null,
     );
   }
 }

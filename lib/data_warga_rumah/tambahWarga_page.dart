@@ -398,7 +398,7 @@ class _TambahWargaPageState extends State<TambahWargaPage> {
                                     ),
                                   )
                                 : const Icon(Icons.search),
-                            label: const Text('Analisis Foto'),
+                            label: const Text('Deteksi Usia'),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: kombu,
                             ),
