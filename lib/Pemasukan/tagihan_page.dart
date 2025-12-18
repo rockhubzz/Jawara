@@ -30,6 +30,43 @@ class _TagihanPageState extends State<TagihanPage> {
     });
   }
 
+  void _confirmBayar(Map<String, dynamic> item) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text(
+          "Konfirmasi Pembayaran",
+          style: TextStyle(fontWeight: FontWeight.bold, color: kombu),
+        ),
+        content: const Text("Tandai tagihan ini sebagai sudah dibayar?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Batal", style: TextStyle(color: kombu)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: kombu),
+            onPressed: () async {
+              Navigator.pop(context);
+
+              await TagihanService.update(item['id'], {
+                'keluarga_id': item['keluarga']['id'],
+                'kategori_iuran_id': item['kategori_iuran']['id'],
+                'tanggal_tagihan': item['tanggal_tagihan'],
+                'status': 'sudah_bayar',
+                // jumlah is required by backend
+                'jumlah': item['kategori_iuran']['nominal'],
+              });
+
+              loadTagihan();
+            },
+            child: const Text("Bayar", style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
   // ---------- CHIP ----------
   Widget _chip(String text, Color bg) {
     return Container(
@@ -177,6 +214,20 @@ class _TagihanPageState extends State<TagihanPage> {
                 style: const TextStyle(fontSize: 13),
               ),
               const Spacer(),
+
+              if ((item['status'] ?? '').toLowerCase() == 'belum_bayar') ...[
+                TextButton.icon(
+                  onPressed: () => _confirmBayar(item),
+                  icon: const Icon(Icons.payments, size: 16),
+                  label: const Text("Bayar"),
+                  style: TextButton.styleFrom(
+                    foregroundColor: kombu,
+                    textStyle: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                ),
+                const SizedBox(width: 8),
+              ],
+
               _statusBadge(item['status'] ?? ''),
             ],
           ),
