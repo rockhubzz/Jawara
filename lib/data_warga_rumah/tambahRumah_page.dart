@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:jawara/data_warga_rumah/daftar_rumah_page.dart';
-import 'package:jawara/data_warga_rumah/tambahWarga_page.dart';
 import 'package:jawara/services/rumah_service.dart';
 
 class TambahRumahPage extends StatefulWidget {
-  final Map<String, dynamic>? data; // <-- null = create, ada value = edit
+  final Map<String, dynamic>? data;
 
   const TambahRumahPage({super.key, this.data});
 
@@ -19,39 +17,15 @@ class _TambahRumahPageState extends State<TambahRumahPage> {
   final _kodeController = TextEditingController();
   final _alamatController = TextEditingController();
   final _keteranganController = TextEditingController();
+
   String? statusKepemilikan;
-
   bool isLoadingSubmit = false;
-  bool isLoadingReset = false;
 
-  @override
-  void initState() {
-    super.initState();
+  static const Color kombu = Color(0xFF374426);
+  static const Color bgSoft = Color(0xFFF1F5EE);
 
-    // Jika edit, isi data lama
-    if (widget.data != null) {
-      _kodeController.text = widget.data!['kode'] ?? '';
-      _alamatController.text = widget.data!['alamat'] ?? '';
-      _keteranganController.text = widget.data!['keterangan'] ?? '';
-    }
-  }
-
-  // RESET FORM
-  void _resetForm() async {
-    setState(() => isLoadingReset = true);
-
-    await Future.delayed(const Duration(milliseconds: 800));
-
-    _formKey.currentState?.reset();
-    _kodeController.clear();
-    _alamatController.clear();
-    _keteranganController.clear();
-
-    setState(() => isLoadingReset = false);
-  }
-
-  // SUBMIT DATA KE BACKEND
-  void _submitForm() async {
+  // SUBMIT
+  Future<void> _submitForm() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => isLoadingSubmit = true);
@@ -63,22 +37,37 @@ class _TambahRumahPageState extends State<TambahRumahPage> {
       "keterangan": _keteranganController.text,
     };
 
-    bool ok = false;
-
-    if (widget.data == null) {
-      ok = await RumahService.create(payload);
-    } else {
-      ok = await RumahService.update(widget.data!['id'], payload);
-    }
+    final ok = await RumahService.create(payload);
 
     setState(() => isLoadingSubmit = false);
-
     if (!mounted) return;
 
     if (ok) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const RumahListPage()),
+      await showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: const Text(
+            "Berhasil",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          content: const Text("Tambah rumah berhasil."),
+          actions: [
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: kombu),
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => const RumahListPage()),
+                );
+              },
+              child: const Text("OK"),
+            ),
+          ],
+        ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -90,280 +79,146 @@ class _TambahRumahPageState extends State<TambahRumahPage> {
     }
   }
 
-  Widget _buildDropdown(
-    String label,
-    String? value,
-    List<String> items,
-    Function(String?) onChanged,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 8),
-          DropdownButtonFormField<String>(
-            value: value,
-            decoration: InputDecoration(
-              hintText: "-- Pilih $label --",
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            items: items
-                .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                .toList(),
-            onChanged: (v) => setState(() => onChanged(v)),
-            validator: (v) => v == null ? "Pilih $label" : null,
-          ),
-        ],
-      ),
+  InputDecoration _decoration(String label) {
+    return InputDecoration(
+      labelText: label,
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final from =
-        GoRouterState.of(context).uri.queryParameters['from'] ?? 'tambah';
-    return Theme(
-      data: Theme.of(context).copyWith(
-        colorScheme: const ColorScheme.light(primary: Color(0xFF2E7D32)),
-        inputDecorationTheme: const InputDecorationTheme(
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Color(0xFF2E7D32), width: 2),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Color(0xFF2E7D32)),
-          ),
-          border: OutlineInputBorder(
-            borderSide: BorderSide(color: Color(0xFF2E7D32)),
-          ),
+    return Scaffold(
+      backgroundColor: bgSoft,
+
+      /// APP BAR
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0.6,
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: kombu),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          "Tambah Rumah",
+          style: TextStyle(color: kombu, fontWeight: FontWeight.bold),
         ),
       ),
-      child: Scaffold(
-        extendBodyBehindAppBar: true,
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0.5,
-          leading: IconButton(
-            icon: const Icon(
-              Icons.arrow_back_ios_new,
-              color: Color(0xFF2E7D32),
-            ),
-            onPressed: () {
-              if (from == 'tambah') {
-                context.go('/beranda/tambah');
-              } else {
-                context.go('/beranda/semua_menu');
-              }
-            },
-          ),
-          title: Text(
-            widget.data == null ? "Tambah Rumah" : "Edit Rumah",
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF2E7D32),
-            ),
-          ),
-        ),
 
-        body: Container(
-          width: double.infinity,
-          height: double.infinity,
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Color.fromARGB(255, 255, 235, 188),
-                Color.fromARGB(255, 181, 255, 183),
-              ],
-            ),
-          ),
-
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 120, 24, 24),
-
-              child: Center(
-                child: Container(
-                  constraints: const BoxConstraints(maxWidth: 500),
-                  padding: const EdgeInsets.all(24),
-
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.92),
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
+      /// BODY
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 500),
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 8,
+                    offset: Offset(0, 4),
                   ),
+                ],
+              ),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Form Tambah Rumah",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: kombu,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
 
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "Isi data rumah dengan benar",
-                          style: TextStyle(fontSize: 13, color: Colors.black54),
+                    TextFormField(
+                      controller: _kodeController,
+                      decoration: _decoration("Kode Rumah"),
+                      validator: (v) =>
+                          v == null || v.isEmpty ? "Wajib diisi" : null,
+                    ),
+                    const SizedBox(height: 12),
+
+                    TextFormField(
+                      controller: _alamatController,
+                      decoration: _decoration("Alamat"),
+                      validator: (v) =>
+                          v == null || v.isEmpty ? "Wajib diisi" : null,
+                    ),
+                    const SizedBox(height: 12),
+
+                    DropdownButtonFormField<String>(
+                      decoration: _decoration("Status Rumah"),
+                      value: statusKepemilikan,
+                      items: const [
+                        DropdownMenuItem(
+                          value: "Tersedia",
+                          child: Text("Tersedia"),
                         ),
-                        const SizedBox(height: 24),
-
-                        // KODE RUMAH
-                        const Text(
-                          "Kode Rumah",
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                          ),
+                        DropdownMenuItem(
+                          value: "Ditempati",
+                          child: Text("Ditempati"),
                         ),
-                        const SizedBox(height: 8),
-                        TextFormField(
-                          controller: _kodeController,
-                          decoration: InputDecoration(
-                            hintText: "Contoh: RMH-001",
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                          validator: (v) => v == null || v.isEmpty
-                              ? "Kode wajib diisi"
-                              : null,
-                        ),
-
-                        const SizedBox(height: 24),
-
-                        // ALAMAT
-                        const Text(
-                          "Alamat Rumah",
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        TextFormField(
-                          controller: _alamatController,
-                          decoration: InputDecoration(
-                            hintText: "Contoh: Jl. Merpati No. 5",
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                          validator: (v) => v == null || v.isEmpty
-                              ? "Alamat wajib diisi"
-                              : null,
-                        ),
-
-                        const SizedBox(height: 24),
-
-                        _buildDropdown("Status", statusKepemilikan, [
-                          "Tersedia",
-                          "Ditempati",
-                          "Nonaktif",
-                        ], (v) => statusKepemilikan = v),
-
-                        // Keterangan
-                        const Text(
-                          "Keterangan",
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        TextFormField(
-                          controller: _keteranganController,
-                          decoration: InputDecoration(
-                            hintText: "Catatan tambahan",
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 24),
-
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            ElevatedButton(
-                              onPressed: isLoadingSubmit ? null : _submitForm,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF2E7D32),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 24,
-                                  vertical: 12,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                              child: isLoadingSubmit
-                                  ? const SizedBox(
-                                      height: 20,
-                                      width: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: Colors.white,
-                                      ),
-                                    )
-                                  : const Text(
-                                      "Submit",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                            ),
-
-                            const SizedBox(width: 12),
-
-                            OutlinedButton(
-                              onPressed: isLoadingReset ? null : _resetForm,
-                              style: OutlinedButton.styleFrom(
-                                side: const BorderSide(
-                                  color: Color(0xFF2E7D32),
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 24,
-                                  vertical: 12,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                              child: isLoadingReset
-                                  ? const SizedBox(
-                                      height: 20,
-                                      width: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: Color(0xFF2E7D32),
-                                      ),
-                                    )
-                                  : const Text(
-                                      "Reset",
-                                      style: TextStyle(
-                                        color: Color(0xFF2E7D32),
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                            ),
-                          ],
+                        DropdownMenuItem(
+                          value: "Nonaktif",
+                          child: Text("Nonaktif"),
                         ),
                       ],
+                      onChanged: (v) => setState(() => statusKepemilikan = v),
+                      validator: (v) =>
+                          v == null ? "Status wajib dipilih" : null,
                     ),
-                  ),
+                    const SizedBox(height: 12),
+
+                    TextFormField(
+                      controller: _keteranganController,
+                      decoration: _decoration("Keterangan"),
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: ElevatedButton(
+                        onPressed: isLoadingSubmit ? null : _submitForm,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: kombu,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 32,
+                            vertical: 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: isLoadingSubmit
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Text(
+                                "Submit",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

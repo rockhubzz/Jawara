@@ -1,94 +1,5 @@
-// import 'package:flutter/material.dart';
-// import 'package:jawara/services/rumah_service.dart';
-// import 'rumah_form_page.dart';
-// import 'rumah_detail_page.dart';
-// import 'package:go_router/go_router.dart';
-
-// import 'package:jawara/widgets/appDrawer.dart';
-
-// class RumahListPage extends StatefulWidget {
-//   const RumahListPage({super.key});
-
-//   @override
-//   State<RumahListPage> createState() => _RumahListPageState();
-// }
-
-// class _RumahListPageState extends State<RumahListPage> {
-//   List<Map<String, dynamic>> rumahList = [];
-//   bool loading = true;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     fetchData();
-//   }
-
-//   Future<void> fetchData() async {
-//     try {
-//       final data = await RumahService.getAll();
-//       setState(() {
-//         rumahList = data;
-//         loading = false;
-//       });
-//     } catch (e) {
-//       setState(() => loading = false);
-//       ScaffoldMessenger.of(
-//         context,
-//       ).showSnackBar(SnackBar(content: Text("Gagal memuat data: $e")));
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text("Daftar Rumah"),
-//         leading: IconButton(
-//           icon: const Icon(Icons.arrow_back, color: Colors.black),
-//           onPressed: () => context.go('/beranda/semua_menu'),
-//         ),
-//       ),
-
-//       // drawer: const AppDrawer(email: 'admin1@mail.com'),
-//       body: loading
-//           ? const Center(child: CircularProgressIndicator())
-//           : ListView.builder(
-//               itemCount: rumahList.length,
-//               itemBuilder: (_, i) {
-//                 final r = rumahList[i];
-//                 return ListTile(
-//                   title: Text(r['kode']),
-//                   subtitle: Text("Alamat: ${r['alamat']}"),
-//                   trailing: const Icon(Icons.chevron_right),
-//                   onTap: () async {
-//                     await Navigator.push(
-//                       context,
-//                       MaterialPageRoute(
-//                         builder: (_) => RumahDetailPage(rumah: r),
-//                       ),
-//                     );
-//                     fetchData();
-//                   },
-//                 );
-//               },
-//             ),
-//       floatingActionButton: FloatingActionButton(
-//         child: const Icon(Icons.add),
-//         onPressed: () async {
-//           final result = await Navigator.push(
-//             context,
-//             MaterialPageRoute(builder: (_) => const RumahFormPage()),
-//           );
-//           if (result == true) fetchData();
-//         },
-//       ),
-//     );
-//   }
-// }
 import 'package:flutter/material.dart';
-import 'package:jawara/data_warga_rumah/tambahRumah_page.dart';
 import 'package:jawara/services/rumah_service.dart';
-import 'rumah_form_page.dart';
 import 'rumah_detail_page.dart';
 import 'package:go_router/go_router.dart';
 
@@ -103,6 +14,9 @@ class _RumahListPageState extends State<RumahListPage> {
   List<Map<String, dynamic>> rumahList = [];
   bool loading = true;
 
+  static const Color kombu = Color(0xFF374426);
+  static const Color bgSoft = Color(0xFFF1F5EE);
+
   @override
   void initState() {
     super.initState();
@@ -116,31 +30,52 @@ class _RumahListPageState extends State<RumahListPage> {
         rumahList = data;
         loading = false;
       });
-    } catch (e) {
+    } catch (_) {
       setState(() => loading = false);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Gagal memuat data: $e")));
     }
+  }
+
+  Future<void> _confirmDelete(int id) async {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Konfirmasi"),
+        content: const Text("Apakah yakin ingin menghapus data rumah ini?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Tidak"),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await RumahService.delete(id);
+              fetchData();
+            },
+            child: const Text("Iya", style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     String from = 'semua';
     try {
-      from = GoRouterState.of(context).uri?.queryParameters?['from'] ?? 'semua';
-    } catch (e) {
-      from = 'semua';
-    }
-    const Color primaryGreen = Color(0xFF2E7D32);
+      from = GoRouterState.of(context).uri.queryParameters['from'] ?? 'semua';
+    } catch (_) {}
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: bgSoft,
+
+      /// APP BAR
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0.5,
+        centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: primaryGreen),
+          icon: const Icon(Icons.arrow_back_ios_new, color: kombu),
           onPressed: () {
             if (from == 'beranda') {
               context.go('/beranda');
@@ -151,99 +86,124 @@ class _RumahListPageState extends State<RumahListPage> {
         ),
         title: const Text(
           "Daftar Rumah",
-          style: TextStyle(fontWeight: FontWeight.bold, color: primaryGreen),
+          style: TextStyle(color: kombu, fontWeight: FontWeight.w600),
         ),
       ),
 
-      floatingActionButton: Container(
-        width: 60,
-        height: 60,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: primaryGreen, width: 2),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black26,
-              blurRadius: 6,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(8),
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const TambahRumahPage()),
-            ).then((_) => fetchData()),
-            child: const Center(
-              child: Icon(Icons.add, color: primaryGreen, size: 30),
-            ),
-          ),
-        ),
-      ),
+      /// BODY
+      body: loading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 500),
+                  child: Column(
+                    children: rumahList.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final r = entry.value;
 
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color.fromARGB(255, 255, 235, 188),
-              Color.fromARGB(255, 181, 255, 183),
-            ],
-          ),
-        ),
-        child: loading
-            ? const Center(child: CircularProgressIndicator())
-            : SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 500),
-                    child: Column(
-                      children: rumahList.map((r) {
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black12,
-                                blurRadius: 8,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: ListTile(
-                            title: Text(
-                              r['kode'],
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 14),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 14,
+                          horizontal: 16,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 8,
+                              offset: Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            /// NOMOR
+                            CircleAvatar(
+                              radius: 18,
+                              backgroundColor: kombu,
+                              child: Text(
+                                "${index + 1}",
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
-                            subtitle: Text("Alamat: ${r['alamat']}"),
-                            trailing: const Icon(
-                              Icons.chevron_right,
-                              color: primaryGreen, // icon hijau
-                            ),
-                            onTap: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => RumahDetailPage(rumah: r),
+                            const SizedBox(width: 14),
+
+                            /// DATA
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    r['kode'],
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                      color: kombu,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    r['alamat'],
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.black54,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ).then((_) => fetchData()),
-                          ),
-                        );
-                      }).toList(),
-                    ),
+                            ),
+
+                            /// MENU TITIK TIGA
+                            PopupMenuButton<String>(
+                              icon: const Icon(Icons.more_vert, color: kombu),
+                              onSelected: (value) {
+                                if (value == 'detail') {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => RumahDetailPage(rumah: r),
+                                    ),
+                                  ).then((_) => fetchData());
+                                } else if (value == 'edit') {
+                                  context.go('/data_rumah/edit/${r['id']}');
+                                } else if (value == 'hapus') {
+                                  _confirmDelete(r['id']);
+                                }
+                              },
+                              itemBuilder: (context) => const [
+                                PopupMenuItem(
+                                  value: 'detail',
+                                  child: Text("Detail"),
+                                ),
+                                PopupMenuItem(
+                                  value: 'edit',
+                                  child: Text("Edit"),
+                                ),
+                                PopupMenuItem(
+                                  value: 'hapus',
+                                  child: Text(
+                                    "Hapus",
+                                    style: TextStyle(color: Colors.red),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
                   ),
                 ),
               ),
-      ),
+            ),
     );
   }
 }
