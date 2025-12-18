@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:jawara/services/rumah_service.dart';
 import 'rumah_detail_page.dart';
-import 'package:go_router/go_router.dart';
+import 'rumah_form_page.dart';
 
 class RumahListPage extends StatefulWidget {
   const RumahListPage({super.key});
@@ -20,7 +21,64 @@ class _RumahListPageState extends State<RumahListPage> {
   @override
   void initState() {
     super.initState();
-    fetchData();
+    loadRumah();
+  }
+
+  Future<void> loadRumah() async {
+    setState(() => loading = true);
+    rumahList = await RumahService.getAll();
+    setState(() {
+      loading = false;
+      currentPage = 1;
+    });
+  }
+
+  void _openDetail(Map<String, dynamic> r) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => RumahDetailPage(rumah: r)),
+    );
+  }
+
+  void _openEdit(Map<String, dynamic> r) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => RumahFormPage(data: r)),
+      // MaterialPageRoute(builder: (_) => RumahFormPage(rumah: r)),
+    ).then((_) => loadRumah());
+  }
+
+  void _confirmDelete(int id) {
+    const primaryGreen = Color(0xFF2E7D32);
+    const lightGreen = Color(0xFFE0F2F1);
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: lightGreen,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text(
+          "Hapus Rumah",
+          style: TextStyle(fontWeight: FontWeight.bold, color: primaryGreen),
+        ),
+        content: const Text("Yakin ingin menghapus data rumah ini?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text("Batal"),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: primaryGreen),
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await RumahService.delete(id);
+              loadRumah();
+            },
+            child: const Text("Hapus", style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> fetchData() async {
