@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:jawara/widgets/appDrawer.dart';
 import 'package:jawara/services/kategori_iuran_service.dart';
 import 'package:go_router/go_router.dart';
 
@@ -14,8 +13,8 @@ class _KategoriIuranPageState extends State<KategoriIuranPage> {
   List<Map<String, dynamic>> dataIuran = [];
   bool loading = true;
 
-  final Color primaryGreen = const Color(0xFF2E7D32);
-  final TextStyle baseFont = const TextStyle(fontFamily: "Poppins");
+  static const Color kombu = Color(0xFF374426);
+  static const Color bgSoft = Color(0xFFF1F5EE);
 
   @override
   void initState() {
@@ -23,433 +22,305 @@ class _KategoriIuranPageState extends State<KategoriIuranPage> {
     loadData();
   }
 
+  // =====================
+  // LOAD DATA
+  // =====================
   Future<void> loadData() async {
     setState(() => loading = true);
-    try {
-      final items = await KategoriIuranService.getAll();
-      setState(() {
-        dataIuran = items
-            .map(
-              (e) => {
-                'id': e['id'],
-                'no': (items.indexOf(e) + 1).toString(),
-                'nama': e['nama'],
-                'jenis': e['jenis'],
-                'nominal': formatRupiah(e['nominal']),
-              },
-            )
-            .toList();
-      });
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Gagal memuat data. Periksa server.", style: baseFont),
-        ),
-      );
-    } finally {
-      setState(() => loading = false);
-    }
+    final items = await KategoriIuranService.getAll();
+    setState(() {
+      dataIuran = items
+          .asMap()
+          .entries
+          .map(
+            (e) => {
+              'id': e.value['id'],
+              'no': (e.key + 1).toString(),
+              'nama': e.value['nama'],
+              'jenis': e.value['jenis'],
+              'nominal': e.value['nominal'],
+            },
+          )
+          .toList();
+      loading = false;
+    });
   }
 
-  String formatRupiah(num number) {
-    return number.toString().replaceAllMapped(
-      RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]}.',
-    );
-  }
-
-  int parseNominal(String value) {
-    final cleaned = value.replaceAll(RegExp(r'[^0-9]'), '');
-    return int.tryParse(cleaned) ?? 0;
-  }
-
-  // ==========================
-  //   DIALOG TAMBAH IURAN
-  // ==========================
-
+  // =====================
+  // TAMBAH IURAN
+  // =====================
   void openDialogTambah() {
     final nama = TextEditingController();
     final nominal = TextEditingController();
-    String? selectedJenis;
+    String? jenis;
 
     showDialog(
       context: context,
-      builder: (_) => dialogIuran(
+      builder: (_) => _dialogIuran(
         title: "Tambah Iuran",
-        namaController: nama,
-        nominalController: nominal,
-        selectedJenis: selectedJenis,
+        nama: nama,
+        nominal: nominal,
+        selectedJenis: jenis,
         onSave: () async {
-          final payload = {
+          await KategoriIuranService.create({
             "nama": nama.text,
-            "jenis": selectedJenis,
-            "nominal": parseNominal(nominal.text),
-          };
-
-          final res = await KategoriIuranService.create(payload);
-          if (res["success"] == true) {
-            await loadData();
-            Navigator.pop(context);
-          }
+            "jenis": jenis,
+            "nominal": int.parse(nominal.text),
+          });
+          Navigator.pop(context);
+          loadData();
         },
       ),
     );
   }
 
-  // ==========================
-  //   DIALOG EDIT IURAN
-  // ==========================
-
+  // =====================
+  // EDIT IURAN
+  // =====================
   void openDialogEdit(Map<String, dynamic> item) {
-    final nama = TextEditingController(text: item["nama"]);
-    final nominal = TextEditingController(
-      text: item["nominal"].toString().replaceAll(".", ""),
-    );
-    String? selectedJenis = item["jenis"];
+    final nama = TextEditingController(text: item['nama']);
+    final nominal = TextEditingController(text: item['nominal'].toString());
+    String? jenis = item['jenis'];
 
     showDialog(
       context: context,
-      builder: (_) => dialogIuran(
+      builder: (_) => _dialogIuran(
         title: "Edit Iuran",
-        namaController: nama,
-        nominalController: nominal,
-        selectedJenis: selectedJenis,
+        nama: nama,
+        nominal: nominal,
+        selectedJenis: jenis,
         onSave: () async {
-          final payload = {
+          await KategoriIuranService.update(item['id'], {
             "nama": nama.text,
-            "jenis": selectedJenis,
-            "nominal": parseNominal(nominal.text),
-          };
-
-          final res = await KategoriIuranService.update(item["id"], payload);
-
-          if (res["success"] == true) {
-            await loadData();
-            Navigator.pop(context);
-          }
+            "jenis": jenis,
+            "nominal": int.parse(nominal.text),
+          });
+          Navigator.pop(context);
+          loadData();
         },
       ),
     );
   }
 
-  // ==========================
-  //   HAPUS IURAN
-  // ==========================
-
-  // Future<void> hapusIuran(String id) async {
-  //   final res = await KategoriIuranService.delete(id);
-  //   if (res["success"] == true) {
-  //     await loadData();
-  //   }
-  // }
-
-  Future<void> hapusIuran(int id) async {
-    final res = await KategoriIuranService.delete(id);
-
-    if (res == true) {
-      await loadData();
-    }
+  // =====================
+  // KONFIRMASI HAPUS
+  // =====================
+  void confirmHapus(int id) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Konfirmasi"),
+        content: const Text("Apakah anda yakin menghapus tagihan iuran ini?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Tidak"),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await KategoriIuranService.delete(id);
+              loadData();
+            },
+            child: const Text("Iya", style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
   }
 
-  // ==========================
-  //   WIDGET DIALOG REUSABLE
-  // ==========================
-
-  Widget dialogIuran({
+  // =====================
+  // DIALOG REUSABLE
+  // =====================
+  Widget _dialogIuran({
     required String title,
-    required TextEditingController namaController,
-    required TextEditingController nominalController,
+    required TextEditingController nama,
+    required TextEditingController nominal,
     required String? selectedJenis,
     required Function() onSave,
   }) {
     return StatefulBuilder(
       builder: (context, setStateDialog) {
         return AlertDialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-            side: BorderSide(color: primaryGreen, width: 1),
-          ),
-          title: Text(
-            title,
-            style: baseFont.copyWith(
-              fontWeight: FontWeight.bold,
-              color: primaryGreen,
-            ),
-          ),
-          content: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Nama Iuran", style: baseFont),
-                const SizedBox(height: 4),
-                TextField(
-                  controller: namaController,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    hintText: "Masukkan nama iuran",
-                    hintStyle: baseFont,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text("Nominal (Rp)", style: baseFont),
-                const SizedBox(height: 4),
-                TextField(
-                  controller: nominalController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    hintText: "Masukkan nominal",
-                    hintStyle: baseFont,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text("Jenis Iuran", style: baseFont),
-                const SizedBox(height: 4),
-                DropdownButtonFormField<String>(
-                  value: selectedJenis,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    hintText: "-- Pilih Jenis --",
-                    hintStyle: baseFont,
-                  ),
-                  items: ["Rutin", "Khusus"]
-                      .map(
-                        (j) => DropdownMenuItem(
-                          value: j,
-                          child: Text(j, style: baseFont),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: (v) =>
-                      setStateDialog(() => selectedJenis = v.toString()),
-                ),
-              ],
-            ),
+          title: Text(title, style: const TextStyle(color: kombu)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nama,
+                decoration: const InputDecoration(labelText: "Nama Iuran"),
+              ),
+              TextField(
+                controller: nominal,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: "Nominal"),
+              ),
+              DropdownButtonFormField<String>(
+                value: selectedJenis,
+                hint: const Text("Pilih Jenis"),
+                items: const [
+                  DropdownMenuItem(value: "Rutin", child: Text("Rutin")),
+                  DropdownMenuItem(value: "Khusus", child: Text("Khusus")),
+                ],
+                onChanged: (v) => setStateDialog(() => selectedJenis = v),
+              ),
+            ],
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text(
-                "Batal",
-                style: baseFont.copyWith(color: primaryGreen),
-              ),
+              child: const Text("Batal"),
             ),
-            ElevatedButton(
-              onPressed: () => onSave(),
-              style: ElevatedButton.styleFrom(backgroundColor: primaryGreen),
-              child: Text(
-                "Simpan",
-                style: baseFont.copyWith(color: Colors.white),
-              ),
-            ),
+            ElevatedButton(onPressed: onSave, child: const Text("Simpan")),
           ],
         );
       },
     );
   }
 
-  // ==========================
-  //   MAIN UI
-  // ==========================
-
+  // =====================
+  // UI
+  // =====================
   @override
   Widget build(BuildContext context) {
     final from =
         GoRouterState.of(context).uri.queryParameters['from'] ?? 'semua';
+
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color.fromARGB(255, 255, 235, 188),
-              Color.fromARGB(255, 181, 255, 183),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+      backgroundColor: bgSoft,
+
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0.5,
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: kombu),
+          onPressed: () {
+            context.go(
+              from == 'pemasukan_menu'
+                  ? '/beranda/pemasukan_menu'
+                  : '/beranda/semua_menu',
+            );
+          },
         ),
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Container(
-              constraints: const BoxConstraints(maxWidth: 430),
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.92),
-                borderRadius: BorderRadius.circular(18),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.15),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  Row(
+        title: const Text(
+          "Kategori Iuran",
+          style: TextStyle(color: kombu, fontWeight: FontWeight.w600),
+        ),
+      ),
+
+      body: loading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 500),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      IconButton(
-                        icon: Icon(
-                          Icons.arrow_back_ios_new,
-                          color: primaryGreen,
+                      OutlinedButton.icon(
+                        onPressed: openDialogTambah,
+                        icon: const Icon(Icons.add, color: kombu),
+                        label: const Text(
+                          "Tambah",
+                          style: TextStyle(color: kombu),
                         ),
-                        onPressed: () {
-                          if (from == 'pemasukan_menu') {
-                            context.go('/beranda/pemasukan_menu');
-                          } else {
-                            context.go('/beranda/semua_menu');
-                          }
-                        },
                       ),
-                      Text(
-                        "Kategori Iuran",
-                        style: baseFont.copyWith(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                          color: primaryGreen,
+                      const SizedBox(height: 14),
+
+                      Container(
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: kombu),
                         ),
+                        child: const Text(
+                          "Info:\n• Iuran Rutin dibayar berkala\n• Iuran Khusus sesuai kebutuhan",
+                          style: TextStyle(color: kombu, fontSize: 13),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: dataIuran.length,
+                        itemBuilder: (context, index) {
+                          final item = dataIuran[index];
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 14),
+                            padding: const EdgeInsets.all(14),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: const [
+                                BoxShadow(color: Colors.black12, blurRadius: 8),
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                CircleAvatar(
+                                  backgroundColor: kombu,
+                                  child: Text(
+                                    item['no'],
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                                const SizedBox(width: 14),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        item['nama'],
+                                        style: const TextStyle(color: kombu),
+                                      ),
+                                      Text(
+                                        "Jenis: ${item['jenis']} | Rp${item['nominal']}",
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.black54,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                PopupMenuButton<String>(
+                                  icon: const Icon(
+                                    Icons.more_vert,
+                                    color: kombu,
+                                  ),
+                                  onSelected: (v) {
+                                    if (v == 'edit') {
+                                      openDialogEdit(item);
+                                    } else {
+                                      confirmHapus(item['id']);
+                                    }
+                                  },
+                                  itemBuilder: (_) => const [
+                                    PopupMenuItem(
+                                      value: 'edit',
+                                      child: Text("Edit"),
+                                    ),
+                                    PopupMenuItem(
+                                      value: 'hapus',
+                                      child: Text("Hapus"),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),
-
-                  const SizedBox(height: 12),
-
-                  // ========================
-                  //     CARD INFO DI TENGAH
-                  // ========================
-                  Align(
-                    alignment: Alignment.center,
-                    child: Container(
-                      width: 300,
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE8F5E9),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                          color: primaryGreen.withOpacity(0.3),
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.10),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Text(
-                        "Info:\n"
-                        "• Iuran Rutin  : dibayar setiap hari/bulan/minggu.\n"
-                        "• Iuran Khusus : sesuai kebutuhan tertentu.",
-                        style: baseFont.copyWith(
-                          color: primaryGreen,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Tombol tambah iuran
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: OutlinedButton.icon(
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: primaryGreen, width: 2),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 18,
-                          vertical: 10,
-                        ),
-                      ),
-                      onPressed: openDialogTambah,
-                      icon: Icon(Icons.add, color: primaryGreen),
-                      label: Text(
-                        "Tambah",
-                        style: baseFont.copyWith(color: primaryGreen),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // ========================
-                  //        LIST IURAN
-                  // ========================
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: dataIuran.length,
-                    itemBuilder: (context, index) {
-                      final item = dataIuran[index];
-
-                      return Card(
-                        elevation: 4,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: primaryGreen.withOpacity(0.15),
-                            child: Text(
-                              item['no'],
-                              style: baseFont.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: primaryGreen,
-                              ),
-                            ),
-                          ),
-                          title: Text(
-                            item['nama'],
-                            style: baseFont.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          subtitle: Text(
-                            "Jenis: ${item['jenis']}\n"
-                            "Nominal: Rp${item['nominal']}",
-                            style: baseFont.copyWith(height: 1.2),
-                          ),
-                          trailing: PopupMenuButton<String>(
-                            onSelected: (value) {
-                              if (value == 'Edit') {
-                                openDialogEdit(item);
-                              } else if (value == 'Hapus') {
-                                hapusIuran(item["id"]);
-                              }
-                            },
-                            itemBuilder: (context) => [
-                              PopupMenuItem(
-                                value: 'Edit',
-                                child: Text('Edit', style: baseFont),
-                              ),
-                              PopupMenuItem(
-                                value: 'Hapus',
-                                child: Text('Hapus', style: baseFont),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ],
+                ),
               ),
             ),
-          ),
-        ),
-      ),
     );
   }
 }
