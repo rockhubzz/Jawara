@@ -13,6 +13,9 @@ class _TagihanPageState extends State<TagihanPage> {
   List<dynamic> dataIuran = [];
   bool isLoading = true;
 
+  static const Color kombu = Color(0xFF374426);
+  static const Color bgSoft = Color(0xFFF1F5EE);
+
   @override
   void initState() {
     super.initState();
@@ -27,35 +30,36 @@ class _TagihanPageState extends State<TagihanPage> {
     });
   }
 
-  // ---------- BADGE ----------
-  Widget _buildBadge(String text, {Color? bg, Color? textColor}) {
+  // ---------- CHIP ----------
+  Widget _chip(String text, Color bg) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: bg ?? const Color(0xFFE8F5E9),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          color: textColor ?? const Color(0xFF2E7D32),
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
-
-  Widget _smallInfoChip(String text) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade100,
+        color: bg,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
         text,
         style: const TextStyle(fontSize: 12, color: Colors.black87),
+      ),
+    );
+  }
+
+  Widget _statusBadge(String status) {
+    final isBelum = status.toLowerCase().contains("belum");
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: isBelum ? const Color(0xFFFFF8E1) : const Color(0xFFE8F5E9),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        isBelum ? "Belum Bayar" : "Lunas",
+        style: TextStyle(
+          fontSize: 12,
+          color: isBelum ? Colors.brown : kombu,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }
@@ -67,39 +71,22 @@ class _TagihanPageState extends State<TagihanPage> {
       builder: (_) => AlertDialog(
         title: const Text(
           "Hapus Tagihan",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF2E7D32),
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold, color: kombu),
         ),
         content: const Text("Apakah Anda yakin ingin menghapus tagihan ini?"),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text(
-              "Batal",
-              style: TextStyle(
-                color: Color(0xFF2E7D32),
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            child: const Text("Tidak", style: TextStyle(color: kombu)),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF2E7D32),
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: kombu),
             onPressed: () async {
               await TagihanService.delete(id);
               Navigator.pop(context);
               loadTagihan();
             },
-            child: const Text(
-              "Hapus",
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            child: const Text("Hapus", style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -108,128 +95,92 @@ class _TagihanPageState extends State<TagihanPage> {
 
   // ---------- CARD ----------
   Widget _buildCard(Map<String, dynamic> item, int number) {
-    return Card(
-      elevation: 3,
+    return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14),
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 6,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ----- ROW ATAS -----
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CircleAvatar(
-                  radius: 16,
-                  backgroundColor: const Color(0xFFE8F5E9),
-                  child: Text(
-                    number.toString(),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF2E7D32),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [
+          BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 4)),
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CircleAvatar(
+                radius: 18,
+                backgroundColor: kombu,
+                child: Text(
+                  number.toString(),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item['keluarga']?['nama_keluarga'] ?? '',
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black,
+                      ),
                     ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        item['keluarga']?['nama_keluarga'] ?? '',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
-                          color: Color(0xFF2E7D32),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 6,
+                      children: [
+                        _chip(
+                          "Iuran: ${item['kategori_iuran']?['nama'] ?? '-'}",
+                          const Color(0xFFE8F5E9),
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 6,
-                        children: [
-                          _smallInfoChip(
-                            "Iuran: ${item['kategori_iuran']?['nama'] ?? '-'}",
-                          ),
-                          _smallInfoChip(
-                            "Nominal: ${item['kategori_iuran']?['nominal'] ?? '-'}",
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-
-                // ----- STATUS -----
-                _buildBadge(
-                  item['keluarga']?['status'] ?? '',
-                  bg:
-                      (item['keluarga']?['status'] ?? '').toLowerCase() ==
-                          'aktif'
-                      ? const Color(0xFFE8F5E9)
-                      : Colors.red.shade50,
-                  textColor:
-                      (item['keluarga']?['status'] ?? '').toLowerCase() ==
-                          'aktif'
-                      ? const Color(0xFF2E7D32)
-                      : Colors.red.shade700,
-                ),
-
-                // ----- MENU HAPUS ONLY -----
-                PopupMenuButton<String>(
-                  onSelected: (v) {
-                    if (v == 'hapus') _confirmDelete(item['id']);
-                  },
-                  itemBuilder: (context) => const [
-                    PopupMenuItem(value: 'hapus', child: Text('Hapus')),
+                        _chip(
+                          "Nominal: ${item['kategori_iuran']?['nominal'] ?? '-'}",
+                          const Color(0xFFFFF3E0),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
-              ],
-            ),
+              ),
 
-            const SizedBox(height: 12),
+              PopupMenuButton<String>(
+                onSelected: (v) {
+                  if (v == 'hapus') _confirmDelete(item['id']);
+                },
+                itemBuilder: (_) => const [
+                  PopupMenuItem(value: 'hapus', child: Text('Hapus')),
+                ],
+                icon: const Icon(Icons.more_vert, color: kombu),
+              ),
+            ],
+          ),
 
-            // ----- ROW BAWAH -----
-            Row(
-              children: [
-                const Icon(Icons.calendar_today, size: 15, color: Colors.grey),
-                const SizedBox(width: 6),
-                Text(
-                  item['tanggal_tagihan'] ?? '',
-                  style: const TextStyle(fontSize: 13),
-                ),
-                const Spacer(),
+          const SizedBox(height: 12),
 
-                _buildBadge(
-                  (item['status'] ?? '').toLowerCase().contains("belum")
-                      ? "Belum Bayar"
-                      : "Lunas",
-                  bg: (item['status'] ?? '').toLowerCase().contains("belum")
-                      ? const Color(0xFFFFF8E1)
-                      : const Color(0xFFE8F5E9),
-                  textColor:
-                      (item['status'] ?? '').toLowerCase().contains("belum")
-                      ? const Color(0xFF795548)
-                      : const Color(0xFF2E7D32),
-                ),
-              ],
-            ),
-          ],
-        ),
+          Row(
+            children: [
+              const Icon(Icons.calendar_today, size: 14, color: Colors.grey),
+              const SizedBox(width: 6),
+              Text(
+                item['tanggal_tagihan'] ?? '',
+                style: const TextStyle(fontSize: 13),
+              ),
+              const Spacer(),
+              _statusBadge(item['status'] ?? ''),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -239,61 +190,37 @@ class _TagihanPageState extends State<TagihanPage> {
   Widget build(BuildContext context) {
     final from =
         GoRouterState.of(context).uri.queryParameters['from'] ?? 'semua';
+
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color.fromARGB(255, 255, 235, 188),
-              Color.fromARGB(255, 181, 255, 183),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+      backgroundColor: bgSoft,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0.5,
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: kombu),
+          onPressed: () {
+            if (from == 'pemasukan_menu') {
+              context.go('/beranda/pemasukan_menu');
+            } else {
+              context.go('/beranda/semua_menu');
+            }
+          },
         ),
-
-        child: Column(
-          children: [
-            // APPBAR
-            AppBar(
-              backgroundColor: Colors.white,
-              elevation: 0.5,
-              leading: IconButton(
-                icon: const Icon(
-                  Icons.arrow_back_ios_new,
-                  color: Color(0xFF2E7D32),
-                ),
-                onPressed: () {
-                  if (from == 'pemasukan_menu') {
-                    context.go('/beranda/pemasukan_menu');
-                  } else {
-                    context.go('/beranda/semua_menu');
-                  }
-                },
-              ),
-              title: const Text(
-                "Tagihan",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF2E7D32),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 10),
-
-            // ----- LIST -----
-            Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.only(bottom: 20),
-                itemCount: dataIuran.length,
-                itemBuilder: (context, index) =>
-                    _buildCard(dataIuran[index], index + 1),
-              ),
-            ),
-          ],
+        title: const Text(
+          "Tagihan",
+          style: TextStyle(color: kombu, fontWeight: FontWeight.w600),
         ),
       ),
+
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : ListView.builder(
+              padding: const EdgeInsets.only(bottom: 24),
+              itemCount: dataIuran.length,
+              itemBuilder: (context, index) =>
+                  _buildCard(dataIuran[index], index + 1),
+            ),
     );
   }
 }

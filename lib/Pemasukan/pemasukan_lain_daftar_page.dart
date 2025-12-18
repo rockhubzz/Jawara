@@ -17,6 +17,9 @@ class _PemasukanLainDaftarState extends State<PemasukanLainDaftar> {
   bool isLoading = true;
   bool isPaginating = false;
 
+  static const kombu = Color(0xFF374426);
+  static const bgSoft = Color(0xFFEFF3EA);
+
   @override
   void initState() {
     super.initState();
@@ -27,9 +30,7 @@ class _PemasukanLainDaftarState extends State<PemasukanLainDaftar> {
     if (isPaginating) return;
 
     setState(() {
-      if (page == 1) {
-        isLoading = true;
-      }
+      if (page == 1) isLoading = true;
       isPaginating = true;
     });
 
@@ -37,7 +38,7 @@ class _PemasukanLainDaftarState extends State<PemasukanLainDaftar> {
       final res = await PemasukanService.getAll(page);
 
       setState(() {
-        pemasukanList = List.from(res['data']['data']); // ensure clean reset
+        pemasukanList = List.from(res['data']['data']);
         currentPage = res['data']['current_page'];
         lastPage = res['data']['last_page'];
         isLoading = false;
@@ -76,24 +77,12 @@ class _PemasukanLainDaftarState extends State<PemasukanLainDaftar> {
               title: const Text('Bukti Pemasukan'),
               leading: IconButton(
                 icon: const Icon(Icons.close),
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: () => Navigator.pop(context),
               ),
             ),
-            Container(
+            ConstrainedBox(
               constraints: const BoxConstraints(maxHeight: 400),
-              child: Image.network(
-                imageUrl,
-                fit: BoxFit.contain,
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return const Center(child: CircularProgressIndicator());
-                },
-                errorBuilder: (context, error, stackTrace) {
-                  return const Center(
-                    child: Text('Gagal memuat gambar'),
-                  );
-                },
-              ),
+              child: Image.network(imageUrl, fit: BoxFit.contain),
             ),
           ],
         ),
@@ -105,10 +94,15 @@ class _PemasukanLainDaftarState extends State<PemasukanLainDaftar> {
   Widget build(BuildContext context) {
     final from =
         GoRouterState.of(context).uri.queryParameters['from'] ?? 'semua';
+
     return Scaffold(
+      backgroundColor: bgSoft,
       appBar: AppBar(
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        elevation: 0.5,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF2E7D32)),
+          icon: const Icon(Icons.arrow_back, color: kombu),
           onPressed: () {
             if (from == 'pemasukan_menu') {
               context.go('/beranda/pemasukan_menu');
@@ -117,99 +111,53 @@ class _PemasukanLainDaftarState extends State<PemasukanLainDaftar> {
             }
           },
         ),
-
         title: const Text(
-          "Daftar Pemasukan Lain",
-          style: TextStyle(
-            color: Color(0xFF2E7D32),
-            fontWeight: FontWeight.bold,
-          ),
+          "Daftar Pemasukan Lainnya",
+          style: TextStyle(color: kombu, fontWeight: FontWeight.bold),
         ),
-
-        backgroundColor: Colors.white,
-        elevation: 0.5,
-        iconTheme: const IconThemeData(color: Color(0xFF2E7D32)),
       ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            const SizedBox(height: 12),
 
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color.fromARGB(255, 255, 235, 188),
-              Color.fromARGB(255, 181, 255, 183),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-
-        child: Padding(
-          padding: const EdgeInsets.only(top: 100, left: 16, right: 16),
-          child: Card(
-            elevation: 3,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+            const Text(
+              "List Data Pemasukan",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: kombu,
+              ),
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.only(bottom: 10, top: 10),
-                    child: Text(
-                      "Daftar Data Pemasukan",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF2E7D32),
-                      ),
-                    ),
-                  ),
 
-                  // Tombol filter
-                  // Row(
-                  //   mainAxisAlignment: MainAxisAlignment.end,
-                  //   children: [
-                  //     ElevatedButton.icon(
-                  //       onPressed: () {},
-                  //       icon: const Icon(
-                  //         Icons.filter_list,
-                  //         color: Colors.white,
-                  //       ),
-                  //       label: const Text(''),
-                  //       style: ElevatedButton.styleFrom(
-                  //         backgroundColor: const Color(0xFF2E7D32),
-                  //         shape: RoundedRectangleBorder(
-                  //           borderRadius: BorderRadius.circular(8),
-                  //         ),
-                  //         minimumSize: const Size(50, 40),
-                  //       ),
-                  //     ),
-                  //   ],
-                  // ),
-                  const SizedBox(height: 16),
+            const SizedBox(height: 12),
 
-                  Expanded(
-                    child: ListView.builder(
+            Expanded(
+              child: isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
                       itemCount: pemasukanList.length,
                       itemBuilder: (context, index) {
                         final item = pemasukanList[index];
+
                         return InkWell(
-                          onTap: item['bukti'] != null && item['bukti'].toString().isNotEmpty
+                          onTap:
+                              item['bukti'] != null &&
+                                  item['bukti'].toString().isNotEmpty
                               ? () => _showBuktiImage(item['bukti'])
                               : null,
                           child: Card(
-                            elevation: 2,
+                            color: Colors.white,
                             margin: const EdgeInsets.symmetric(vertical: 8),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(14),
                             ),
                             child: Padding(
-                              padding: const EdgeInsets.all(12.0),
+                              padding: const EdgeInsets.all(14),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  // Baris atas
                                   Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
@@ -218,13 +166,11 @@ class _PemasukanLainDaftarState extends State<PemasukanLainDaftar> {
                                         "No: ${item['id']}",
                                         style: const TextStyle(
                                           fontWeight: FontWeight.bold,
-                                          fontSize: 14,
-                                          color: Color(0xFF2E7D32),
+                                          color: kombu,
                                         ),
                                       ),
-
                                       PopupMenuButton<String>(
-                                        onSelected: (value) {
+                                        onSelected: (value) async {
                                           if (value == 'edit') {
                                             context.push(
                                               '/pemasukan-lain/edit',
@@ -242,7 +188,7 @@ class _PemasukanLainDaftarState extends State<PemasukanLainDaftar> {
                                                   TextButton(
                                                     onPressed: () =>
                                                         Navigator.pop(context),
-                                                    child: const Text("Batal"),
+                                                    child: const Text("Tidak"),
                                                   ),
                                                   ElevatedButton(
                                                     style:
@@ -256,10 +202,11 @@ class _PemasukanLainDaftarState extends State<PemasukanLainDaftar> {
                                                           await PemasukanService.delete(
                                                             item['id'],
                                                           );
-                                                      if (success)
+                                                      if (success) {
                                                         loadData(currentPage);
+                                                      }
                                                     },
-                                                    child: const Text("Hapus"),
+                                                    child: const Text("Iya"),
                                                   ),
                                                 ],
                                               ),
@@ -276,45 +223,20 @@ class _PemasukanLainDaftarState extends State<PemasukanLainDaftar> {
                                             child: Text('Hapus'),
                                           ),
                                         ],
-                                        child: const Icon(Icons.more_horiz),
                                       ),
                                     ],
                                   ),
-
                                   const SizedBox(height: 6),
-
+                                  Text("Nama: ${item['nama']}"),
+                                  Text("Jenis Pemasukan: ${item['jenis']}"),
+                                  Text("Tanggal: ${item['tanggal']}"),
                                   Text(
-                                    "Nama: ${item['nama']}",
-                                    style: const TextStyle(fontSize: 15),
-                                  ),
-                                  Text(
-                                    "Jenis Pemasukan: ${item['jenis']}",
-                                    style: const TextStyle(fontSize: 15),
-                                  ),
-                                  Text(
-                                    "Tanggal: ${item['tanggal']}",
-                                    style: const TextStyle(fontSize: 15),
-                                  ),
-                                  Text(
-                                    "Nominal: Rp. ${formatRupiah(item['nominal'])}",
+                                    "Nominal: Rp ${formatRupiah(item['nominal'])}",
                                     style: const TextStyle(
-                                      fontSize: 15,
                                       fontWeight: FontWeight.w600,
-                                      color: Color(0xFF2E7D32),
+                                      color: kombu,
                                     ),
                                   ),
-                                  if (item['bukti'] != null && item['bukti'].toString().isNotEmpty)
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 8),
-                                      child: Text(
-                                        "📎 Bukti tersedia - Tap untuk lihat",
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.blue,
-                                          fontStyle: FontStyle.italic,
-                                        ),
-                                      ),
-                                    ),
                                 ],
                               ),
                             ),
@@ -322,55 +244,37 @@ class _PemasukanLainDaftarState extends State<PemasukanLainDaftar> {
                         );
                       },
                     ),
-                  ),
-
-                  // Pagination
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      IconButton(
-                        onPressed: (currentPage > 1 && !isPaginating)
-                            ? () => loadData(currentPage - 1)
-                            : null,
-                        icon: const Icon(Icons.chevron_left),
-                      ),
-
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF2E7D32),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: isPaginating
-                            ? const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : Text(
-                                "$currentPage / $lastPage",
-                                style: const TextStyle(color: Colors.white),
-                              ),
-                      ),
-
-                      IconButton(
-                        onPressed: (currentPage < lastPage && !isPaginating)
-                            ? () => loadData(currentPage + 1)
-                            : null,
-                        icon: const Icon(Icons.chevron_right),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
             ),
-          ),
+
+            const SizedBox(height: 8),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.chevron_left, color: kombu),
+                  onPressed: currentPage > 1 && !isPaginating
+                      ? () => loadData(currentPage - 1)
+                      : null,
+                ),
+                Text(
+                  "< $currentPage >",
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: kombu,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.chevron_right, color: kombu),
+                  onPressed: currentPage < lastPage && !isPaginating
+                      ? () => loadData(currentPage + 1)
+                      : null,
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 12),
+          ],
         ),
       ),
     );
