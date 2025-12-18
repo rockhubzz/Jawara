@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../services/kegiatan_service.dart';
+import '../services/keuangan_service.dart';
 
 class KegiatanTambahPage extends StatefulWidget {
   final int? id;
@@ -23,6 +24,21 @@ class _KegiatanTambahPageState extends State<KegiatanTambahPage> {
   bool loading = false;
   late final bool isEdit = widget.id != null;
 
+  // Saldo dari keuangan (digunakan untuk validasi biaya)
+  int _saldo = 0;
+  int get saldo => _saldo;
+
+  Future<void> _loadSaldo() async {
+    try {
+      final glance = await KeuanganService.getGlance();
+      setState(() {
+        _saldo = (glance['saldo'] as num?)?.toInt() ?? 0;
+      });
+    } catch (e) {
+      // Jika gagal mengambil, biarkan saldo = 0
+    }
+  }
+
   final Color primaryGreen = const Color(0xFF2E7D32);
 
   final List<String> kategoriList = [
@@ -41,6 +57,8 @@ class _KegiatanTambahPageState extends State<KegiatanTambahPage> {
   void initState() {
     super.initState();
     if (isEdit) _loadDetail(widget.id!);
+    // Ambil saldo saat halaman dimulai
+    _loadSaldo();
   }
 
   Future<void> _loadDetail(int id) async {
@@ -80,6 +98,23 @@ class _KegiatanTambahPageState extends State<KegiatanTambahPage> {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => loading = true);
+
+    // Validasi biaya terhadap saldo sebelum melakukan request
+    final biayaDigits = biayaC.text.replaceAll(RegExp(r'[^0-9]'), '');
+    final biayaVal = int.tryParse(biayaDigits) ?? 0;
+    if (biayaVal > saldo) {
+      setState(() => loading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Biaya melebihi saldo tersedia (${saldo.toString()})',
+            ),
+          ),
+        );
+      }
+      return;
+    }
 
     final payload = {
       "nama": namaC.text,
@@ -212,27 +247,31 @@ class _KegiatanTambahPageState extends State<KegiatanTambahPage> {
             DropdownButtonFormField<String>(
               value: selectedKategori,
               decoration: InputDecoration(
-                prefixIcon: const Icon(Icons.category_outlined,
-                    color: Color(0xFF2E7D32)),
+                prefixIcon: const Icon(
+                  Icons.category_outlined,
+                  color: Color(0xFF2E7D32),
+                ),
                 labelText: "Kategori",
                 filled: true,
                 fillColor: Colors.white,
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: Color(0xFF2E7D32), width: 2),
+                  borderSide: const BorderSide(
+                    color: Color(0xFF2E7D32),
+                    width: 2,
+                  ),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide:
-                      const BorderSide(color: Color(0xFF2E7D32), width: 2.2),
+                  borderSide: const BorderSide(
+                    color: Color(0xFF2E7D32),
+                    width: 2.2,
+                  ),
                 ),
               ),
               hint: const Text("Pilih kategori kegiatan"),
               items: kategoriList.map((kategori) {
-                return DropdownMenuItem(
-                  value: kategori,
-                  child: Text(kategori),
-                );
+                return DropdownMenuItem(value: kategori, child: Text(kategori));
               }).toList(),
               onChanged: (value) {
                 setState(() {
@@ -266,6 +305,15 @@ class _KegiatanTambahPageState extends State<KegiatanTambahPage> {
               label: "Biaya",
               hint: "Masukkan biaya kegiatan",
               icon: Icons.attach_money_outlined,
+              validator: (v) {
+                if (v == null || v.isEmpty) return 'Wajib diisi';
+                // Hanya ambil angka dari input untuk parsing (mengabaikan pemisah ribuan)
+                final digits = v.replaceAll(RegExp(r'[^0-9]'), '');
+                final parsed = int.tryParse(digits) ?? 0;
+                if (parsed > saldo)
+                  return 'Biaya melebihi saldo tersedia (${saldo.toString()})';
+                return null;
+              },
             ),
             const SizedBox(height: 14),
             _InputField(
@@ -306,6 +354,7 @@ class _InputField extends StatelessWidget {
   final IconData icon;
   final bool readOnly;
   final VoidCallback? onTap;
+  final String? Function(String?)? validator;
 
   const _InputField({
     super.key,
@@ -315,6 +364,7 @@ class _InputField extends StatelessWidget {
     required this.icon,
     this.readOnly = false,
     this.onTap,
+    this.validator,
   });
 
   @override
@@ -338,7 +388,8 @@ class _InputField extends StatelessWidget {
           borderSide: const BorderSide(color: Color(0xFF2E7D32), width: 2.2),
         ),
       ),
-      validator: (v) => (v == null || v.isEmpty) ? 'Wajib diisi' : null,
+      validator:
+          validator ?? (v) => (v == null || v.isEmpty) ? 'Wajib diisi' : null,
     );
   }
 }

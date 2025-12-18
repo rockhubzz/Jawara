@@ -18,6 +18,7 @@ class _RumahListPageState extends State<RumahListPage> {
   static const Color kombu = Color(0xFF374426);
   static const Color bgSoft = Color(0xFFF1F5EE);
 
+  //update
   @override
   void initState() {
     super.initState();
@@ -27,24 +28,20 @@ class _RumahListPageState extends State<RumahListPage> {
   Future<void> loadRumah() async {
     setState(() => loading = true);
     rumahList = await RumahService.getAll();
-    setState(() {
-      loading = false;
-      currentPage = 1;
-    });
+    setState(() => loading = false);
   }
 
   void _openDetail(Map<String, dynamic> r) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => RumahDetailPage(rumah: r)),
-    );
+    ).then((_) => loadRumah());
   }
 
   void _openEdit(Map<String, dynamic> r) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => RumahFormPage(data: r)),
-      // MaterialPageRoute(builder: (_) => RumahFormPage(rumah: r)),
     ).then((_) => loadRumah());
   }
 
@@ -81,42 +78,6 @@ class _RumahListPageState extends State<RumahListPage> {
     );
   }
 
-  Future<void> fetchData() async {
-    try {
-      final data = await RumahService.getAll();
-      setState(() {
-        rumahList = data;
-        loading = false;
-      });
-    } catch (_) {
-      setState(() => loading = false);
-    }
-  }
-
-  Future<void> _confirmDelete(int id) async {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text("Konfirmasi"),
-        content: const Text("Apakah yakin ingin menghapus data rumah ini?"),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Tidak"),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              await RumahService.delete(id);
-              fetchData();
-            },
-            child: const Text("Iya", style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     String from = 'semua';
@@ -126,8 +87,6 @@ class _RumahListPageState extends State<RumahListPage> {
 
     return Scaffold(
       backgroundColor: bgSoft,
-
-      /// APP BAR
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0.5,
@@ -135,11 +94,7 @@ class _RumahListPageState extends State<RumahListPage> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: kombu),
           onPressed: () {
-            if (from == 'beranda') {
-              context.go('/beranda');
-            } else {
-              context.go('/beranda/semua_menu');
-            }
+            context.go(from == 'beranda' ? '/beranda' : '/beranda/semua_menu');
           },
         ),
         title: const Text(
@@ -147,120 +102,83 @@ class _RumahListPageState extends State<RumahListPage> {
           style: TextStyle(color: kombu, fontWeight: FontWeight.w600),
         ),
       ),
-
-      /// BODY
       body: loading
           ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
+          : ListView.builder(
               padding: const EdgeInsets.all(20),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 500),
-                  child: Column(
-                    children: rumahList.asMap().entries.map((entry) {
-                      final index = entry.key;
-                      final r = entry.value;
+              itemCount: rumahList.length,
+              itemBuilder: (context, index) {
+                final r = rumahList[index];
 
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 14),
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 14,
-                          horizontal: 16,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black12,
-                              blurRadius: 8,
-                              offset: Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            /// NOMOR
-                            CircleAvatar(
-                              radius: 18,
-                              backgroundColor: kombu,
-                              child: Text(
-                                "${index + 1}",
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 14),
-
-                            /// DATA
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    r['kode'],
-                                    style: const TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w600,
-                                      color: kombu,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    r['alamat'],
-                                    style: const TextStyle(
-                                      fontSize: 13,
-                                      color: Colors.black54,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            /// MENU TITIK TIGA
-                            PopupMenuButton<String>(
-                              icon: const Icon(Icons.more_vert, color: kombu),
-                              onSelected: (value) {
-                                if (value == 'detail') {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => RumahDetailPage(rumah: r),
-                                    ),
-                                  ).then((_) => fetchData());
-                                } else if (value == 'edit') {
-                                  context.go('/data_rumah/edit/${r['id']}');
-                                } else if (value == 'hapus') {
-                                  _confirmDelete(r['id']);
-                                }
-                              },
-                              itemBuilder: (context) => const [
-                                PopupMenuItem(
-                                  value: 'detail',
-                                  child: Text("Detail"),
-                                ),
-                                PopupMenuItem(
-                                  value: 'edit',
-                                  child: Text("Edit"),
-                                ),
-                                PopupMenuItem(
-                                  value: 'hapus',
-                                  child: Text(
-                                    "Hapus",
-                                    style: TextStyle(color: Colors.red),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      );
-                    }).toList(),
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 14),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 14,
+                    horizontal: 16,
                   ),
-                ),
-              ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 8,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 18,
+                        backgroundColor: kombu,
+                        child: Text(
+                          "${index + 1}",
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              r['kode'],
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                color: kombu,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              r['alamat'],
+                              style: const TextStyle(color: Colors.black54),
+                            ),
+                          ],
+                        ),
+                      ),
+                      PopupMenuButton<String>(
+                        onSelected: (v) {
+                          if (v == 'detail') _openDetail(r);
+                          if (v == 'edit') _openEdit(r);
+                          if (v == 'hapus') _confirmDelete(r['id']);
+                        },
+                        itemBuilder: (_) => const [
+                          PopupMenuItem(value: 'detail', child: Text("Detail")),
+                          PopupMenuItem(value: 'edit', child: Text("Edit")),
+                          PopupMenuItem(
+                            value: 'hapus',
+                            child: Text(
+                              "Hapus",
+                              style: TextStyle(color: Colors.red),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
     );
   }
